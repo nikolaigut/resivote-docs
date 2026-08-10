@@ -12,12 +12,15 @@ export default defineConfig({
 				{
 					label: 'Guides',
 					items: [
-						{ label: 'Erste Schritte', slug: 'guides/erste-schritte' },
+						{ label: 'So funktioniert ResiVote', slug: 'guides/so-funktioniert' },
 					],
 				},
 				{
-					label: 'Referenz',
-					items: [{ autogenerate: { directory: 'reference' } }],
+					label: 'Konzepte',
+					items: [
+						{ label: 'Funktionen', slug: 'reference/funktionen' },
+						{ label: 'Glossar', slug: 'reference/glossar' },
+					],
 				},
 			],
 		}),

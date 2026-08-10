@@ -1,17 +1,15 @@
 ---
 title: Glossar
-description: Wichtige Begriffe in ResiVote.
+description: Wichtige Begriffe rund um ResiVote und Eigentümerversammlungen.
 ---
-
-Diese Seite erklärt zentrale Begriffe, die in ResiVote verwendet werden.
 
 ## Versammlung
 
-Eine digitale oder hybride Eigentümerversammlung. In ResiVote werden Traktanden, Abstimmungen und Protokolle zu einer Versammlung gebündelt.
+Eine Eigentümerversammlung, bei der die Teilnehmer physisch, digital oder hybrid zusammenkommen, um Beschlüsse zu fassen.
 
 ## TOP
 
-Ein **Traktandum** oder Tagesordnungspunkt. Jeder TOP hat einen Lebenszyklus und kann abstimmungsrelevant sein.
+Ein **Traktandum** oder Tagesordnungspunkt. Jeder TOP wird besprochen und, falls nötig, abgestimmt.
 
 ## Kopfstimme
 
@@ -19,8 +17,12 @@ Das Abstimmungsprinzip «eine Wohneinheit, eine Stimme».
 
 ## Wertquote (MEA)
 
-Die **Miteigentumsanteile (MEA)** bestimmen das Stimmgewicht bei wertquoteabhängigen Abstimmungen.
+Die **Miteigentumsanteile** bestimmen das Stimmgewicht bei wertquoteabhängigen Abstimmungen.
 
 ## Vollmacht
 
-Digitale Delegation des Stimmrechts an einen Bevollmächtigten.
+Die Übertragung des Stimmrechts von einem Eigentümer an einen Bevollmächtigten.
+
+## Quorum
+
+Die erforderliche Mindestanzahl an stimmberechtigten Teilnehmern, damit eine Versammlung rechtsgültig tagen kann.
