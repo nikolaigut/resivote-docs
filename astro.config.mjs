@@ -19,6 +19,7 @@ export default defineConfig({
 					label: 'Guides',
 					items: [
 						{ label: 'So funktioniert ResiVote', slug: 'guides/so-funktioniert' },
+						{ label: 'Benutzer und Berechtigungen', slug: 'guides/benutzer' },
 					],
 				},
 				{

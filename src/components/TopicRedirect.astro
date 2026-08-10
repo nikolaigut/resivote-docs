@@ -1,0 +1,26 @@
+<script is:inline>
+	(function () {
+		const topicMap = {
+			users: '/guides/benutzer/',
+			owners: '/guides/benutzer/',
+			benutzer: '/guides/benutzer/',
+			'app/users': '/guides/benutzer/',
+			meetings: '/guides/so-funktioniert/',
+			versammlungen: '/guides/so-funktioniert/',
+			'admin/meetings': '/guides/so-funktioniert/',
+			functions: '/reference/funktionen/',
+			funktionen: '/reference/funktionen/',
+			glossary: '/reference/glossar/',
+			glossar: '/reference/glossar/',
+		};
+		const params = new URLSearchParams(window.location.search);
+		const topic = params.get('topic') || params.get('from');
+		if (topic) {
+			const normalized = topic.replace(/^\/+/, '').replace(/\/\d+.*$/, '').toLowerCase();
+			const target = topicMap[topic.toLowerCase()] || topicMap[normalized];
+			if (target && target !== window.location.pathname) {
+				window.location.replace(target + window.location.search);
+			}
+		}
+	})();
+</script>
