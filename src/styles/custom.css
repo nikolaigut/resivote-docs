@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+@layer starlight {
+	:root,
+	[data-theme='light'] {
+		--sl-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+		--sl-color-white: #FFFFFF;
+		--sl-color-black: #191C1E;
+
+		--sl-color-gray-1: #191C1E;
+		--sl-color-gray-2: #334155;
+		--sl-color-gray-3: #505F76;
+		--sl-color-gray-4: #C2C7D1;
+		--sl-color-gray-5: #ECEEF0;
+		--sl-color-gray-6: #F7F9FB;
+		--sl-color-gray-7: #F7F9FB;
+
+		--sl-color-accent-low: #E8F0F7;
+		--sl-color-accent: #0F4C81;
+		--sl-color-accent-high: #09325A;
+
+		--sl-color-text: #191C1E;
+		--sl-color-text-accent: #0F4C81;
+		--sl-color-text-invert: #FFFFFF;
+
+		--sl-color-bg: #F7F9FB;
+		--sl-color-bg-nav: #FFFFFF;
+		--sl-color-bg-sidebar: #FFFFFF;
+		--sl-color-bg-inline-code: #ECEEF0;
+		--sl-color-bg-accent: #0F4C81;
+
+		--sl-color-hairline: #ECEEF0;
+		--sl-color-hairline-light: #C2C7D1;
+		--sl-color-hairline-shade: #ECEEF0;
+	}
+
+	:root[data-theme='dark'],
+	[data-theme='dark'] {
+		--sl-color-white: #191C1E;
+		--sl-color-black: #F7F9FB;
+
+		--sl-color-gray-1: #F7F9FB;
+		--sl-color-gray-2: #ECEEF0;
+		--sl-color-gray-3: #C2C7D1;
+		--sl-color-gray-4: #505F76;
+		--sl-color-gray-5: #334155;
+		--sl-color-gray-6: #191C1E;
+		--sl-color-gray-7: #0B0D0E;
+
+		--sl-color-accent-low: #09325A;
+		--sl-color-accent: #4A90C6;
+		--sl-color-accent-high: #B8D7F0;
+
+		--sl-color-text: #F7F9FB;
+		--sl-color-text-accent: #4A90C6;
+		--sl-color-text-invert: #191C1E;
+
+		--sl-color-bg: #0B0D0E;
+		--sl-color-bg-nav: #191C1E;
+		--sl-color-bg-sidebar: #191C1E;
+		--sl-color-bg-inline-code: #334155;
+		--sl-color-bg-accent: #4A90C6;
+
+		--sl-color-hairline: #334155;
+		--sl-color-hairline-light: #505F76;
+		--sl-color-hairline-shade: #334155;
+	}
+}

@@ -7,7 +7,13 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'ResiVote Docs',
+			logo: {
+				src: './src/assets/logo.png',
+				replacesTitle: true,
+				alt: 'ResiVote Logo',
+			},
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/nikolaigut/resivote' }],
+			customCss: ['./src/styles/custom.css'],
 			sidebar: [
 				{
 					label: 'Guides',
