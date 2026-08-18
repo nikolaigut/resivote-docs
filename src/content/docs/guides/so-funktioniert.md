@@ -5,117 +5,117 @@ description: Der Ablauf einer digitalen Eigentümerversammlung mit ResiVote – 
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote begleitet euch vom Entwurf bis zum signierten Protokoll – alles in einem digitalen Raum. Eine Versammlung durchläuft eine definierte Zustandsmaschine (`internal/domain/entity/meeting.go`):
+ResiVote begleitet euch vom Entwurf bis zum signierten Protokoll – alles in einem digitalen Raum. Eine Versammlung durchläuft einen festen Lebenszyklus:
 
-`DRAFT` → `PUBLISHED` → `CHECK_IN` → `IN_PROGRESS` → `CLOSED` → `ARCHIVED`
+Entwurf → Veröffentlicht → Check-in → Laufend → Abgeschlossen → Archiviert
 
-Neben der Live-Versammlung unterstützt ResiVote den Zirkularbeschluss (`CIRCULAR_RESOLUTION`, Art. 712m Abs. 2 ZGB) als Alternative.
+Neben der Live-Versammlung unterstützt ResiVote den Zirkularbeschluss (Art. 712m Abs. 2 ZGB) als Alternative.
 
 ## 1. Versammlung vorbereiten
 
-Die Versammlung startet im Zustand `DRAFT`. Der Administrator legt Datum, Uhrzeit, Ort und Titel fest.
+Die Versammlung startet als Entwurf. Der Administrator legt Datum, Uhrzeit, Ort und Titel fest.
 
 ### Mehrere Gemeinschaften
 
-Eine Versammlung kann mehrere Gemeinschaften umfassen (`Meeting.Communities` via `meeting_communities`-Join-Tabelle). Gemeinschaften können zu einer Überbauung (`Development`) gruppiert sein – ein STWEG plus ein zugehöriges MEG in derselben Versammlung.
+Eine Versammlung kann mehrere Gemeinschaften umfassen. Gemeinschaften können zu einer Überbauung gruppiert sein – ein STWEG plus ein zugehöriges MEG in derselben Versammlung.
 
 ### Traktanden
 
-Jedes Traktandum (`AgendaItem`) definiert:
+Jedes Traktandum definiert:
 
-- **Typ** – `MOTION` (Ja/Nein/Enthaltung), `ELECTION` (Wahl), `FREE_TEXT` (Freitext-Vorschlag), `PROTOCOL` (Protokollführung festlegen, ohne Abstimmung)
-- **Quorum** – `SIMPLE_MAJORITY`, `QUALIFIED_MAJORITY`, `UNANIMOUS`, `ABSOLUTE_MAJORITY` oder `CUSTOM` mit eigenem Prozentsatz
-- **Gemeinschaft** – `CommunityID` = `nil` bedeutet «alle Gemeinschaften der Versammlung»
+- **Typ** – Ja/Nein-Abstimmung, Wahl, Freitext-Vorschlag oder Protokollführung festlegen (ohne Abstimmung)
+- **Quorum** – einfache Mehrheit, qualifizierte Mehrheit, Einstimmigkeit, absolute Mehrheit oder ein benutzerdefinierter Prozentsatz
+- **Gemeinschaft** – kann auf eine einzelne Gemeinschaft beschränkt sein oder für alle Gemeinschaften der Versammlung gelten
 
 Details zu Quorum-Typen siehe `/guides/quorum/`.
 
 ## 2. Teilnehmer einladen
 
-Der Wechsel zu `PUBLISHED` verschickt die Einladungen.
+Mit der Veröffentlichung verschickt ResiVote die Einladungen.
 
 ### Geplante E-Mails
 
-Einladungen werden als `ScheduledEmail` (`internal/domain/entity/scheduled_email.go`) persistiert. Ein Background-Worker holt fällige Zeilen ab und sendet sie. Typen: `INVITATION`, `REMINDER`, `CLOSED`. Status: `pending` → `sent` (oder `failed`/`dead_letter` mit Retry).
+Einladungen und Erinnerungen werden geplant und automatisch zum jeweiligen Zeitpunkt versendet. Bei Fehlversagen erfolgt ein automatischer Retry.
 
 ### Einladungs-PDF und Vollmachtskarte
 
-Der `ReportService` erzeugt pro Empfänger eine Einladungs-PDF (`GenerateInvitationPDF`) und eine personalisierte Vollmachtskarte (`GenerateProxyCardPDF`). Beide werden als Anhang mitgesendet.
+Pro Empfänger erzeugt ResiVote eine Einladungs-PDF und eine personalisierte Vollmachtskarte. Beide werden als Anhang mitgesendet.
 
-### OIDC-Login
+### Login
 
-Die Authentifizierung erfolgt über ZITADEL (OIDC). Eigentümer melden sich mit ihrem persönlichen Link an. Die Zuordnung von ZITADEL-Identität (`ExternalUserID`/`sub`) zu Eigentümer-Record erfolgt beim ersten Login automatisch (`LinkAllExternalUsersByEmail`).
+Die Authentifizierung erfolgt über ZITADEL. Eigentümer melden sich mit ihrem persönlichen Link an. Die Zuordnung der Identität zum Eigentümer erfolgt beim ersten Login automatisch.
 
 ## 3. Versammlung durchführen
 
-Der Administrator öffnet die Versammlung (`CHECK_IN`), dann startet er sie (`IN_PROGRESS`).
+Der Administrator öffnet die Versammlung für den Check-in und startet dann die Live-Sitzung.
 
 ### Check-in-Methoden
 
-Die Versammlung konfiguriert eine `CheckinMethod` (`internal/domain/entity/meeting.go`):
+Die Versammlung konfiguriert eine Check-in-Methode:
 
 | Methode | Ablauf |
 |---------|--------|
-| `MANUAL` | Vorsitz/Admin markiert Teilnehmer manuell (Standard) |
-| `QR_CODE` | Eigentümer scannen einen QR-Code mit dem Smartphone (Self-Check-in) |
-| `SIGNATURE` | Eigentümer wählen sich aus einem Dropdown auf dem Tablet des Admins und signieren digital; alle eigenen Einheiten und Vollmacht-Einheiten werden als anwesend markiert |
+| Manuell | Vorsitz/Admin markiert Teilnehmer manuell (Standard) |
+| QR-Code | Eigentümer scannen einen QR-Code mit dem Smartphone (Self-Check-in) |
+| Signatur | Eigentümer wählen sich aus einem Dropdown auf dem Tablet des Admins und signieren digital; alle eigenen Einheiten und Vollmacht-Einheiten werden als anwesend markiert |
 
 ### Vorsitz-Dashboard und Live-Protokoll
 
-Der Vorsitz (`meeting_chair`) steuert die Versammlung über ein Dashboard: Traktanden öffnen/schliessen, Abstimmungen starten, Live-Ergebnisse einsehen. Das Live-Protokoll wird parallel geführt – der Protokollführer (`OWNER` oder `TENANT_ADMIN`) schreibt Notizen pro Traktandum.
+Der Vorsitz steuert die Versammlung über ein Dashboard: Traktanden öffnen/schliessen, Abstimmungen starten, Live-Ergebnisse einsehen. Das Live-Protokoll wird parallel geführt – der Protokollführer (Eigentümer oder Mandanten-Admin) schreibt Notizen pro Traktandum.
 
-### WebSocket-Live-Updates
+### Live-Updates
 
-Präsenz, Quorum-Status und Abstimmungsergebnisse werden in Echtzeit über WebSocket an alle Teilnehmer gepusht. Der `presenceBuilder` (`internal/application/presence_builder.go`) ist an den WebSocket-Hub angebunden und broadcastet Präsenz-Änderungen sofort.
+Präsenz, Quorum-Status und Abstimmungsergebnisse werden in Echtzeit an alle Teilnehmer übermittelt.
 
 ## 4. Beschlüsse fassen
 
-Jedes Traktandum durchläuft Zustände (`internal/domain/entity/agenda_item.go`):
+Jedes Traktandum durchläuft eigene Zustände:
 
-`PENDING` → `PRESENTING` → `PRE_VOTING` (optional) → `OPEN` → `CLOSED` (oder `SKIPPED`)
+Wartend → Präsentation → (optional Vorabstimmung) → Abstimmung offen → Abgeschlossen (oder übersprungen)
 
 ### Stimmabgabe
 
-Der `VoteValidator` (`internal/domain/service/vote_validator.go`) prüft vor jeder Stimmabgabe:
+Vor jeder Stimmabgabe prüft das System:
 
-1. Versammlung ist `IN_PROGRESS` (oder `PRE_VOTING` bei asynchroner Vorabstimmung)
-2. Traktandum ist `OPEN` oder `PRE_VOTING`
-3. Quorum beim Öffnen war erreicht – oder der Vorsitz hat einen `QuorumOverride` erteilt
-4. Einheit gehört zu einer Gemeinschaft der Versammlung
-5. Traktandum gilt für die Gemeinschaft der Einheit
-6. Wähler ist Hauptwähler (`PrimaryOwnership`) oder Bevollmächtigter (`Proxy.GranteeID`)
+1. Die Versammlung läuft (oder befindet sich in der Vorabstimmung)
+2. Das Traktandum ist für die Abstimmung geöffnet
+3. Das Quorum beim Öffnen war erreicht – oder der Vorsitz hat eine Ausnahme erteilt
+4. Die Einheit gehört zu einer Gemeinschaft der Versammlung
+5. Das Traktandum gilt für die Gemeinschaft der Einheit
+6. Der Wähler ist Hauptwähler oder Bevollmächtigter
 7. Bei Vollmacht: deckt das Traktandum ab? Stimmt die Stimmabgabe mit der Weisung überein?
-8. Check-in erforderlich (falls `RequirePreCheckin`)
+8. Check-in erforderlich (falls konfiguriert)
 
 ### Kopf-Stimmen und Wertquoten
 
-Je nach `VotingRightsModel` der Gemeinschaft zählen Kopf-Stimmen (`HEAD_AND_VALUE`, `HEAD_ONLY`), Wertquoten (`HEAD_AND_VALUE`, `VALUE_ONLY`) oder benutzerdefinierte Anteile (`CUSTOM_SHARES`). Die Stimmrechtsbegrenzung (`EnableVotingRightsCap`, Art. 712g ZGB) kappelt Kopf-Stimmen bei Überschreitung des reglementarischen Prozentsatzes.
+Je nach Stimmrechtsmodell der Gemeinschaft zählen Kopf-Stimmen, Wertquoten oder benutzerdefinierte Anteile. Die Stimmrechtsbegrenzung (Art. 712g ZGB) kappelt Kopf-Stimmen bei Überschreitung des reglementarischen Prozentsatzes.
 
 ### Quorum-Engine und Ergebnisse
 
-Der `QuorumEngine` (`internal/domain/service/quorum_engine.go`) berechnet pro Gemeinschaft Kopf-Stimmen und Wertquoten, vergleicht mit dem Schwellwert und erzeugt ein `AgendaItemResult` mit `OverallPassed`. Details siehe `/guides/quorum/`.
+Das System berechnet pro Gemeinschaft Kopf-Stimmen und Wertquoten, vergleicht mit dem Schwellwert und ermittelt, ob der Beschluss insgesamt angenommen wurde. Details siehe `/guides/quorum/`.
 
 ### Live-Ergebnis-Sichtbarkeit
 
-`LiveResultsVisibleTo` steuert, wer Live-Ergebnisse sieht: `ALL` (alle Teilnehmer) oder `CHAIR` (nur Vorsitz/Admin).
+Die Versammlung steuert, wer Live-Ergebnisse sieht: alle Teilnehmer oder nur Vorsitz/Admin.
 
 ## 5. Protokoll abschliessen
 
-Nach dem letzten Traktandum wechselt die Versammlung zu `CLOSED`, dann zu `ARCHIVED`.
+Nach dem letzten Traktandum wird die Versammlung abgeschlossen und anschliessend archiviert.
 
 ### Protokoll-PDF
 
-`GenerateMeetingProtocolPDF` erzeugt das bindende Protokoll mit allen Traktanden, Abstimmungsergebnissen, Anwesenheiten und Stimmrechtsbegrenzungen. Prozedurale `PROTOCOL`-Traktanden werden ausgefiltert. Details siehe `/guides/protokoll/`.
+ResiVote erzeugt das bindende Protokoll mit allen Traktanden, Abstimmungsergebnissen, Anwesenheiten und Stimmrechtsbegrenzungen. Prozedurale Traktanden werden ausgefiltert. Details siehe `/guides/protokoll/`.
 
 ### Audit-Log und Beweispaket
 
-Jede Aktion wurde während der Versammlung in der Audit-Hash-Kette protokolliert (`AuditEntry`, SHA-256/HMAC). Das Beweispaket (`GenerateMeetingEvidencePDF`/`-JSON`) exportiert die komplette Kette mit Integritätsverifikation. Details siehe `/reference/sicherheit/`.
+Jede Aktion wurde während der Versammlung in der Audit-Hash-Kette protokolliert. Das Beweispaket exportiert die komplette Kette mit Integritätsverifikation.
 
 ### Archivierung
 
-Nach `ARCHIVED` sind keine Änderungen mehr möglich. Die Audit-Hash-Kette macht jede nachträgliche Manipulation nachweisbar.
+Nach der Archivierung sind keine Änderungen mehr möglich. Die Audit-Hash-Kette macht jede nachträgliche Manipulation nachweisbar.
 
 <Aside type="note" title="Zirkularbeschluss">
-Im Modus `CIRCULAR_RESOLUTION` entfallen Check-in und Live-Sitzung. Eigentümer stimmen asynchron innerhalb eines Zeitfensters (`CircularVotingStart`/`CircularVotingEnd`) ab. Die Quorum-Engine und das Protokoll funktionieren analog.
+Im Zirkularbeschluss-Modus entfallen Check-in und Live-Sitzung. Eigentümer stimmen asynchron innerhalb eines Zeitfensters ab. Die Quorum-Berechnung und das Protokoll funktionieren analog.
 </Aside>
 
 ## Weiterführende Links

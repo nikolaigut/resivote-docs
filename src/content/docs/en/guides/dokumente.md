@@ -7,82 +7,82 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 ResiVote manages documents in a hierarchical folder structure per community. All files are stored encrypted. The regulations import extracts metadata and units from PDFs using AI.
 
-## Document Entity
+## Document
 
-The `Document` entity (`internal/domain/entity/document.go`) represents a file in the owner portal. Access is controlled via the associated folder.
+A document represents a file in the owner portal. Access is controlled via the associated folder.
 
 | Field | Meaning |
 |------|-----------|
-| `TenantID` | Tenant (multi-tenant isolation) |
-| `CommunityID` | Community (nullable for tenant-wide folders) |
-| `FolderID` | Parent folder (mandatory) |
-| `Title` | Display name |
-| `Category` | Category (normalized) |
-| `FileName` | Sanitized file name |
-| `StorageKey` | Path in the storage backend (not exposed in JSON) |
-| `MimeType` | MIME type |
-| `SizeBytes` | File size |
-| `IsNew` | Unread flag (transient, not in DB) |
+| Tenant | Tenant (multi-tenant isolation) |
+| Community | Community (nullable for tenant-wide folders) |
+| Parent folder | Parent folder (mandatory) |
+| Title | Display name |
+| Category | Category (normalized) |
+| File name | Sanitized file name |
+| Storage path | Path in the storage backend (not exposed to users) |
+| MIME type | MIME type |
+| Size | File size |
+| New | Unread flag |
 
 ### Document Categories
 
-`normalizeDocumentCategory` (`internal/application/document_service.go`) normalizes the category to uppercase and validates against the allowed values:
+The category is normalized to uppercase and validated against the allowed values:
 
-`PROTOCOL`, `INVITATION`, `ANNUAL_ACCOUNT`, `REGULATION`, `NOTICE`, `FORM`, `OTHER`
+Protocol, invitation, annual account, regulation, notice, form, other.
 
-Invalid values are set to `OTHER`.
+Invalid values are set to other.
 
 ### File Name Sanitization
 
-`sanitizeDocumentFilename` removes path components (`filepath.Base`) and replaces dangerous characters with `_`. Empty names or `.`/`..` are set to `"document"`. This prevents path traversal in the storage key.
+File names are sanitized by removing path components and replacing dangerous characters. Empty names or path traversal attempts are set to a default. This prevents path traversal in the storage key.
 
-## Folder Entity
+## Folder
 
-The `Folder` entity (`internal/domain/entity/folder.go`) forms a hierarchical structure within a community or tenant.
+A folder forms a hierarchical structure within a community or tenant.
 
 | Field | Meaning |
 |------|-----------|
-| `CommunityID` | Community (nullable for tenant-wide folders) |
-| `ParentFolderID` | Parent folder (nullable for root) |
-| `OwnerID` | Owner for personal folders (nullable) |
-| `Name` | Folder name |
-| `Visibility` | `PUBLIC` or `RESTRICTED` |
-| `Path` | Full path (e.g. `Annual Reports/2024`) |
-| `DocumentCount` | Document count (transient, populated by service) |
+| Community | Community (nullable for tenant-wide folders) |
+| Parent folder | Parent folder (nullable for root) |
+| Owner | Owner for personal folders (nullable) |
+| Name | Folder name |
+| Visibility | Public or restricted |
+| Path | Full path (e.g. Annual Reports/2024) |
+| Document count | Document count |
 
 ### Visibility
 
-- **`PUBLIC`** – visible to all owners of the community or tenant.
-- **`RESTRICTED`** – visible only to the owner (`OwnerID`). Personal folders must be `RESTRICTED`.
+- **Public** – visible to all owners of the community or tenant.
+- **Restricted** – visible only to the owner. Personal folders must be restricted.
 
-### Folder Service
+### Folder Rules
 
-The `folderService` (`internal/application/folder_service.go`) builds the folder structure and validates rules:
+The following rules apply to the folder structure:
 
-- **Path uniqueness** – no duplicate path may exist within a community. `validateFolder` rejects duplicate paths with `Conflict`.
+- **Path uniqueness** – no duplicate path may exist within a community.
 - **Same name in different communities** – allowed, since uniqueness is checked per community.
-- **Sub-folders inherit visibility** – a sub-folder must have the same `Visibility` and `OwnerID` as its parent.
+- **Sub-folders inherit visibility** – a sub-folder must have the same visibility and owner as its parent.
 - **Parent must be same community** – a sub-folder must be in the same community as its parent.
-- **Personal folder** – `GetOrCreateOwnerFolder` automatically creates a `RESTRICTED` folder per owner, named after `Owner.FullName()`.
+- **Personal folder** – a restricted folder is automatically created per owner, named after the owner.
 
 ### Tree Building and Document Count
 
-`ListTreeByCommunity` loads all folders of a community, optionally the personal folder, filters for non-privileged users (only `PUBLIC` + own `RESTRICTED`), builds the tree via `buildFolderTree`, and populates `DocumentCount` per folder via `CountByFolderIDs`.
+The folder tree is built per community, optionally including the personal folder. Non-privileged users see only public folders and their own restricted folders. The document count is populated per folder.
 
 ## Storage Backends
 
-The configuration (`internal/config/config.go`, `StorageConfig`) supports two backends:
+ResiVote supports two storage backends:
 
-| Backend | Configuration |
+| Backend | Description |
 |---------|--------------|
-| **Local file system** | `STORAGE_LOCAL_PATH` (default: `./uploads`) |
-| **S3 / MinIO** | `STORAGE_S3_ENDPOINT`, `STORAGE_S3_BUCKET`, `STORAGE_S3_REGION`, `STORAGE_S3_ACCESS_KEY`, `STORAGE_S3_SECRET_KEY`, `STORAGE_S3_USE_PATH_STYLE` |
+| **Local file system** | Files stored on the local file system. |
+| **S3 / MinIO** | Files stored in an S3-compatible object store. |
 
-The storage key is constructed as `documents/{tenantID}/{communityID}/{folderID}/{docID}/{fileName}` (`buildStorageKey`).
+The storage key is constructed hierarchically per tenant, community, folder, and document.
 
-### MaxUploadSize
+### Max Upload Size
 
-`STORAGE_MAX_UPLOAD_SIZE` limits the upload size. Default value: `50M` (`defaultMaxUploadSize`). The `documentService` rejects files that exceed the limit (`Validation` error).
+The upload size is limited (default: 50 MB). Files that exceed the limit are rejected.
 
 ## Encryption
 
@@ -92,79 +92,72 @@ Every document is encrypted before storage. Decryption occurs only during author
 
 ### Layers
 
-Encryption consists of two components (`internal/infrastructure/encryption/`):
+Encryption consists of two layers:
 
-1. **`TenantKeyProvider`** (`tenant_key.go`) – manages Data Encryption Keys (DEKs) per tenant:
-   - `EnsureTenantDEK` generates a 32-byte DEK and wraps it with the master key (AES-GCM). Stored as Base64 in `tenant.EncryptedDEK`.
-   - `TenantDEK` unwraps the DEK on demand.
-   - `DocumentKey` derives a 32-byte document key via HKDF (SHA-256) from DEK + `documentID`. Info: `resivote-doc-v1`.
+1. **Tenant key management** – manages data encryption keys per tenant. A document key is derived per document.
+2. **Document encryption** – encrypts and decrypts file contents using the document key.
 
-2. **`DocumentEncryption`** (`document_encryption.go`) – encrypts and decrypts file contents:
-   - `Encrypt` reads plaintext, derives the document key, encrypts with AES-GCM (random nonce). Output: `nonce || ciphertext+tag`.
-   - `Decrypt` reverses the process and returns an `io.ReadCloser`.
-
-The master key is configured via `DOCUMENT_ENCRYPTION_MASTER_KEY` (Base64, 32 bytes).
+The master key is configured separately.
 
 ### Access Control
 
-`CanAccess` (`internal/application/document_service.go`) checks per document:
+Access is checked per document:
 
-- **Personal folder** – only the owner (`OwnerID`) gets access.
-- **Community folder** – owners must belong to the community (via `ctxutil.OwnerCommunityIDsFromContext`).
+- **Personal folder** – only the owner gets access.
+- **Community folder** – owners must belong to the community.
 - **Public folder** – all owners of the tenant.
 
 ## Regulations Import
 
-The regulations import is a two-phase process (`internal/application/reglement_import_service.go`):
+The regulations import is a two-phase process:
 
 ### Phase 1: Extract
 
 <Steps>
-  1. **Upload PDF** – `CommunityHandler.ExtractReglement` (`internal/interfaces/http/handler/community_handler.go`) accepts a PDF (max. 50 MB, `%PDF` magic header validated).
-  2. **Extract text** – `pdf.ExtractText` pulls the text via `pdftotext` or Go fallback.
-  3. **Sanitize text** – `SanitizeReglementText` removes control characters (except `\n`/`\t`).
-  4. **Filter text** – `FilterReglementText` (`internal/application/reglement_filter.go`) keeps only relevant sections (keywords in DE/FR/IT/EN, quota patterns, unit patterns). Header prefix (3500 characters) always. Maximum 40,000 characters.
-  5. **Call LLM** – `aiProvider.ExtractReglement` sends the filtered text to the configured AI provider.
-  6. **Parse JSON** – `ParseReglementJSON` (`internal/application/reglement_parser.go`) parses the LLM response, validates enums (`STWEG`/`MEG`, `HEAD_AND_VALUE`/`HEAD_ONLY`/`VALUE_ONLY`/`CUSTOM_SHARES`), discards units without `Designation`, caps at 500 units.
-  7. **Return draft** – `ReglementExtractionResult` with community metadata, units, and warnings. No database writes.
+  1. **Upload PDF** – A regulations PDF is uploaded (max. 50 MB).
+  2. **Extract text** – The text is extracted from the PDF.
+  3. **Sanitize text** – Control characters are removed.
+  4. **Filter text** – Only relevant sections are kept (keywords in DE/FR/IT/EN, quota patterns, unit patterns). Maximum 40,000 characters.
+  5. **Call AI** – The filtered text is sent to the configured AI.
+  6. **Parse result** – The AI response is parsed, validated, and units without a designation are discarded. Capped at 500 units.
+  7. **Return draft** – A draft with community metadata, units, and warnings. No database writes.
 </Steps>
 
 ### Phase 2: Confirm
 
 <Steps>
   1. **Review data** – The user reviews and edits the draft in the frontend.
-  2. **Call Confirm** – `ReglementImportService.Confirm` validates name and type (`STWEG`/`MEG`).
-  3. **Create community** – `CommunityService.Create` creates the community with all metadata.
-  4. **Create units** – `CommunityService.CreateUnit` per unit (designation, value quota, land registry number, etc.).
-  5. **Import owners** – optional: if email or name is present, an owner is created or matched by email, plus an `Ownership` (1/1, `IsPrimaryVoter`).
+  2. **Confirm** – Name and type (STWEG or MEG) are validated.
+  3. **Create community** – The community is created with all metadata.
+  4. **Create units** – Each unit is created (designation, value quota, land registry number, etc.).
+  5. **Import owners** – optional: if email or name is present, an owner is created or matched by email, plus an ownership record.
 </Steps>
 
 <Aside type="warning" title="No Automatic Rollback">
-If a unit creation fails, the already-created community is not automatically rolled back (GORM soft-delete semantics). The caller must handle partial failures.
+If a unit creation fails, the already-created community is not automatically rolled back. The caller must handle partial failures.
 </Aside>
 
 ### Regulation-Configurable Quorums
 
-The community entity (`internal/domain/entity/community.go`) holds three optional regulation fields that override the community type defaults:
+The community holds three optional regulation fields that override the community type defaults:
 
-| Field | Meaning | Default (NULL) |
+| Field | Meaning | Default |
 |------|-----------|-----------------|
-| `ReglementHeadQuorumPct` | Head vote quorum in % | STWEG: 50, MEG: 50 |
-| `ReglementValueQuorumPct` | Value quota quorum in % | STWEG: 50, MEG: 50 |
-| `ReglementMinOwners` | Minimum number of present owners | STWEG: 2, MEG: 1 |
+| Head vote quorum | Head vote quorum in % | STWEG: 50, MEG: 50 |
+| Value quota quorum | Value quota quorum in % | STWEG: 50, MEG: 50 |
+| Minimum owners | Minimum number of present owners | STWEG: 2, MEG: 1 |
 
 For details on quorum calculation, see `/guides/quorum/`.
 
 ### Voting Rights Cap (Art. 712g ZGB)
 
-The community entity holds two fields for the regulatory voting rights cap:
+The community holds two settings for the regulatory voting rights cap:
 
-- **`EnableVotingRightsCap`** – `bool`, defaults to `false`. Must be explicitly enabled.
-- **`VotingRightsCapPct`** – `numeric(5,2)`, default `50.00`. Caps an owner's head votes when their share of the total value exceeds the percentage.
+- **Enable voting rights cap** – defaults to disabled. Must be explicitly enabled.
+- **Voting rights cap percentage** – default 50%. Caps an owner's head votes when their share of the total value exceeds the percentage.
 
-The `QuorumEngine` marks affected owners in `CappedOwners` and sets `VotingRightsCapApplied`.
+The quorum engine marks affected owners and indicates that the cap was applied.
 
 ## Further Reading
 
 <LinkCard title="Quorum and Presence" href="/guides/quorum/" description="Resolution capability and regulation quorums." />
-<LinkCard title="Security and Audit" href="/reference/sicherheit/" description="Encryption and hash chains." />

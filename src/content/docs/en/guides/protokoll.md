@@ -9,138 +9,121 @@ ResiVote maintains the meeting minutes live during the session and produces audi
 
 ## Live Minutes Editor
 
-The backend stores minutes notes per agenda item in the `DiscussionNotes` field of the `AgendaItem` entity (`internal/domain/entity/agenda_item.go`). The frontend editor (Angular, TipTap-based) sends HTML to the API, which persists it as a `text` column.
+The backend stores minutes notes per agenda item. The frontend editor sends formatted text to the API, which persists it.
 
 ### Assigning the Minute-Taker
 
-The meeting determines at the start who takes the minutes. The `Meeting` entity holds two fields for this (`internal/domain/entity/meeting.go`):
+The meeting determines at the start who takes the minutes. The meeting holds two settings for this:
 
-- **`ProtocolWriterType`** – `OWNER` or `TENANT_ADMIN`
-- **`ProtocolWriterOwnerID`** – mandatory for `OWNER`, forbidden for `TENANT_ADMIN`
+- **Minute-taker type** – owner or tenant admin
+- **Minute-taker owner** – mandatory for owner, not applicable for tenant admin
 
-The `meetingService` validates the combination in `normalizeAndValidateProtocolWriter` (`internal/application/meeting_service.go`). For `OWNER`, it checks that the person is an owner of one of the meeting's communities. Setting the minute-taker automatically closes the procedural agenda item "Assign minute-taker" (`AgendaItemTypeProtocol`) so it does not appear in the final minutes.
+The system validates the combination. For owner, it checks that the person is an owner of one of the meeting's communities. Setting the minute-taker automatically closes the procedural agenda item "Assign minute-taker" so it does not appear in the final minutes.
 
 ### Write Permission
 
-The `canWriteLiveProtocol` method (`internal/application/meeting_service.go`) grants write access when:
+Write access to the live minutes is granted when:
 
-1. the caller has the `tenant_admin` role, or
-2. `ProtocolWriterType` = `OWNER` and the caller matches `ProtocolWriterOwnerID` and belongs to the meeting.
+1. the caller has the tenant admin role, or
+2. the minute-taker type is owner and the caller is the designated minute-taker and belongs to the meeting.
 
 <Aside type="note" title="Minute-taker only for live meetings">
-The minute-taker can only be set for `LIVE_MEETING` meetings, not for `CIRCULAR_RESOLUTION` (circular resolution). The `UpdateProtocolWriter` method rejects changes to closed or archived meetings.
+The minute-taker can only be set for live meetings, not for circular resolutions. Changes to closed or archived meetings are rejected.
 </Aside>
 
 ## AI Minutes Suggestions
 
-The `meetingService.SuggestProtocolNotes` service (`internal/application/meeting_ai_service.go`) generates drafts for minutes passages. The caller must have write permission for the live minutes.
+ResiVote can generate drafts for minutes passages. The caller must have write permission for the live minutes.
 
 ### Process
 
 <Steps>
-  1. **Collect context** – The service loads the meeting, agenda item, attendance, and voting result.
-  2. **Build prompt** – `buildSystemPrompt` and `buildUserPrompt` generate a German system prompt (Swiss STWEG/MEG context) and a user prompt with agenda item, quorum, attendance, and result.
-  3. **Call LLM** – `AIProvider.GenerateProtocolNotes` sends `AIGenerateRequest` (SystemPrompt, UserPrompt, MaxTokens 1024, Temperature 0.3) to the configured provider.
-  4. **Sanitize HTML** – `sanitizeHTML` filters the response through bluemonday and allows only `<p>`, `<br>`, `<ul>`, `<ol>`, `<li>`, `<strong>`, `<em>`, `<u>`, `<h1>`, `<h2>`, `<h3>`, `<a>`.
-  5. **Return result** – `ProtocolNotesSuggestion` with sanitized HTML, `TokensUsed`, and `Provider`.
+  1. **Collect context** – The system loads the meeting, agenda item, attendance, and voting result.
+  2. **Build prompt** – A system prompt (Swiss STWEG/MEG context) and a user prompt with agenda item, quorum, attendance, and result are generated.
+  3. **Generate suggestion** – The configured AI generates a draft.
+  4. **Sanitize** – The response is sanitized to allow only safe formatting elements.
+  5. **Return result** – The suggestion with sanitized content is returned.
 </Steps>
 
 ### Intents
 
-The caller passes an `AIProtocolIntent` (`internal/application/ai_provider.go`) that controls what the AI should do:
+The caller passes an intent that controls what the AI should do:
 
 | Intent | Description |
 |--------|-------------|
-| `continue` | Continue notes as a formal minutes paragraph |
-| `summarize` | Summarize notes and discussion as a concise paragraph |
-| `resolution` | Formulate a clear resolution text from the voting result |
+| Continue | Continue notes as a formal minutes paragraph |
+| Summarize | Summarize notes and discussion as a concise paragraph |
+| Resolution | Formulate a clear resolution text from the voting result |
 
-### AI Providers
+### AI Configuration
 
-The `ai.NewProvider` factory (`internal/infrastructure/ai/factory.go`) creates the provider from configuration:
+AI suggestions can be enabled or disabled in the configuration. When disabled, no suggestions are generated.
 
-| Provider Value | Implementation |
-|---------------|----------------|
-| `""` / `disabled` | `disabledProvider` – returns `ServiceUnavailable` |
-| `mock` | `mockProvider` – static test response |
-| `mistral` | `mistralProvider` – Mistral AI (EU endpoint, `mistral-small-latest`) |
-| `ollama` | `ollamaProvider` – local Ollama (`llama3.1`, `localhost:11434`) |
-| `llama` / `llama.cpp` | `mistralProvider` with local llama.cpp endpoint |
+## Evidence Packages
 
-When `LogOnly` is active, `mockProvider` is always used — regardless of the configured provider.
-
-## Evidence Packages (Evidence Service)
-
-The `EvidenceService` (`internal/application/evidence_service.go`) exports the tamper-proof audit hash chain of a meeting.
+ResiVote exports the tamper-proof audit hash chain of a meeting.
 
 ### Functions
 
-- **`GenerateMeetingEvidencePDF`** – PDF with all audit entries (timestamp, entity, action, actor, IP, SHA-256 hash excerpt) and integrity status.
-- **`GenerateMeetingEvidenceJSON`** – JSON export with meeting metadata, verification status, and all audit entries.
-- **`VerifyMeetingEvidenceIntegrity`** – recomputes each hash chain link (`ComputeHashWith` with HMAC key) and reports `valid`, `total_entries`, and optionally `broken_at_id`.
-
-The hash chain uses versions v1 (SHA-256, without IP/UserAgent), v2 (SHA-256/HMAC, all fields), and v3 (v2 + `ImpersonatedByID`). For details on the audit entity, see `/reference/sicherheit/`.
+- **Evidence PDF** – PDF with all audit entries (timestamp, entity, action, actor, IP, hash excerpt) and integrity status.
+- **Evidence JSON** – JSON export with meeting metadata, verification status, and all audit entries.
+- **Integrity verification** – recomputes each hash chain link and reports whether the chain is valid, the total number of entries, and optionally where the chain is broken.
 
 ## PDF Reports
 
-The `ReportService` (`internal/application/report_service.go`) generates PDFs with `gofpdf` (jung-kurt/gofpdf). All reports use the ResiVote color scheme and include the logo.
+ResiVote generates PDFs with the ResiVote color scheme and logo.
 
 ### Available Reports
 
 <CardGrid>
   <Card title="Meeting Minutes PDF" icon="document">
-    `GenerateMeetingProtocolPDF` – complete minutes with agenda items, voting results, attendance, and voting rights cap. Procedural `PROTOCOL` agenda items are filtered out.
+    Complete minutes with agenda items, voting results, attendance, and voting rights cap. Procedural protocol agenda items are filtered out.
   </Card>
   <Card title="Invitation PDF" icon="envelope">
-    `GenerateInvitationPDF` – invitation document with date, location, and agenda.
+    Invitation document with date, location, and agenda.
   </Card>
   <Card title="Proxy Card PDF" icon="id-card">
-    `GenerateProxyCardPDF` – personalized proxy card per owner and meeting.
+    Personalized proxy card per owner and meeting.
   </Card>
   <Card title="Cost Statement PDF" icon="receipt">
-    `GenerateCostStatementPDF` – cost statement with percentage breakdown per unit.
+    Cost statement with percentage breakdown per unit.
   </Card>
   <Card title="Cost Statement CSV" icon="table">
-    `GenerateCostStatementCSV` – the same statement as a CSV export.
+    The same statement as a CSV export.
   </Card>
   <Card title="Evidence Package PDF" icon="shield">
-    `GenerateMeetingEvidencePDF` – audit hash chain as PDF (via EvidenceService).
+    Audit hash chain as PDF.
   </Card>
 </CardGrid>
 
-### PDF Infrastructure
+### Text Extraction from Regulations
 
-PDF generation is based on `github.com/jung-kurt/gofpdf` (pure Go, no external binaries). The logo is loaded via `frontend.DistFS` (embed FS); if not found, `loadLogo` searches alternative paths relative to the working directory and the executable.
-
-For **text extraction from regulations PDFs**, ResiVote uses `internal/infrastructure/pdf/extractor.go`: first `pdftotext` (poppler-utils, `-layout`), then fallback to `github.com/ledongthuc/pdf`. Scanned PDFs without a text layer are detected and rejected.
+For text extraction from regulations PDFs, ResiVote first attempts direct text extraction. Scanned PDFs without a text layer are detected and rejected.
 
 ## Audit Log Integration
 
-Every significant action creates an `AuditEntry` (`internal/domain/entity/audit_entry.go`):
+Every significant action creates an audit entry:
 
 - **Append-only** – entries are never updated or deleted.
-- **Hash chain** – each entry references `PreviousHash` and computes `Hash` over all fields.
-- **Impersonation** – `ImpersonatedByID` logs when a super admin assumes another user's identity (hash version v3).
+- **Hash chain** – each entry references the previous hash and computes its own hash over all fields.
+- **Impersonation** – logs when a super admin assumes another user's identity.
 - **Minutes events** – agenda item state transitions, voting results, and minutes finalization are audited.
-
-For details on hash computation and integrity verification, see `/reference/sicherheit/`.
 
 ## Finalize the Minutes
 
-After the meeting concludes (`CLOSED`), the administrator finalizes the minutes:
+After the meeting concludes, the administrator finalizes the minutes:
 
 <Steps>
   1. **Review minutes** – The administrator goes through all agenda item notes in the live editor.
-  2. **Generate PDF** – `GenerateMeetingProtocolPDF` produces the binding minutes document.
-  3. **Export evidence package** – `GenerateMeetingEvidencePDF` or `-JSON` secures the audit chain.
-  4. **Archive the meeting** – state transition `CLOSED` → `ARCHIVED`.
+  2. **Generate PDF** – The system produces the binding minutes document.
+  3. **Export evidence package** – The audit chain is secured as a PDF or JSON export.
+  4. **Archive the meeting** – state transition from closed to archived.
 </Steps>
 
 <Aside type="warning" title="No Subsequent Changes">
-After the `ARCHIVED` state, no further changes are possible. The audit hash chain makes any subsequent manipulation detectable.
+After the archived state, no further changes are possible. The audit hash chain makes any subsequent manipulation detectable.
 </Aside>
 
 ## Further Reading
 
-<LinkCard title="Security and Audit" href="/reference/sicherheit/" description="Hash chains, HMAC, and integrity verification." />
 <LinkCard title="Quorum and Presence" href="/guides/quorum/" description="Resolution capability and quorum calculation." />

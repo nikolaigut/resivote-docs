@@ -9,190 +9,183 @@ ResiVote berechnet Quoren nach schweizerischem Immobilienrecht (ZGB). Die Beschl
 
 ## Quorum-Typen
 
-Jedes Traktandum definiert seinen Quorum-Typ im Feld `QuorumType` (`internal/domain/entity/agenda_item.go`):
+Jedes Traktandum definiert seinen Quorum-Typ:
 
 | Typ | Bedeutung | Rechtsgrundlage |
 |-----|-----------|-----------------|
-| `SIMPLE_MAJORITY` | Ja > 50% der anwesenden Kopf-Stimmen. Enthaltungen und nicht abgegebene Stimmen zählen als implizites Nein. | — |
-| `QUALIFIED_MAJORITY` | Ja > 50% der anwesenden Eigentümer (Köpfe) **und** > 50% **aller** berechtigten Wertquoten. | Art. 647b/d/e, 712g Abs. 3 ZGB |
-| `UNANIMOUS` | 100% **aller** registrierten Eigentümer (Köpfe) und Wertquoten müssen Ja stimmen. Absenzen ohne positive Vollmacht zählen als Nein. | Art. 647e ZGB |
-| `ABSOLUTE_MAJORITY` | Ja > 50% **aller** registrierten Eigentümer (unabhängig von Anwesenheit). | — |
-| `CUSTOM` | Ja >= `CustomQuorumPct`% der konfigurierten Basis. | Reglement |
+| Einfache Mehrheit | Ja > 50% der anwesenden Kopf-Stimmen. Enthaltungen und nicht abgegebene Stimmen zählen als implizites Nein. | — |
+| Qualifizierte Mehrheit | Ja > 50% der anwesenden Eigentümer (Köpfe) **und** > 50% **aller** berechtigten Wertquoten. | Art. 647b/d/e, 712g Abs. 3 ZGB |
+| Einstimmigkeit | 100% **aller** registrierten Eigentümer (Köpfe) und Wertquoten müssen Ja stimmen. Absenzen ohne positive Vollmacht zählen als Nein. | Art. 647e ZGB |
+| Absolute Mehrheit | Ja > 50% **aller** registrierten Eigentümer (unabhängig von Anwesenheit). | — |
+| Benutzerdefiniert | Ja >= konfigurierbarer Prozentsatz der konfigurierten Basis. | Reglement |
 
-### CUSTOM-Quorum
+### Benutzerdefiniertes Quorum
 
-Für `CUSTOM` hält das Traktandum drei Felder:
+Für das benutzerdefinierte Quorum hält das Traktandum drei Angaben:
 
-- **`CustomQuorumPct`** – Schwellwert in % (z. B. 66.67)
-- **`CustomQuorumValuePct`** – optionaler separater Schwellwert für Wertquoten
-- **`CustomQuorumBase`** – `PRESENT` (anwesend) oder `ELIGIBLE` (alle berechtigten)
+- **Prozentsatz** – Schwellwert in % (z. B. 66.67)
+- **Wertquoten-Prozentsatz** – optionaler separater Schwellwert für Wertquoten
+- **Basis** – anwesend oder alle berechtigten Eigentümer
 
 ### Quorum-Override
 
 Der Vorsitzende kann einen Quorum-Block aufheben. Das Traktandum hält dazu:
 
-- **`QuorumOverride`** – `bool`. Wenn `true`, werden Stimmen akzeptiert, auch wenn `QuorumMetAtOpen` `false` ist.
-- **`QuorumOverrideReason`** – zwingender Grundtext bei `QuorumOverride = true`.
+- **Override** – wenn aktiv, werden Stimmen akzeptiert, auch wenn die Beschlussfähigkeit beim Öffnen nicht gegeben war.
+- **Grund** – zwingender Grundtext bei aktivem Override.
 
-Der `VoteValidator` (`internal/domain/service/vote_validator.go`) prüft in Schritt 2a: wenn `QuorumMet` `nil` ist (kein Snapshot), wird der Check übersprungen. Wenn `QuorumMet` `false` ist und `QuorumOverride` nicht gesetzt, wird die Stimme mit `QuorumNotMet` abgelehnt.
+Wenn kein Snapshot vorliegt, wird der Check übersprungen. Wenn die Beschlussfähigkeit nicht gegeben ist und kein Override gesetzt wurde, wird die Stimme abgelehnt.
 
 ## Quorum-Engine
 
-Der `QuorumEngine` (`internal/domain/service/quorum_engine.go`) ist die Kernkomponente für die Abstimmungsauswertung. Er berechnet pro Gemeinschaft ein `CommunityQuorumResult` und aggregiert sie zu einem `AgendaItemResult`.
+Die Quorum-Engine ist die Kernkomponente für die Abstimmungsauswertung. Sie berechnet pro Gemeinschaft ein Ergebnis und aggregiert sie zu einem Gesamt-Ergebnis.
 
 ### Eingaben
 
-- Traktandum (`AgendaItem` mit `QuorumType`, `CustomQuorumPct` etc.)
+- Traktandum mit Quorum-Typ und Schwellwerten
 - Gemeinschaften der Versammlung
-- Einheiten und Eigentumsanteile (`Ownership`)
-- Anwesenheiten (`Attendance`)
-- Vollmachten (`Proxy`)
-- Abgegebene Stimmen (`Vote`)
+- Einheiten und Eigentumsanteile
+- Anwesenheiten
+- Vollmachten
+- Abgegebene Stimmen
 
 ### Ausgaben pro Gemeinschaft
 
 | Feld | Bedeutung |
 |------|-----------|
-| `YesHeadVotes` / `NoHeadVotes` / `AbstainHeadVotes` | Kopf-Stimmen |
-| `YesValueQuota` / `NoValueQuota` / `AbstainValueQuota` | Wertquoten |
-| `HeadVoteThreshold` / `ValueThreshold` | Erforderliche Ja-Stimmen |
-| `HeadVotePassed` / `ValueVotePassed` | Ob Schwellwert erreicht |
-| `Passed` | `*bool` – Gesamtergebnis (nil bei informativen Traktanden) |
-| `VotingRightsCapApplied` / `CappedOwners` | Stimmrechtsbegrenzung angewendet |
-| `NoVoters` / `AbstainVoters` | Nachnamen der Nein/Enthaltung-Stimmenden (für Protokoll) |
-| `CandidateTally` / `Winner` | Wahlergebnis bei `ELECTION` |
-| `IsInformational` | Kein Ja/Nein-Ergebnis (z. B. `FREE_TEXT`) |
-| `IsInherited` | MEG-Ergebnis von verknüpften STWEGs geerbt |
+| Ja/Nein/Enthaltung Kopf-Stimmen | Kopf-Stimmen |
+| Ja/Nein/Enthaltung Wertquoten | Wertquoten |
+| Schwellwerte Kopf/Wert | Erforderliche Ja-Stimmen |
+| Kopf/Wert erreicht | Ob Schwellwert erreicht |
+| Gesamtergebnis | Ob der Beschluss angenommen wurde (nil bei informativen Traktanden) |
+| Stimmrechtsbegrenzung | Ob und bei wem die Stimmrechtsbegrenzung angewendet wurde |
+| Nein/Enthaltung-Stimmende | Nachnamen der Nein/Enthaltung-Stimmenden (für Protokoll) |
+| Wahlergebnis | Ergebnis bei Wahlen |
+| Informativ | Kein Ja/Nein-Ergebnis (z. B. Freitext) |
+| Geerbt | MEG-Ergebnis von verknüpften STWEGs geerbt |
 
 ### Defensive Normalisierung
 
-Der `QuorumEngine` normalisiert Eingaben defensiv: leere Gemeinschaften liefern ein informatives Ergebnis (`zeroVoterCommunityResult`), fehlende Stimmen zählen als implizites Nein, und `float64`-Rundungsfehler werden mit einem Epsilon (1e-9) absorbiert.
+Die Quorum-Engine normalisiert Eingaben defensiv: leere Gemeinschaften liefern ein informatives Ergebnis, fehlende Stimmen zählen als implizites Nein, und Rundungsfehler werden absorbiert.
 
 ### Gesamt-Ergebnis
 
-`OverallPassed` ist `true`, wenn **alle** Gemeinschaften das Quorum erreichen. Geerbte MEG-Ergebnisse (`IsInherited`) werden nicht doppelt gezählt.
+Der Beschluss ist angenommen, wenn **alle** Gemeinschaften das Quorum erreichen. Geerbte MEG-Ergebnisse werden nicht doppelt gezählt.
 
 ## Live-Quorum-Service
 
-Der `LiveQuorumEngine` (`internal/domain/service/live_quorum.go`) beantwortet die Frage «ist die Versammlung beschlussfähig?» in Echtzeit, basierend auf aktueller Präsenz – unabhängig von abgegebenen Stimmen.
+Der Live-Quorum-Service beantwortet die Frage «ist die Versammlung beschlussfähig?» in Echtzeit, basierend auf aktueller Präsenz – unabhängig von abgegebenen Stimmen.
 
 ### Beschlussfähigkeit
 
 Die Versammlung ist beschlussfähig, wenn **mehr als die Hälfte** der Kopf-Stimmen **und** mehr als die Hälfte der Wertquoten anwesend/vertreten sind, plus die Mindestanzahl Eigentümer. «Mehr als die Hälfte» ist eine **strikte** Ungleichung: bei gerader Gesamtzahl N ist der Schwellwert `N/2 + 1` (z. B. 4 Eigentümer → 3 nötig). Exakt 50% reicht nicht.
 
-### Voting-Rights-Modelle
+### Stimmrechtsmodelle
 
-Welche Bedingungen gelten, hängt vom `VotingRightsModel` der Gemeinschaft:
+Welche Bedingungen gelten, hängt vom Stimmrechtsmodell der Gemeinschaft:
 
 | Modell | Kopf-Bedingung | Wertquoten-Bedingung |
 |--------|---------------|---------------------|
-| `HEAD_AND_VALUE` / `CUSTOM_SHARES` | ja | ja |
-| `HEAD_ONLY` | ja | übersprungen |
-| `VALUE_ONLY` | übersprungen | ja |
-
-### Injizierbare Clock
-
-`LiveQuorumEngine` akzeptiert eine `Clock`-Schnittstelle (`NewLiveQuorumEngine(clock ...Clock)`). Im Produktivbetrieb verwendet er `SystemClock`; in Tests kann eine kontrollierbare Clock injiziert werden, um deterministische Zeitstempel zu erzeugen.
+| Kopf und Wert / Benutzerdefinierte Anteile | ja | ja |
+| Nur Kopf | ja | übersprungen |
+| Nur Wert | übersprungen | ja |
 
 ### Ausgabe
 
-`LiveQuorumState` pro Gemeinschaft:
+Pro Gemeinschaft:
 
-- `HeadQuorumMet`, `ValueQuorumMet`, `MinOwnersMet`, `OverallQuorumMet`
-- `RequiredHeadVotes`, `RequiredValueQuota`
-- `MissingHeadVotes`, `MissingValueQuota`, `MissingOwners`
+- Kopf-Quorum erreicht, Wert-Quorum erreicht, Mindestanzahl Eigentümer erreicht, Gesamt-Quorum erreicht
+- Erforderliche Kopf-Stimmen, erforderliche Wertquoten
+- Fehlende Kopf-Stimmen, fehlende Wertquoten, fehlende Eigentümer
 
-`IsQuorumReached` ist `true`, wenn alle Gemeinschaften das Quorum erreichen.
+Die Versammlung ist beschlussfähig, wenn alle Gemeinschaften das Quorum erreichen.
 
 ## Präsenz-Berechnung
 
-Der `presenceBuilder` (`internal/application/presence_builder.go`) sammelt Anwesenheiten, Vollmachten und Eigentumsanteile und aggregiert sie zu `CommunityPresence`-Snapshots. Er wird von `MeetingService.GetMeetingPresence` und dem `LiveQuorumEngine` gemeinsam genutzt, sodass Live-Quorum und REST-API dieselbe Präsenz-Quelle verwenden.
+ResiVote sammelt Anwesenheiten, Vollmachten und Eigentumsanteile und aggregiert sie zu gemeinschaftsbezogenen Snapshots. Live-Quorum und API verwenden dieselbe Präsenz-Quelle.
 
 ### Ablauf
 
 <Steps>
   1. **Gemeinschaften laden** – alle Gemeinschaften der Versammlung.
-  2. **Anwesenheiten laden** – alle `Attendance`-Records der Versammlung.
-  3. **Vollmachten laden** – alle `Proxy`-Records der Versammlung.
-  4. **Lookup-Maps bauen** – `UnitID → Attendance` und `UnitID → active Proxy`.
+  2. **Anwesenheiten laden** – alle Anwesenheits-Datensätze der Versammlung.
+  3. **Vollmachten laden** – alle Vollmachten der Versammlung.
+  4. **Zuordnungen bauen** – Einheit → Anwesenheit und Einheit → aktive Vollmacht.
   5. **Pro Gemeinschaft aggregieren** – für jede Gemeinschaft: Einheiten laden, Eigentumsanteile summieren, anwesende/vertretene Kopf-Stimmen und Wertquoten berechnen.
 </Steps>
 
 ### Präsenz-Status
 
-Jeder Eigentümer erhält einen `PresenceStatus` (`internal/domain/entity/presence.go`):
+Jeder Eigentümer erhält einen Status:
 
 | Status | Bedeutung |
 |--------|-----------|
-| `PRESENT` | Eigentümer ist anwesend (Check-in erfolgt) |
-| `REPRESENTED` | Eigentümer wird durch einen Bevollmächtigten vertreten |
-| `ABSENT` | Eigentümer fehlt |
+| Anwesend | Eigentümer ist anwesend (Check-in erfolgt) |
+| Vertreten | Eigentümer wird durch einen Bevollmächtigten vertreten |
+| Abwesend | Eigentümer fehlt |
 
-`CommunityPresence` fasst zusammen: `TotalOwners`, `TotalHeadVotes`, `TotalValueQuota`, `PresentOwners`, `PresentHeadVotes`, `PresentValueQuota`, `PresenceHeadPct`, `PresenceValuePct`.
+Pro Gemeinschaft wird zusammengefasst: Gesamtzahl Eigentümer, Kopf-Stimmen, Wertquoten, anwesende Eigentümer, anwesende Kopf-Stimmen, anwesende Wertquoten, Anwesenheitsprozente für Kopf und Wert.
 
-### Vollmachten (Proxy)
+### Vollmachten
 
-Ein Eigentümer kann eine andere Person bevollmächtigen. Der `VoteValidator` prüft:
+Ein Eigentümer kann eine andere Person bevollmächtigen. Das System prüft:
 
-- Nur der Bevollmächtigte (`GranteeID`) darf digital abstimmen, nicht der Vollmachtgeber (`GrantorID`).
-- Die Vollmacht muss das Traktandum abdecken (`CoversAgendaItem`).
-- Mandatierte Stimmabgaben müssen mit der Weisung übereinstimmen (`MandatedVote`).
+- Nur der Bevollmächtigte darf digital abstimmen, nicht der Vollmachtgeber.
+- Die Vollmacht muss das Traktandum abdecken.
+- Mandatierte Stimmabgaben müssen mit der Weisung übereinstimmen.
 
 ## Quorum-Snapshots
 
-Beim Öffnen eines Traktandums friert `LiveQuorumEngine.CreateSnapshot` die aktuelle Präsenz und den Quorum-Status ein. Der Snapshot dient als Quorum-Basis für dieses Traktandum.
+Beim Öffnen eines Traktandums friert das System die aktuelle Präsenz und den Quorum-Status ein. Der Snapshot dient als Quorum-Basis für dieses Traktandum.
 
 ### Persistenz
 
-`QuorumSnapshotRecord` (`internal/domain/entity/quorum_snapshot.go`) speichert den Snapshot in der Datenbank (Tabelle `quorum_snapshots`):
+Der Snapshot wird in der Datenbank gespeichert und überlebt Server-Neustarts. Er ist die Grundlage für den Quorum-Check bei der Stimmabgabe.
 
 | Feld | Bedeutung |
 |------|-----------|
-| `AgendaItemID` | eindeutig pro Traktandum (`uniqueIndex`) |
-| `MeetingID` | Versammlung |
-| `SnapshotJSON` | vollständiger Snapshot als JSONB |
-| `SnapshotTakenAt` | Zeitpunkt der Momentaufnahme |
-| `QuorumMetAtOpen` | war die Versammlung beim Öffnen beschlussfähig? |
+| Traktandum | eindeutig pro Traktandum |
+| Versammlung | Versammlung |
+| Snapshot | vollständiger Snapshot als JSON |
+| Zeitpunkt | Zeitpunkt der Momentaufnahme |
+| Beschlussfähigkeit beim Öffnen | war die Versammlung beim Öffnen beschlussfähig? |
 
-Der Snapshot überlebt Server-Neustarts und ist die Grundlage für den `VoteValidator`-Check.
-
-## Community-Typen und Standards
+## Gemeinschafts-Typen und Standards
 
 ### STWEG vs MEG
 
-Die Entität `Community` (`internal/domain/entity/community.go`) unterscheidet zwei Typen:
+ResiVote unterscheidet zwei Gemeinschafts-Typen:
 
 | Typ | Bedeutung | Standard-Quorum (Kopf/Wert/Min Owners) |
 |-----|-----------|---------------------------------------|
-| `STWEG` | Stockwerkeigentümergemeinschaft | 50% / 50% / 2 |
-| `MEG` | Miteigentümergemeinschaft | 50% / 50% / 1 |
+| STWEG | Stockwerkeigentümergemeinschaft | 50% / 50% / 2 |
+| MEG | Miteigentümergemeinschaft | 50% / 50% / 1 |
 
-Die Standards werden in `LiveQuorumEngine.GetQuorumRequirements` gesetzt. Reglement-Felder (`ReglementHeadQuorumPct`, `ReglementValueQuorumPct`, `ReglementMinOwners`) überschreiben die Standards, wenn sie nicht `NULL` sind.
+Die Standards können durch Reglement-Vorgaben überschrieben werden, wenn diese festgelegt sind.
 
-### Voting-Rights-Modelle
+### Stimmrechtsmodelle
 
 | Modell | Beschreibung |
 |--------|-------------|
-| `HEAD_AND_VALUE` | Kopf-Stimmen + Wertquoten (STWEG-Standard) |
-| `HEAD_ONLY` | Nur Kopf-Stimmen (1 Einheit = 1 Stimme) |
-| `VALUE_ONLY` | Nur Wertquoten |
-| `CUSTOM_SHARES` | Benutzerdefinierte Anteile pro Einheit (MEG-spezifisch) |
+| Kopf und Wert | Kopf-Stimmen + Wertquoten (STWEG-Standard) |
+| Nur Kopf | Nur Kopf-Stimmen (1 Einheit = 1 Stimme) |
+| Nur Wert | Nur Wertquoten |
+| Benutzerdefinierte Anteile | Benutzerdefinierte Anteile pro Einheit (MEG-spezifisch) |
 
 ### MEG erbt Eigentümer von STWEG
 
 Ein MEG kann Eigentümer von verknüpften STWEGs erben:
 
-- **`InheritsOwners`** – `bool`, nur relevant für MEG. Wenn `true`, verwaltet das MEG keine eigenen Einheiten/Eigentümer, sondern erbt sie von verknüpften STWEGs.
-- **`ShouldInheritSTWEGUnits`** – gibt `true` zurück, wenn das MEG `InheritsOwners = true` hat **und** keine eigenen Einheiten besitzt. Dies verhindert Doppelzählungen.
-- **`CommunityLink`** – Join-Tabelle (`community_links`) für die M:N-Beziehung zwischen STWEGs und MEGs.
+- **Eigentümer-Vererbung** – nur relevant für MEG. Wenn aktiv, verwaltet das MEG keine eigenen Einheiten/Eigentümer, sondern erbt sie von verknüpften STWEGs.
+- **Vererbungsbedingung** – die Vererbung greift nur, wenn das MEG keine eigenen Einheiten besitzt. Dies verhindert Doppelzählungen.
+- **Verknüpfung** – STWEGs und MEGs können miteinander verknüpft werden.
 
-Geerbte MEG-Ergebnisse werden im `AgendaItemResult` als `IsInherited = true` markiert und nicht in `OverallPassed` doppelt gezählt.
+Geerbte MEG-Ergebnisse werden als geerbt markiert und im Gesamt-Ergebnis nicht doppelt gezählt.
 
-### Überbauungen (Developments)
+### Überbauungen
 
-Die Entität `Development` (`internal/domain/entity/community.go`) gruppiert mehrere Gemeinschaften (STWEG und/oder MEG). Eine Versammlung kann mehrere Gemeinschaften einer Überbauung umfassen (`Meeting.Communities` via `meeting_communities`-Join-Tabelle).
+Eine Überbauung gruppiert mehrere Gemeinschaften (STWEG und/oder MEG). Eine Versammlung kann mehrere Gemeinschaften einer Überbauung umfassen.
 
 ## Weiterführende Links
 
 <LinkCard title="Abstimmung" href="/guides/abstimmung/" description="Stimmabgabe, Validierung und Ergebnisse." />
-<LinkCard title="Datenmodell" href="/reference/datenmodell/" description="Entitäten und Beziehungen im Detail." />

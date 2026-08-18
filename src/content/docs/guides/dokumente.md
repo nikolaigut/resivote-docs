@@ -7,82 +7,81 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 ResiVote verwaltet Dokumente in einer hierarchischen Ordnerstruktur pro Gemeinschaft. Alle Dateien werden verschlüsselt gespeichert. Der Reglement-Import extrahiert Metadaten und Einheiten aus PDFs per KI.
 
-## Dokumenten-Entität
+## Dokument
 
-Die Entität `Document` (`internal/domain/entity/document.go`) repräsentiert eine Datei im Eigentümerportal. Zugriff wird über den zugeordneten Ordner gesteuert.
+Ein Dokument repräsentiert eine Datei im Eigentümerportal. Zugriff wird über den zugeordneten Ordner gesteuert.
 
 | Feld | Bedeutung |
 |------|-----------|
-| `TenantID` | Mandant (Multi-Tenant-Isolation) |
-| `CommunityID` | Gemeinschaft (nullable für mandantenweite Ordner) |
-| `FolderID` | Übergeordneter Ordner (zwingend) |
-| `Title` | Anzeigename |
-| `Category` | Kategorie (normalisiert) |
-| `FileName` | Bereinigter Dateiname |
-| `StorageKey` | Pfad im Storage-Backend (nicht in JSON exponiert) |
-| `MimeType` | MIME-Typ |
-| `SizeBytes` | Dateigrösse |
-| `IsNew` | Ungelesen-Flag (transient, nicht in DB) |
+| Mandant | Mandant (Multi-Tenant-Isolation) |
+| Gemeinschaft | Gemeinschaft (optional für mandantenweite Ordner) |
+| Ordner | Übergeordneter Ordner (zwingend) |
+| Titel | Anzeigename |
+| Kategorie | Kategorie (normalisiert) |
+| Dateiname | Bereinigter Dateiname |
+| MIME-Typ | MIME-Typ |
+| Dateigrösse | Dateigrösse |
+| Ungelesen | Ungelesen-Flag (transient) |
 
 ### Dokumentkategorien
 
-`normalizeDocumentCategory` (`internal/application/document_service.go`) normalisiert die Kategorie auf Grossbuchstaben und validiert gegen die erlaubten Werte:
+ResiVote normalisiert die Kategorie und validiert gegen die erlaubten Werte:
 
-`PROTOCOL`, `INVITATION`, `ANNUAL_ACCOUNT`, `REGULATION`, `NOTICE`, `FORM`, `OTHER`
+Protokoll, Einladung, Jahresrechnung, Reglement, Mitteilung, Formular, Sonstiges
 
-Ungültige Werte werden auf `OTHER` gesetzt.
+Ungültige Werte werden auf «Sonstiges» gesetzt.
 
 ### Dateinamen-Bereinigung
 
-`sanitizeDocumentFilename` entfernt Pfadkomponenten (`filepath.Base`) und ersetzt gefährliche Zeichen durch `_`. Leere Namen oder `.`/`..` werden auf `"document"` gesetzt. Dies verhindert Path-Traversal im Storage-Key.
+ResiVote entfernt Pfadkomponenten aus dem Dateinamen und ersetzt gefährliche Zeichen. Leere Namen werden auf einen Standardwert gesetzt. Dies verhindert Path-Traversal.
 
-## Ordner-Entität
+## Ordner
 
-Die Entität `Folder` (`internal/domain/entity/folder.go`) bildet eine hierarchische Struktur innerhalb einer Gemeinschaft oder eines Mandanten.
+Ein Ordner bildet eine hierarchische Struktur innerhalb einer Gemeinschaft oder eines Mandanten.
 
 | Feld | Bedeutung |
 |------|-----------|
-| `CommunityID` | Gemeinschaft (nullable für mandantenweite Ordner) |
-| `ParentFolderID` | Übergeordneter Ordner (nullable für Root) |
-| `OwnerID` | Eigentümer bei persönlichen Ordnern (nullable) |
-| `Name` | Ordnername |
-| `Visibility` | `PUBLIC` oder `RESTRICTED` |
-| `Path` | Vollständiger Pfad (z. B. `Jahresberichte/2024`) |
-| `DocumentCount` | Dokumentanzahl (transient, von Service befüllt) |
+| Gemeinschaft | Gemeinschaft (optional für mandantenweite Ordner) |
+| Übergeordneter Ordner | Übergeordneter Ordner (optional für Root) |
+| Eigentümer | Eigentümer bei persönlichen Ordnern (optional) |
+| Name | Ordnername |
+| Sichtbarkeit | Öffentlich oder eingeschränkt |
+| Pfad | Vollständiger Pfad (z. B. `Jahresberichte/2024`) |
+| Dokumentanzahl | Dokumentanzahl (transient) |
 
 ### Sichtbarkeit
 
-- **`PUBLIC`** – sichtbar für alle Eigentümer der Gemeinschaft oder des Mandanten.
-- **`RESTRICTED`** – nur für den Eigentümer (`OwnerID`) sichtbar. Persönliche Ordner müssen `RESTRICTED` sein.
+- **Öffentlich** – sichtbar für alle Eigentümer der Gemeinschaft oder des Mandanten.
+- **Eingeschränkt** – nur für den Eigentümer sichtbar. Persönliche Ordner müssen eingeschränkt sein.
 
 ### Ordner-Service
 
-Der `folderService` (`internal/application/folder_service.go`) baut die Ordnerstruktur und validiert Regeln:
+ResiVote baut die Ordnerstruktur und validiert Regeln:
 
-- **Pfad-Eindeutigkeit** – innerhalb einer Gemeinschaft darf kein doppelter Pfad existieren. `validateFolder` lehnt doppelte Pfade mit `Conflict` ab.
+- **Pfad-Eindeutigkeit** – innerhalb einer Gemeinschaft darf kein doppelter Pfad existieren.
 - **Gleicher Name in verschiedenen Gemeinschaften** – erlaubt, da die Eindeutigkeit pro Gemeinschaft geprüft wird.
-- **Sub-Ordner erben Sichtbarkeit** – ein Sub-Ordner muss dieselbe `Visibility` und denselben `OwnerID` wie der Parent haben.
+- **Sub-Ordner erben Sichtbarkeit** – ein Sub-Ordner muss dieselbe Sichtbarkeit und denselben Eigentümer wie der Parent haben.
 - **Parent muss gleiche Gemeinschaft** – ein Sub-Ordner muss in derselben Gemeinschaft wie sein Parent liegen.
-- **Persönlicher Ordner** – `GetOrCreateOwnerFolder` legt automatisch einen `RESTRICTED`-Ordner pro Eigentümer an, benannt nach `Owner.FullName()`.
+- **Persönlicher Ordner** – ResiVote legt automatisch einen eingeschränkten Ordner pro Eigentümer an, benannt nach dem Eigentümernamen.
 
 ### Baum-Aufbau und Dokumentanzahl
 
-`ListTreeByCommunity` lädt alle Ordner einer Gemeinschaft, optional den persönlichen Ordner, filtert für nicht-privilegierte Benutzer (nur `PUBLIC` + eigene `RESTRICTED`), baut den Baum via `buildFolderTree` und befüllt `DocumentCount` pro Ordner via `CountByFolderIDs`.
+ResiVote lädt alle Ordner einer Gemeinschaft, optional den persönlichen Ordner, filtert für nicht-privilegierte Benutzer (nur öffentliche + eigene eingeschränkte), baut den Baum auf und befüllt die Dokumentanzahl pro Ordner.
 
 ## Storage-Backends
 
-Die Konfiguration (`internal/config/config.go`, `StorageConfig`) unterstützt zwei Backends:
+ResiVote unterstützt zwei Storage-Backends:
 
 | Backend | Konfiguration |
 |---------|--------------|
-| **Lokales Dateisystem** | `STORAGE_LOCAL_PATH` (Standard: `./uploads`) |
-| **S3 / MinIO** | `STORAGE_S3_ENDPOINT`, `STORAGE_S3_BUCKET`, `STORAGE_S3_REGION`, `STORAGE_S3_ACCESS_KEY`, `STORAGE_S3_SECRET_KEY`, `STORAGE_S3_USE_PATH_STYLE` |
+| **Lokales Dateisystem** | Lokaler Pfad (Standard: `./uploads`) |
+| **S3 / MinIO** | S3-Endpoint, Bucket, Region, Access-Key, Secret-Key, Path-Style |
 
-Der Storage-Key wird als `documents/{tenantID}/{communityID}/{folderID}/{docID}/{fileName}` aufgebaut (`buildStorageKey`).
+Der Storage-Pfad wird als `documents/{Mandant}/{Gemeinschaft}/{Ordner}/{Dokument}/{Dateiname}` aufgebaut.
 
-### MaxUploadSize
+### Maximal Upload-Grösse
 
-`STORAGE_MAX_UPLOAD_SIZE` begrenzt die Upload-Grösse. Standardwert: `50M` (`defaultMaxUploadSize`). Der `documentService` lehnt Dateien ab, die das Limit überschreiten (`Validation`-Fehler).
+ResiVote begrenzt die Upload-Grösse. Standardwert: 50 MB. Dateien, die das Limit überschreiten, werden abgelehnt.
 
 ## Verschlüsselung
 
@@ -92,79 +91,78 @@ Jedes Dokument wird vor dem Speichern verschlüsselt. Die Entschlüsselung erfol
 
 ### Schichten
 
-Die Verschlüsselung besteht aus zwei Komponenten (`internal/infrastructure/encryption/`):
+Die Verschlüsselung besteht aus zwei Komponenten:
 
-1. **`TenantKeyProvider`** (`tenant_key.go`) – verwaltet Data-Encryption-Keys (DEKs) pro Mandant:
-   - `EnsureTenantDEK` generiert einen 32-Byte-DEK und wickelt ihn mit dem Master-Key (AES-GCM) ein. Speicherung als Base64 in `tenant.EncryptedDEK`.
-   - `TenantDEK` entpackt den DEK bei Bedarf.
-   - `DocumentKey` leitet einen 32-Byte-Dokument-Key via HKDF (SHA-256) aus DEK + `documentID` ab. Info: `resivote-doc-v1`.
+1. **Mandanten-Schlüsselverwaltung** – verwaltet Data-Encryption-Keys pro Mandant:
+   - Pro Mandant wird ein DEK generiert und mit dem Master-Key eingewickelt.
+   - Der DEK wird bei Bedarf entpackt.
+   - Pro Dokument wird ein separater Dokument-Key aus DEK und Dokument-ID abgeleitet.
 
-2. **`DocumentEncryption`** (`document_encryption.go`) – ver- und entschlüsselt Dateiinhalte:
-   - `Encrypt` liest Plaintext, leitet den Dokument-Key ab, verschlüsselt mit AES-GCM (zufällige Nonce). Ausgabe: `nonce || ciphertext+tag`.
-   - `Decrypt` kehrt den Vorgang um und gibt einen `io.ReadCloser` zurück.
+2. **Dokumenten-Verschlüsselung** – ver- und entschlüsselt Dateiinhalte:
+   - Beim Verschlüsseln wird ein zufälliger Initialisierungsvektor verwendet.
+   - Beim Entschlüsseln wird der Vorgang umgekehrt.
 
-Der Master-Key wird via `DOCUMENT_ENCRYPTION_MASTER_KEY` (Base64, 32 Byte) konfiguriert.
+Der Master-Key wird über die Konfiguration bereitgestellt.
 
 ### Zugriffskontrolle
 
-`CanAccess` (`internal/application/document_service.go`) prüft pro Dokument:
+ResiVote prüft pro Dokument:
 
-- **Persönlicher Ordner** – nur der Eigentümer (`OwnerID`) erhält Zugriff.
-- **Gemeinschafts-Ordner** – Eigentümer müssen der Gemeinschaft angehören (via `ctxutil.OwnerCommunityIDsFromContext`).
+- **Persönlicher Ordner** – nur der Eigentümer erhält Zugriff.
+- **Gemeinschafts-Ordner** – Eigentümer müssen der Gemeinschaft angehören.
 - **Öffentlicher Ordner** – alle Eigentümer des Mandanten.
 
 ## Reglement-Import
 
-Der Reglement-Import ist ein zweiphasiger Prozess (`internal/application/reglement_import_service.go`):
+Der Reglement-Import ist ein zweiphasiger Prozess:
 
 ### Phase 1: Extrahieren
 
 <Steps>
-  1. **PDF hochladen** – `CommunityHandler.ExtractReglement` (`internal/interfaces/http/handler/community_handler.go`) nimmt ein PDF entgegen (max. 50 MB, `%PDF`-Magic-Header validiert).
-  2. **Text extrahieren** – `pdf.ExtractText` zieht den Text via `pdftotext` oder Go-Fallback.
-  3. **Text bereinigen** – `SanitizeReglementText` entfernt Steuerzeichen (ausser `\n`/`\t`).
-  4. **Text filtern** – `FilterReglementText` (`internal/application/reglement_filter.go`) behält nur relevante Abschnitte (Keywords in DE/FR/IT/EN, Quota-Muster, Unit-Muster). Header-Präfix (3500 Zeichen) immer. Maximal 40 000 Zeichen.
-  5. **LLM aufrufen** – `aiProvider.ExtractReglement` sendet den gefilterten Text an den konfigurierten AI-Provider.
-  6. **JSON parsen** – `ParseReglementJSON` (`internal/application/reglement_parser.go`) parst die LLM-Antwort, validiert Enums (`STWEG`/`MEG`, `HEAD_AND_VALUE`/`HEAD_ONLY`/`VALUE_ONLY`/`CUSTOM_SHARES`), verwirft Einheiten ohne `Designation`, kappelt bei 500 Einheiten.
-  7. **Draft zurückgeben** – `ReglementExtractionResult` mit Community-Metadaten, Einheiten und Warnungen. Keine Datenbank-Schreibvorgänge.
+  1. **PDF hochladen** – ResiVote nimmt ein PDF entgegen (max. 50 MB, PDF-Format validiert).
+  2. **Text extrahieren** – ResiVote zieht den Text aus dem PDF.
+  3. **Text bereinigen** – Steuerzeichen werden entfernt (ausser Zeilenumbrüche und Tabulatoren).
+  4. **Text filtern** – ResiVote behält nur relevante Abschnitte (Keywords, Quota-Muster, Unit-Muster). Header-Präfix immer. Maximal 40 000 Zeichen.
+  5. **KI aufrufen** – Der gefilterte Text wird an den konfigurierten KI-Anbieter gesendet.
+  6. **JSON parsen** – ResiVote parst die Antwort, validiert Werte (Gemeinschaftstyp, Stimmrechtsmodell), verwirft Einheiten ohne Bezeichnung, kappelt bei 500 Einheiten.
+  7. **Draft zurückgeben** – Ergebnis mit Gemeinschafts-Metadaten, Einheiten und Warnungen. Keine Datenbank-Schreibvorgänge.
 </Steps>
 
 ### Phase 2: Bestätigen
 
 <Steps>
   1. **Daten prüfen** – Der Benutzer überprüft und editiert den Draft im Frontend.
-  2. **Confirm aufrufen** – `ReglementImportService.Confirm` validiert Name und Typ (`STWEG`/`MEG`).
-  3. **Gemeinschaft anlegen** – `CommunityService.Create` erzeugt die Gemeinschaft mit allen Metadaten.
-  4. **Einheiten anlegen** – `CommunityService.CreateUnit` pro Einheit (Designation, Wertquote, Grundbuchnummer etc.).
-  5. **Eigentümer importieren** – optional: wenn E-Mail oder Name vorhanden, wird ein Owner angelegt oder per E-Mail matchiert, plus eine `Ownership` (1/1, `IsPrimaryVoter`).
+  2. **Bestätigen** – ResiVote validiert Name und Typ (STWEG oder MEG).
+  3. **Gemeinschaft anlegen** – ResiVote erzeugt die Gemeinschaft mit allen Metadaten.
+  4. **Einheiten anlegen** – pro Einheit (Bezeichnung, Wertquote, Grundbuchnummer etc.).
+  5. **Eigentümer importieren** – optional: wenn E-Mail oder Name vorhanden, wird ein Eigentümer angelegt oder per E-Mail matchiert, plus eine Eigentümerschaft (1/1, als Hauptwähler markiert).
 </Steps>
 
 <Aside type="warning" title="Kein automatisches Rollback">
-Wenn eine Einheit-Erstellung fehlschlägt, wird die bereits erstellte Gemeinschaft nicht automatisch zurückgerollt (GORM Soft-Delete-Semantik). Der Aufrufer muss Teilfehler behandeln.
+Wenn eine Einheit-Erstellung fehlschlägt, wird die bereits erstellte Gemeinschaft nicht automatisch zurückgerollt. Der Aufrufer muss Teilfehler behandeln.
 </Aside>
 
 ### Reglement-konfigurierbare Quoren
 
-Die Community-Entität (`internal/domain/entity/community.go`) hält drei optionale Reglement-Felder, die die Community-Typ-Standards überschreiben:
+Die Gemeinschaft hält drei optionale Reglement-Felder, die die Gemeinschafts-Typ-Standards überschreiben:
 
-| Feld | Bedeutung | Standard (NULL) |
-|------|-----------|-----------------|
-| `ReglementHeadQuorumPct` | Kopf-Stimmen-Quorum in % | STWEG: 50, MEG: 50 |
-| `ReglementValueQuorumPct` | Wertquoten-Quorum in % | STWEG: 50, MEG: 50 |
-| `ReglementMinOwners` | Mindestanzahl anwesender Eigentümer | STWEG: 2, MEG: 1 |
+| Feld | Bedeutung | Standard |
+|------|-----------|----------|
+| Kopf-Stimmen-Quorum in % | Kopf-Stimmen-Quorum | STWEG: 50, MEG: 50 |
+| Wertquoten-Quorum in % | Wertquoten-Quorum | STWEG: 50, MEG: 50 |
+| Mindestanzahl Eigentümer | Mindestanzahl anwesender Eigentümer | STWEG: 2, MEG: 1 |
 
 Details zur Quorum-Berechnung siehe `/guides/quorum/`.
 
 ### Stimmrechtsbegrenzung (Art. 712g ZGB)
 
-Die Community-Entität hält zwei Felder für die reglementarische Stimmrechtsbegrenzung:
+Die Gemeinschaft hält zwei Felder für die reglementarische Stimmrechtsbegrenzung:
 
-- **`EnableVotingRightsCap`** – `bool`, standardmässig `false`. Muss explizit aktiviert werden.
-- **`VotingRightsCapPct`** – `numeric(5,2)`, Standard `50.00`. Kappelt die Kopf-Stimmen eines Eigentümers, wenn sein Anteil am Gesamtwert den Prozentsatz übersteigt.
+- **Aktiv** – standardmässig deaktiviert. Muss explizit aktiviert werden.
+- **Prozentsatz** – Standard 50.00. Kappelt die Kopf-Stimmen eines Eigentümers, wenn sein Anteil am Gesamtwert den Prozentsatz übersteigt.
 
-Der `QuorumEngine` markiert betroffene Eigentümer in `CappedOwners` und setzt `VotingRightsCapApplied`.
+Betroffene Eigentümer werden im Ergebnis markiert.
 
 ## Weiterführende Links
 
 <LinkCard title="Quorum und Präsenz" href="/guides/quorum/" description="Beschlussfähigkeit und Reglement-Quoren." />
-<LinkCard title="Sicherheit und Audit" href="/reference/sicherheit/" description="Verschlüsselung und Hash-Ketten." />

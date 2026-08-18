@@ -5,117 +5,117 @@ description: The workflow of a digital owners' meeting with ResiVote — from dr
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote guides you from the draft to the signed minutes — all within a single digital space. A meeting follows a defined state machine (`internal/domain/entity/meeting.go`):
+ResiVote guides you from the draft to the signed minutes — all within a single digital space. A meeting follows a defined lifecycle:
 
-`DRAFT` → `PUBLISHED` → `CHECK_IN` → `IN_PROGRESS` → `CLOSED` → `ARCHIVED`
+Draft → Published → Check-in → In progress → Closed → Archived
 
-In addition to live meetings, ResiVote supports the circular resolution (`CIRCULAR_RESOLUTION`, Art. 712m para. 2 ZGB) as an alternative.
+In addition to live meetings, ResiVote supports the circular resolution (Art. 712m para. 2 ZGB) as an alternative.
 
 ## 1. Prepare the Meeting
 
-The meeting starts in the `DRAFT` state. The administrator sets the date, time, location, and title.
+The meeting starts in the draft state. The administrator sets the date, time, location, and title.
 
 ### Multiple Communities
 
-A meeting can span multiple communities (`Meeting.Communities` via the `meeting_communities` join table). Communities can be grouped into a development (`Development`) — for example, a STWEG plus an associated MEG in the same meeting.
+A meeting can span multiple communities. Communities can be grouped into a development — for example, a STWEG plus an associated MEG in the same meeting.
 
 ### Agenda Items
 
-Each agenda item (`AgendaItem`) defines:
+Each agenda item defines:
 
-- **Type** – `MOTION` (yes/no/abstain), `ELECTION` (election), `FREE_TEXT` (free-text proposal), `PROTOCOL` (assign minute-taker, without a vote)
-- **Quorum** – `SIMPLE_MAJORITY`, `QUALIFIED_MAJORITY`, `UNANIMOUS`, `ABSOLUTE_MAJORITY`, or `CUSTOM` with a custom percentage
-- **Community** – `CommunityID` = `nil` means "all communities of the meeting"
+- **Type** – motion (yes/no/abstain), election, free-text proposal, or protocol (assign minute-taker, without a vote)
+- **Quorum** – simple majority, qualified majority, unanimous, absolute majority, or custom with a custom percentage
+- **Community** – an empty community reference means "all communities of the meeting"
 
 For details on quorum types, see `/guides/quorum/`.
 
 ## 2. Invite Participants
 
-The transition to `PUBLISHED` sends out the invitations.
+The transition to published sends out the invitations.
 
 ### Scheduled Emails
 
-Invitations are persisted as `ScheduledEmail` (`internal/domain/entity/scheduled_email.go`). A background worker picks up due entries and sends them. Types: `INVITATION`, `REMINDER`, `CLOSED`. Status: `pending` → `sent` (or `failed`/`dead_letter` with retry).
+Invitations are persisted as scheduled emails and sent automatically when due. Types include invitation, reminder, and closed notifications. Status transitions from pending to sent (or failed with retry).
 
 ### Invitation PDF and Proxy Card
 
-The `ReportService` generates an invitation PDF (`GenerateInvitationPDF`) and a personalized proxy card (`GenerateProxyCardPDF`) for each recipient. Both are sent as attachments.
+ResiVote generates an invitation PDF and a personalized proxy card for each recipient. Both are sent as attachments.
 
-### OIDC Login
+### Login
 
-Authentication is handled via ZITADEL (OIDC). Owners log in using their personal link. The mapping of ZITADEL identity (`ExternalUserID`/`sub`) to the owner record happens automatically on first login (`LinkAllExternalUsersByEmail`).
+Authentication is handled via ZITADEL. Owners log in using their personal link. The mapping of the ZITADEL identity to the owner record happens automatically on first login.
 
 ## 3. Conduct the Meeting
 
-The administrator opens the meeting (`CHECK_IN`), then starts it (`IN_PROGRESS`).
+The administrator opens the meeting for check-in, then starts it.
 
 ### Check-in Methods
 
-The meeting configures a `CheckinMethod` (`internal/domain/entity/meeting.go`):
+The meeting configures a check-in method:
 
 | Method | Process |
 |---------|--------|
-| `MANUAL` | Chair/admin manually marks participants as present (default) |
-| `QR_CODE` | Owners scan a QR code with their smartphone (self-check-in) |
-| `SIGNATURE` | Owners select themselves from a dropdown on the admin's tablet and sign digitally; all their own units and proxy units are marked as present |
+| Manual | Chair/admin manually marks participants as present (default) |
+| QR code | Owners scan a QR code with their smartphone (self-check-in) |
+| Signature | Owners select themselves from a dropdown on the admin's tablet and sign digitally; all their own units and proxy units are marked as present |
 
 ### Chair Dashboard and Live Minutes
 
-The chair (`meeting_chair`) controls the meeting via a dashboard: open/close agenda items, start votes, view live results. The live minutes are maintained in parallel — the minute-taker (`OWNER` or `TENANT_ADMIN`) writes notes per agenda item.
+The chair controls the meeting via a dashboard: open/close agenda items, start votes, view live results. The live minutes are maintained in parallel — the minute-taker (an owner or tenant admin) writes notes per agenda item.
 
-### WebSocket Live Updates
+### Live Updates
 
-Presence, quorum status, and voting results are pushed to all participants in real time via WebSocket. The `presenceBuilder` (`internal/application/presence_builder.go`) is connected to the WebSocket hub and broadcasts presence changes immediately.
+Presence, quorum status, and voting results are pushed to all participants in real time.
 
 ## 4. Pass Resolutions
 
-Each agenda item goes through states (`internal/domain/entity/agenda_item.go`):
+Each agenda item goes through its own lifecycle:
 
-`PENDING` → `PRESENTING` → `PRE_VOTING` (optional) → `OPEN` → `CLOSED` (or `SKIPPED`)
+Pending → Presenting → Pre-voting (optional) → Open → Closed (or skipped)
 
 ### Casting a Vote
 
-The `VoteValidator` (`internal/domain/service/vote_validator.go`) checks before each vote:
+Before each vote, the system checks:
 
-1. Meeting is `IN_PROGRESS` (or `PRE_VOTING` for asynchronous pre-voting)
-2. Agenda item is `OPEN` or `PRE_VOTING`
-3. Quorum was met when opened — or the chair has granted a `QuorumOverride`
+1. Meeting is in progress (or in pre-voting for asynchronous pre-voting)
+2. Agenda item is open or in pre-voting
+3. Quorum was met when opened — or the chair has granted a quorum override
 4. Unit belongs to a community of the meeting
 5. Agenda item applies to the unit's community
-6. Voter is the primary voter (`PrimaryOwnership`) or a proxy (`Proxy.GranteeID`)
+6. Voter is the primary voter or a proxy
 7. If voting by proxy: does the proxy cover the agenda item? Does the vote match the instruction?
-8. Check-in required (if `RequirePreCheckin`)
+8. Check-in required (if pre-check-in is required)
 
 ### Head Votes and Value Quotas
 
-Depending on the community's `VotingRightsModel`, head votes (`HEAD_AND_VALUE`, `HEAD_ONLY`), value quotas (`HEAD_AND_VALUE`, `VALUE_ONLY`), or custom shares (`CUSTOM_SHARES`) are counted. The voting rights cap (`EnableVotingRightsCap`, Art. 712g ZGB) caps head votes when the regulatory percentage is exceeded.
+Depending on the community's voting rights model, head votes, value quotas, or custom shares are counted. The voting rights cap (Art. 712g ZGB) caps head votes when the regulatory percentage is exceeded.
 
-### Quorum Engine and Results
+### Quorum and Results
 
-The `QuorumEngine` (`internal/domain/service/quorum_engine.go`) calculates head votes and value quotas per community, compares them against the threshold, and produces an `AgendaItemResult` with `OverallPassed`. For details, see `/guides/quorum/`.
+The quorum engine calculates head votes and value quotas per community, compares them against the threshold, and produces an overall pass/fail result. For details, see `/guides/quorum/`.
 
 ### Live Result Visibility
 
-`LiveResultsVisibleTo` controls who sees live results: `ALL` (all participants) or `CHAIR` (chair/admin only).
+The meeting controls who sees live results: all participants or the chair/admin only.
 
 ## 5. Finalize the Minutes
 
-After the last agenda item, the meeting transitions to `CLOSED`, then to `ARCHIVED`.
+After the last agenda item, the meeting transitions to closed, then to archived.
 
 ### Minutes PDF
 
-`GenerateMeetingProtocolPDF` generates the binding minutes with all agenda items, voting results, attendances, and voting rights caps. Procedural `PROTOCOL` agenda items are filtered out. For details, see `/guides/protokoll/`.
+ResiVote generates the binding minutes with all agenda items, voting results, attendances, and voting rights caps. Procedural protocol agenda items are filtered out. For details, see `/guides/protokoll/`.
 
 ### Audit Log and Evidence Package
 
-Every action was logged during the meeting in the audit hash chain (`AuditEntry`, SHA-256/HMAC). The evidence package (`GenerateMeetingEvidencePDF`/`-JSON`) exports the complete chain with integrity verification. For details, see `/reference/sicherheit/`.
+Every action was logged during the meeting in the audit hash chain. The evidence package exports the complete chain with integrity verification.
 
 ### Archiving
 
-After `ARCHIVED`, no further changes are possible. The audit hash chain makes any subsequent manipulation detectable.
+After archiving, no further changes are possible. The audit hash chain makes any subsequent manipulation detectable.
 
 <Aside type="note" title="Circular Resolution">
-In `CIRCULAR_RESOLUTION` mode, check-in and the live session are omitted. Owners vote asynchronously within a time window (`CircularVotingStart`/`CircularVotingEnd`). The quorum engine and minutes work analogously.
+In circular resolution mode, check-in and the live session are omitted. Owners vote asynchronously within a time window. The quorum engine and minutes work analogously.
 </Aside>
 
 ## Further Reading

@@ -5,101 +5,93 @@ description: Rollen, Mandanten-Isolation, Eigentümer-Verwaltung und Impersonati
 
 import { Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote trennt die Authentifizierungs-Identität (`User`) von der Eigentümer-Identität (`Owner`). Rollen werden mandantenbezogen in der Datenbank gespeichert, nicht aus JWT-Claims abgeleitet. Alle Daten sind mandanten-isoliert.
+ResiVote trennt die Authentifizierungs-Identität von der Eigentümer-Identität. Rollen werden mandantenbezogen gespeichert, nicht aus Login-Tokens abgeleitet. Alle Daten sind mandanten-isoliert.
 
-## User vs Owner
+## Login-Identität vs. Eigentümer-Identität
 
 ResiVote entkoppelt bewusst die Login-Identität vom Eigentum:
 
-- **`User`** (`internal/domain/entity/user.go`) – die Authentifizierungs-Identität. Enthält die ZITADEL-`sub` (`ExternalUserID`), E-Mail, Name und eine Rolle. `TenantID` ist nullable (`nil` für `super_admin`).
-- **`Owner`** (`internal/domain/entity/owner.go`) – die Eigentums-Identität. Enthält Namen, E-Mail, Telefon und einen optionalen `UserID`-FK zur `users`-Tabelle. Ein Owner kann Einheiten in mehreren Gemeinschaften desselben Mandanten besitzen.
+- **Login-Identität** – die Authentifizierungs-Identität. Enthält die externe Identität, E-Mail, Name und eine Rolle. Bei Super-Admins ist kein Mandant zugeordnet.
+- **Eigentümer-Identität** – die Eigentums-Identität. Enthält Namen, E-Mail, Telefon und einen optionalen Bezug zur Login-Identität. Ein Eigentümer kann Einheiten in mehreren Gemeinschaften desselben Mandanten besitzen.
 
-Die Verknüpfung passiert beim ersten Login: `LinkAllExternalUsersByEmail` verknüpft die ZITADEL-`sub` mit allen User-Records derselben E-Mail, die noch keine `ExternalUserID` haben.
+Die Verknüpfung passiert beim ersten Login: ResiVote verknüpft die externe Identität mit allen Eigentümer-Datensätzen derselben E-Mail.
 
-### Owner-Eigenschaften
+### Eigentümer-Eigenschaften
 
 | Feld | Bedeutung |
 |------|-----------|
-| `ExternalUserID` | Globale Identität (mandantenübergreifend) |
-| `UserID` | Optionaler FK zu `users` (nullable für Legacy-Daten) |
-| `IsArchived` / `ArchivedAt` | Eigentümer als archiviert markiert |
-| `TenantID` | Mandant – Eigentümer können nur innerhalb desselben Mandanten Einheiten besitzen |
+| Externe Identität | Globale Identität (mandantenübergreifend) |
+| Login-Bezug | Optionaler Bezug zur Login-Identität (kann fehlen bei historischen Daten) |
+| Archiviert | Eigentümer als archiviert markiert |
+| Mandant | Eigentümer können nur innerhalb desselben Mandanten Einheiten besitzen |
 
 ## Rollen
 
-ResiVote kennt vier Rollen (`internal/domain/entity/user.go`):
+ResiVote kennt vier Rollen:
 
-### tenant_admin
+### Mandanten-Admin
 
-Der Mandanten-Administrator bereitet Versammlungen vor, lädt Teilnehmer ein, verwaltet Gemeinschaften und Einheiten und führt das Protokoll. Er sieht nur Daten seines eigenen Mandanten (`TenantID` gesetzt).
+Der Mandanten-Administrator bereitet Versammlungen vor, lädt Teilnehmer ein, verwaltet Gemeinschaften und Einheiten und führt das Protokoll. Er sieht nur Daten seines eigenen Mandanten.
 
-### super_admin
+### Super-Admin
 
-Der Super-Admin ist global (`TenantID = nil`). Er verwaltet Mandanten, hat Zugriff auf Super-Admin-Routen und kann Benutzer impersonieren. Die Rolle `super_admin` wird **nicht** in `UserTenantRole` gespeichert, sondern bleibt ein globaler JWT-Claim.
+Der Super-Admin ist global. Er verwaltet Mandanten und kann Benutzer impersonieren. Die Super-Admin-Rolle ist mandantenübergreifend und wird nicht mandantenbezogen gespeichert.
 
-### meeting_chair
+### Vorsitz
 
-Der Vorsitzende leitet die Versammlung über das Vorsitz-Dashboard: er öffnet und schliesst Traktanden, startet Abstimmungen, erteilt Quorum-Overrides und steuert die Live-Ergebnis-Sichtbarkeit. Ein Frontend-Guard (`chair guard`) schützt die Vorsitz-Funktionen.
+Der Vorsitzende leitet die Versammlung über das Vorsitz-Dashboard: er öffnet und schliesst Traktanden, startet Abstimmungen, erteilt Quorum-Ausnahmen und steuert die Live-Ergebnis-Sichtbarkeit.
 
-### owner
+### Eigentümer
 
 Der Eigentümer nimmt an Versammlungen teil, stimmt ab und sieht seine Dokumente im Portal. Die Eigentümer-Rolle ist die Standardrolle für stimmberechtigte Personen.
 
-## UserTenantRole
+## Mandanten-Zuordnung
 
-`UserTenantRole` (`internal/domain/entity/user_tenant_role.go`) ist die **Wahrheitsquelle** für Mandanten-Zuordnungen – nicht die JWT-Claims. Ein Benutzer kann mehrere Einträge haben, einen pro Mandant.
+Die mandantenbezogene Zuordnung ist die Wahrheitsquelle für Mandanten-Zugehörigkeiten – nicht die Login-Tokens. Ein Benutzer kann mehreren Mandanten angehören, mit jeweils einer Rolle pro Mandant.
 
-<Aside type="warning" title="super_admin nicht hier gespeichert">
-Die Rolle `super_admin` wird bewusst nicht in `UserTenantRole` abgelegt. Sie bleibt ein globaler JWT-Claim, da Super-Admins mandantenübergreifend operieren.
+<Aside type="warning" title="Super-Admin nicht mandantenbezogen">
+Die Super-Admin-Rolle wird bewusst nicht mandantenbezogen abgelegt, da Super-Admins mandantenübergreifend operieren.
 </Aside>
 
-Erlaubte Rollen in `UserTenantRole`: `tenant_admin`, `meeting_chair`, `owner`.
+Erlaubte Rollen pro Mandant: Mandanten-Admin, Vorsitz und Eigentümer.
 
 ## Mandanten-Isolation
 
-ResiVote ist Multi-Tenant. Jede Entität trägt ein `TenantID`-Feld:
+ResiVote ist Multi-Tenant. Jede Entität gehört zu einem Mandanten:
 
-- `Owner.TenantID` – Eigentümer sind mandantenbezogen.
-- `Document.TenantID` – Dokumente sind mandanten-isoliert.
-- `Folder.TenantID` – Ordner sind mandanten-isoliert.
-- `Meeting.TenantID` – Versammlungen gehören zu einem Mandanten.
-- `AuditEntry.TenantID` – Audit-Logs sind mandanten-isoliert.
+- Eigentümer sind mandantenbezogen.
+- Dokumente sind mandanten-isoliert.
+- Ordner sind mandanten-isoliert.
+- Versammlungen gehören zu einem Mandanten.
+- Audit-Logs sind mandanten-isoliert.
 
-Super-Admins (`TenantID = nil`) operieren global. Alle anderen Benutzer sehen nur Daten ihres Mandanten. Die Mandanten-Isolation wird auf Datenbankebene (Row-Level Security) und auf Anwendungsebene (`ctxutil.TenantIDFromContext`) durchgesetzt.
+Super-Admins operieren global. Alle anderen Benutzer sehen nur Daten ihres Mandanten. Die Mandanten-Isolation wird auf Datenbankebene und auf Anwendungsebene durchgesetzt.
 
 ## Eigentümer verwalten
 
-Eigentümer sind stimmberechtigte Personen oder Organisationen, die eine oder mehrere Wohneinheiten besitzen. Sie werden mit Namen, Adresse und E-Mail erfasst und den entsprechenden Einheiten via `Ownership` zugeordnet.
+Eigentümer sind stimmberechtigte Personen oder Organisationen, die eine oder mehrere Wohneinheiten besitzen. Sie werden mit Namen, Adresse und E-Mail erfasst und den entsprechenden Einheiten zugeordnet.
 
-Ein Eigentümer kann Einheiten in mehreren Gemeinschaften desselben Mandanten besitzen. Die Eigentumsanteile (`ShareNumerator`/`ShareDenominator`) bestimmen die Wertquote. `IsPrimaryVoter` markiert den Hauptwähler einer Einheit.
+Ein Eigentümer kann Einheiten in mehreren Gemeinschaften desselben Mandanten besitzen. Die Eigentumsanteile bestimmen die Wertquote. Pro Einheit wird ein Hauptwähler markiert.
 
-Archivierte Eigentümer (`IsArchived = true`) werden in der Verwaltung ausgeblendet, bleiben aber für historische Protokolle erhalten.
+Archivierte Eigentümer werden in der Verwaltung ausgeblendet, bleiben aber für historische Protokolle erhalten.
 
 ## Bevollmächtigte
 
-Ein Eigentümer kann eine andere Person mit einer Vollmacht (`Proxy`) beauftragen, an seiner Stelle an der Versammlung teilzunehmen und abzustimmen. Vollmachten können frei oder mandatiert vergeben werden.
+Ein Eigentümer kann eine andere Person mit einer Vollmacht beauftragen, an seiner Stelle an der Versammlung teilzunehmen und abzustimmen. Vollmachten können frei oder mandatiert vergeben werden.
 
-Der `VoteValidator` stellt sicher, dass nur der Bevollmächtigte (`GranteeID`) digital abstimmt – der Vollmachtgeber (`GrantorID`) wird gesperrt, solange eine aktive Vollmacht besteht. Mandatierte Stimmabgaben müssen mit der Weisung (`MandatedVote`) übereinstimmen.
+Das System stellt sicher, dass nur der Bevollmächtigte digital abstimmt – der Vollmachtgeber wird gesperrt, solange eine aktive Vollmacht besteht. Mandatierte Stimmabgaben müssen mit der Weisung übereinstimmen.
 
 ## Impersonation
 
-Super-Admins können die Identität eines anderen Benutzers annehmen (`internal/application/impersonation_service.go`). Der Vorgang nutzt ZITADEL Token Exchange (RFC 8693):
+Super-Admins können die Identität eines anderen Benutzers annehmen. Der Vorgang nutzt ZITADEL Token Exchange:
 
-- Der Super-Admin tauscht seinen Access-Token gegen einen neuen JWT ein, der die Identität des Zielbenutzers annimmt.
-- Der resultierende JWT enthält einen `act`-Claim, der den Impersonator identifiziert.
-- Jede Aktion während der Impersonation wird im Audit-Log mit `ImpersonatedByID` protokolliert (Hash-Version v3).
+- Der Super-Admin tauscht seinen Access-Token gegen einen neuen Token ein, der die Identität des Zielbenutzers annimmt.
+- Jede Aktion während der Impersonation wird im Audit-Log mit der Identität des Impersonators protokolliert.
 
 <Aside type="note" title="Vollständige Nachvollziehbarkeit">
-Die Impersonation ist im Audit-Log lückenlos nachvollziehbar. Die Hash-Kette (v3) bindet die Impersonator-Identität in jeden Audit-Eintrag ein.
+Die Impersonation ist im Audit-Log lückenlos nachvollziehbar. Die Hash-Kette bindet die Impersonator-Identität in jeden Audit-Eintrag ein.
 </Aside>
 
 ## Zugang sicher gestalten
 
-Jeder Benutzer meldet sich über ZITADEL (OIDC) an. Die Authentifizierung erfolgt über persönliche Links oder Einladungs-Codes (`RedeemInvitation`). Mandanten-Administratoren sehen nur die Daten ihres eigenen Mandanten.
-
-Details zur Audit-Hash-Kette und Integritätsprüfung siehe `/reference/sicherheit/`.
-
-## Weiterführende Links
-
-<LinkCard title="Rollen-Referenz" href="/reference/rollen/" description="Detaillierte Rollen- und Berechtigungsdefinitionen." />
-<LinkCard title="Sicherheit und Audit" href="/reference/sicherheit/" description="Hash-Ketten, Impersonation-Protokollierung und Integritätsprüfung." />
+Jeder Benutzer meldet sich über ZITADEL an. Die Authentifizierung erfolgt über persönliche Links oder Einladungs-Codes. Mandanten-Administratoren sehen nur die Daten ihres eigenen Mandanten.

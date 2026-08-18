@@ -9,72 +9,72 @@ ResiVote calcule les quorums selon le droit immobilier suisse (ZGB). La capacit�
 
 ## Types de quorum
 
-Chaque point de l'ordre du jour définit son type de quorum dans le champ `QuorumType` (`internal/domain/entity/agenda_item.go`) :
+Chaque point de l'ordre du jour définit son type de quorum :
 
 | Type | Signification | Base juridique |
 |-----|---------------|----------------|
-| `SIMPLE_MAJORITY` | OUI > 50% des voix par tête présentes. Les abstentions et les votes non émis comptent comme un non implicite. | — |
-| `QUALIFIED_MAJORITY` | OUI > 50% des propriétaires présents (têtes) **et** > 50% **de toutes** les quotes-parts de valeur autorisées. | Art. 647b/d/e, 712g al. 3 ZGB |
-| `UNANIMOUS` | 100% **de tous** les propriétaires enregistrés (têtes) et quotes-parts de valeur doivent voter OUI. Les absences sans procuration positive comptent comme un non. | Art. 647e ZGB |
-| `ABSOLUTE_MAJORITY` | OUI > 50% **de tous** les propriétaires enregistrés (indépendamment de la présence). | — |
-| `CUSTOM` | OUI >= `CustomQuorumPct`% de la base configurée. | Règlement |
+| Majorité simple | OUI > 50% des voix par tête présentes. Les abstentions et les votes non émis comptent comme un non implicite. | — |
+| Majorité qualifiée | OUI > 50% des propriétaires présents (têtes) **et** > 50% **de toutes** les quotes-parts de valeur autorisées. | Art. 647b/d/e, 712g al. 3 ZGB |
+| Unanimité | 100% **de tous** les propriétaires enregistrés (têtes) et quotes-parts de valeur doivent voter OUI. Les absences sans procuration positive comptent comme un non. | Art. 647e ZGB |
+| Majorité absolue | OUI > 50% **de tous** les propriétaires enregistrés (indépendamment de la présence). | — |
+| Personnalisé | OUI >= seuil en % de la base configurée. | Règlement |
 
-### Quorum CUSTOM
+### Quorum personnalisé
 
-Pour `CUSTOM`, le point de l'ordre du jour contient trois champs :
+Pour un quorum personnalisé, le point de l'ordre du jour contient trois paramètres :
 
-- **`CustomQuorumPct`** – seuil en % (p. ex. 66.67)
-- **`CustomQuorumValuePct`** – seuil séparé optionnel pour les quotes-parts de valeur
-- **`CustomQuorumBase`** – `PRESENT` (présents) ou `ELIGIBLE` (tous les autorisés)
+- **Seuil en %** – p. ex. 66.67%
+- **Seuil séparé optionnel pour les quotes-parts de valeur**
+- **Base** – les présents ou tous les autorisés
 
 ### Override de quorum
 
 Le président peut lever un blocage de quorum. Le point de l'ordre du jour contient pour cela :
 
-- **`QuorumOverride`** – `bool`. Si `true`, les votes sont acceptés même si `QuorumMetAtOpen` est `false`.
-- **`QuorumOverrideReason`** – texte de justification obligatoire lorsque `QuorumOverride = true`.
+- **Override de quorum** – si activé, les votes sont acceptés même si le quorum n'était pas atteint à l'ouverture.
+- **Justification** – texte de justification obligatoire lorsque l'override est activé.
 
-Le `VoteValidator` (`internal/domain/service/vote_validator.go`) vérifie à l'étape 2a : si `QuorumMet` est `nil` (pas d'instantané), le contrôle est ignoré. Si `QuorumMet` est `false` et que `QuorumOverride` n'est pas défini, le vote est rejeté avec `QuorumNotMet`.
+Le système vérifie lors du vote : si aucun instantané de quorum n'existe, le contrôle est ignoré. Si le quorum n'était pas atteint et qu'aucun override n'est défini, le vote est rejeté.
 
 ## Moteur de quorum
 
-Le `QuorumEngine` (`internal/domain/service/quorum_engine.go`) est la composante centrale de l'évaluation des votes. Il calcule par communauté un `CommunityQuorumResult` et les agrège en un `AgendaItemResult`.
+Le moteur de quorum est la composante centrale de l'évaluation des votes. Il calcule par communauté un résultat de quorum et les agrège en un résultat global.
 
 ### Entrées
 
-- Point de l'ordre du jour (`AgendaItem` avec `QuorumType`, `CustomQuorumPct` etc.)
+- Point de l'ordre du jour avec son type de quorum et ses paramètres
 - Communautés de l'assemblée
-- Unités et parts de propriété (`Ownership`)
-- Présences (`Attendance`)
-- Procurations (`Proxy`)
-- Votes émis (`Vote`)
+- Unités et parts de propriété
+- Présences
+- Procurations
+- Votes émis
 
 ### Sorties par communauté
 
 | Champ | Signification |
 |------|---------------|
-| `YesHeadVotes` / `NoHeadVotes` / `AbstainHeadVotes` | Voix par tête |
-| `YesValueQuota` / `NoValueQuota` / `AbstainValueQuota` | Quotes-parts de valeur |
-| `HeadVoteThreshold` / `ValueThreshold` | Voix OUI requises |
-| `HeadVotePassed` / `ValueVotePassed` | Si le seuil est atteint |
-| `Passed` | `*bool` – résultat global (nil pour les points informatifs) |
-| `VotingRightsCapApplied` / `CappedOwners` | Limitation du droit de vote appliquée |
-| `NoVoters` / `AbstainVoters` | Noms des votants non/abstention (pour le procès-verbal) |
-| `CandidateTally` / `Winner` | Résultat d'élection pour `ELECTION` |
-| `IsInformational` | Pas de résultat OUI/NON (p. ex. `FREE_TEXT`) |
-| `IsInherited` | Résultat MEG hérité des STWEG associés |
+| Voix par tête (oui / non / abstention) | Voix par tête |
+| Quotes-parts de valeur (oui / non / abstention) | Quotes-parts de valeur |
+| Seuils requis | Voix OUI requises |
+| Seuils atteints | Si le seuil est atteint |
+| Résultat global | Résultat global (nil pour les points informatifs) |
+| Limitation du droit de vote appliquée | Propriétaires concernés par le plafonnement |
+| Noms des votants non / abstention | Pour le procès-verbal |
+| Résultat d'élection | Tally et vainqueur pour les élections |
+| Point informatif | Pas de résultat OUI/NON (p. ex. texte libre) |
+| Résultat hérité | Résultat MEG hérité des STWEG associés |
 
 ### Normalisation défensive
 
-Le `QuorumEngine` normalise les entrées de manière défensive : les communautés vides produisent un résultat informatif (`zeroVoterCommunityResult`), les votes manquants comptent comme un non implicite, et les erreurs d'arrondi `float64` sont absorbées par un epsilon (1e-9).
+Le moteur de quorum normalise les entrées de manière défensive : les communautés vides produisent un résultat informatif, les votes manquants comptent comme un non implicite, et les erreurs d'arrondi sont absorbées.
 
 ### Résultat global
 
-`OverallPassed` est `true` si **toutes** les communautés atteignent le quorum. Les résultats MEG hérités (`IsInherited`) ne sont pas comptés double.
+Le résultat global est positif si **toutes** les communautés atteignent le quorum. Les résultats MEG hérités ne sont pas comptés double.
 
 ## Service de quorum en direct
 
-Le `LiveQuorumEngine` (`internal/domain/service/live_quorum.go`) répond à la question « l'assemblée est-elle capable de résoudre ? » en temps réel, sur la base de la présence actuelle – indépendamment des votes émis.
+Le service de quorum en direct répond à la question « l'assemblée est-elle capable de résoudre ? » en temps réel, sur la base de la présence actuelle – indépendamment des votes émis.
 
 ### Capacité de résolution
 
@@ -82,117 +82,112 @@ L'assemblée est capable de résoudre si **plus de la moitié** des voix par tê
 
 ### Modèles de droit de vote
 
-Les conditions applicables dépendent du `VotingRightsModel` de la communauté :
+Les conditions applicables dépendent du modèle de droit de vote de la communauté :
 
 | Modèle | Condition têtes | Condition quotes-parts de valeur |
 |--------|-----------------|----------------------------------|
-| `HEAD_AND_VALUE` / `CUSTOM_SHARES` | oui | oui |
-| `HEAD_ONLY` | oui | ignorée |
-| `VALUE_ONLY` | ignorée | oui |
-
-### Horloge injectable
-
-`LiveQuorumEngine` accepte une interface `Clock` (`NewLiveQuorumEngine(clock ...Clock)`). En production, il utilise `SystemClock` ; dans les tests, une horloge contrôlable peut être injectée pour produire des horodatages déterministes.
+| Voix par tête et quotes-parts de valeur / Parts personnalisées | oui | oui |
+| Uniquement les voix par tête | oui | ignorée |
+| Uniquement les quotes-parts de valeur | ignorée | oui |
 
 ### Sortie
 
-`LiveQuorumState` par communauté :
+L'état du quorum en direct par communauté indique :
 
-- `HeadQuorumMet`, `ValueQuorumMet`, `MinOwnersMet`, `OverallQuorumMet`
-- `RequiredHeadVotes`, `RequiredValueQuota`
-- `MissingHeadVotes`, `MissingValueQuota`, `MissingOwners`
+- Si le quorum par tête est atteint, si le quorum par valeur est atteint, si le nombre minimum de propriétaires est atteint, et le quorum global.
+- Les voix par tête requises et les quotes-parts de valeur requises.
+- Les voix par tête manquantes, les quotes-parts de valeur manquantes et les propriétaires manquants.
 
-`IsQuorumReached` est `true` si toutes les communautés atteignent le quorum.
+L'assemblée est capable de résoudre si toutes les communautés atteignent le quorum.
 
 ## Calcul de présence
 
-Le `presenceBuilder` (`internal/application/presence_builder.go`) collecte les présences, procurations et parts de propriété et les agrège en instantanés `CommunityPresence`. Il est partagé entre `MeetingService.GetMeetingPresence` et le `LiveQuorumEngine`, de sorte que le quorum en direct et l'API REST utilisent la même source de présence.
+Le système collecte les présences, procurations et parts de propriété et les agrège en instantanés par communauté. Le quorum en direct et l'API utilisent la même source de présence.
 
 ### Déroulement
 
 <Steps>
   1. **Charger les communautés** – toutes les communautés de l'assemblée.
-  2. **Charger les présences** – tous les enregistrements `Attendance` de l'assemblée.
-  3. **Charger les procurations** – tous les enregistrements `Proxy` de l'assemblée.
-  4. **Construire les maps de recherche** – `UnitID → Attendance` et `UnitID → active Proxy`.
+  2. **Charger les présences** – tous les enregistrements de présence de l'assemblée.
+  3. **Charger les procurations** – tous les enregistrements de procuration de l'assemblée.
+  4. **Construire les correspondances** – entre unités et présences, et entre unités et procurations actives.
   5. **Agréger par communauté** – pour chaque communauté : charger les unités, additionner les parts de propriété, calculer les voix par tête et les quotes-parts de valeur présentes/représentées.
 </Steps>
 
 ### Statut de présence
 
-Chaque propriétaire reçoit un `PresenceStatus` (`internal/domain/entity/presence.go`) :
+Chaque propriétaire reçoit un statut de présence :
 
 | Statut | Signification |
 |--------|---------------|
-| `PRESENT` | Le propriétaire est présent (enregistrement effectué) |
-| `REPRESENTED` | Le propriétaire est représenté par un mandataire |
-| `ABSENT` | Le propriétaire est absent |
+| Présent | Le propriétaire est présent (enregistrement effectué) |
+| Représenté | Le propriétaire est représenté par un mandataire |
+| Absent | Le propriétaire est absent |
 
-`CommunityPresence` résume : `TotalOwners`, `TotalHeadVotes`, `TotalValueQuota`, `PresentOwners`, `PresentHeadVotes`, `PresentValueQuota`, `PresenceHeadPct`, `PresenceValuePct`.
+Le résumé par communauté indique : le nombre total de propriétaires, les voix par tête totales, les quotes-parts de valeur totales, les propriétaires présents, les voix par tête présentes, les quotes-parts de valeur présentes, et les pourcentages de présence par tête et par valeur.
 
-### Procurations (Proxy)
+### Procurations
 
-Un propriétaire peut mandater une autre personne. Le `VoteValidator` vérifie :
+Un propriétaire peut mandater une autre personne. Le système vérifie :
 
-- Seul le mandataire (`GranteeID`) peut voter numériquement, pas le mandant (`GrantorID`).
-- La procuration doit couvrir le point de l'ordre du jour (`CoversAgendaItem`).
-- Les votes avec mandat doivent correspondre à l'instruction (`MandatedVote`).
+- Seul le mandataire peut voter numériquement, pas le mandant.
+- La procuration doit couvrir le point de l'ordre du jour.
+- Les votes avec mandat doivent correspondre à l'instruction.
 
 ## Instantanés de quorum
 
-Lors de l'ouverture d'un point de l'ordre du jour, `LiveQuorumEngine.CreateSnapshot` fige la présence et le statut du quorum actuels. L'instantané sert de base de quorum pour ce point.
+Lors de l'ouverture d'un point de l'ordre du jour, le système fige la présence et le statut du quorum actuels. L'instantané sert de base de quorum pour ce point.
 
 ### Persistance
 
-`QuorumSnapshotRecord` (`internal/domain/entity/quorum_snapshot.go`) stocke l'instantané dans la base de données (table `quorum_snapshots`) :
+L'instantané est stocké dans la base de données :
 
 | Champ | Signification |
 |------|---------------|
-| `AgendaItemID` | unique par point de l'ordre du jour (`uniqueIndex`) |
-| `MeetingID` | Assemblée |
-| `SnapshotJSON` | instantané complet en JSONB |
-| `SnapshotTakenAt` | moment de l'instantané |
-| `QuorumMetAtOpen` | l'assemblée était-elle capable de résoudre à l'ouverture ? |
+| Point de l'ordre du jour | unique par point de l'ordre du jour |
+| Assemblée | l'assemblée concernée |
+| Instantané complet | données complètes de l'instantané |
+| Moment de l'instantané | moment où l'instantané a été pris |
+| Quorum atteint à l'ouverture | l'assemblée était-elle capable de résoudre à l'ouverture ? |
 
-L'instantané survit aux redémarrages du serveur et sert de base au contrôle du `VoteValidator`.
+L'instantané survit aux redémarrages du serveur et sert de base au contrôle du quorum lors du vote.
 
 ## Types de communauté et standards
 
 ### STWEG vs MEG
 
-L'entité `Community` (`internal/domain/entity/community.go`) distingue deux types :
+ResiVote distingue deux types de communauté :
 
 | Type | Signification | Quorum standard (têtes/valeur/min propriétaires) |
 |-----|---------------|--------------------------------------------------|
-| `STWEG` | Communauté des propriétaires par étages | 50% / 50% / 2 |
-| `MEG` | Communauté des copropriétaires | 50% / 50% / 1 |
+| STWEG | Communauté des propriétaires par étages | 50% / 50% / 2 |
+| MEG | Communauté des copropriétaires | 50% / 50% / 1 |
 
-Les standards sont définis dans `LiveQuorumEngine.GetQuorumRequirements`. Les champs de règlement (`ReglementHeadQuorumPct`, `ReglementValueQuorumPct`, `ReglementMinOwners`) remplacent les standards lorsqu'ils ne sont pas `NULL`.
+Les standards peuvent être remplacés par les valeurs du règlement lorsqu'elles sont définies.
 
 ### Modèles de droit de vote
 
 | Modèle | Description |
 |--------|-------------|
-| `HEAD_AND_VALUE` | Voix par tête + quotes-parts de valeur (standard STWEG) |
-| `HEAD_ONLY` | Uniquement les voix par tête (1 unité = 1 voix) |
-| `VALUE_ONLY` | Uniquement les quotes-parts de valeur |
-| `CUSTOM_SHARES` | Parts personnalisées par unité (spécifique au MEG) |
+| Voix par tête et quotes-parts de valeur | Standard STWEG |
+| Uniquement les voix par tête | 1 unité = 1 voix |
+| Uniquement les quotes-parts de valeur | — |
+| Parts personnalisées | Parts personnalisées par unité (spécifique au MEG) |
 
 ### Le MEG hérite des propriétaires du STWEG
 
 Un MEG peut hériter des propriétaires des STWEG associés :
 
-- **`InheritsOwners`** – `bool`, pertinent uniquement pour le MEG. Si `true`, le MEG ne gère pas ses propres unités/propriétaires, mais les hérite des STWEG associés.
-- **`ShouldInheritSTWEGUnits`** – renvoie `true` si le MEG a `InheritsOwners = true` **et** ne possède pas d'unités propres. Cela évite les doubles comptages.
-- **`CommunityLink`** – table de jointure (`community_links`) pour la relation M:N entre STWEG et MEG.
+- **Héritage des propriétaires** – pertinent uniquement pour le MEG. Si activé, le MEG ne gère pas ses propres unités/propriétaires, mais les hérite des STWEG associés.
+- **Héritage effectif** – se produit si l'héritage est activé **et** que le MEG ne possède pas d'unités propres. Cela évite les doubles comptages.
+- **Lien entre communautés** – association entre STWEG et MEG.
 
-Les résultats MEG hérités sont marqués dans `AgendaItemResult` avec `IsInherited = true` et ne sont pas comptés double dans `OverallPassed`.
+Les résultats MEG hérités sont marqués comme tels et ne sont pas comptés double dans le résultat global.
 
-### Ensembles immobiliers (Developments)
+### Ensembles immobiliers
 
-L'entité `Development` (`internal/domain/entity/community.go`) regroupe plusieurs communautés (STWEG et/ou MEG). Une assemblée peut regrouper plusieurs communautés d'un ensemble immobilier (`Meeting.Communities` via la table de jointure `meeting_communities`).
+Un ensemble immobilier regroupe plusieurs communautés (STWEG et/ou MEG). Une assemblée peut regrouper plusieurs communautés d'un ensemble immobilier.
 
 ## Liens complémentaires
 
 <LinkCard title="Vote" href="/guides/abstimmung/" description="Vote, validation et résultats." />
-<LinkCard title="Modèle de données" href="/reference/datenmodell/" description="Entités et relations en détail." />

@@ -5,40 +5,40 @@ description: Check-in methods, QR tokens, tablet signatures, and attendance calc
 
 import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
 
-This guide describes how owners become present at a meeting and how ResiVote calculates attendance. It is intended for `tenant_admin`, `meeting_chair`, and owners.
+This guide describes how owners become present at a meeting and how ResiVote calculates attendance. It is intended for tenant administrators, meeting chairs, and owners.
 
 ## Check-in Methods
 
-Each meeting defines its check-in method (`checkin_method`). An empty value means `MANUAL`.
+Each meeting defines its check-in method. An empty value means manual.
 
 | Method | Description |
 | --- | --- |
-| `MANUAL` | The chair or administrator manually marks present owners. |
-| `QR_CODE` | Owners check themselves in by scanning a QR code with their smartphone. |
-| `SIGNATURE` | Owners select themselves from a dropdown on the administrator's tablet and sign digitally. |
+| Manual | The chair or administrator manually marks present owners. |
+| QR code | Owners check themselves in by scanning a QR code with their smartphone. |
+| Signature | Owners select themselves from a dropdown on the administrator's tablet and sign digitally. |
 
-## Prerequisite: Status CHECK_IN
+## Prerequisite: Check-in Phase
 
-Check-in requires the meeting to be in the `CHECK_IN` state. When opening the meeting (`PUBLISHED → CHECK_IN`), the system verifies for the `QR_CODE` and `SIGNATURE` methods that check-in is properly configured.
+Check-in requires the meeting to be in the check-in phase. When opening the meeting for check-in, the system verifies for the QR code and signature methods that check-in is properly configured.
 
 ## Manual Check-in
 
-The chair manually records the attendance of a unit. The system creates an `Attendance` record with `method = CHECKIN` and rejects duplicate check-ins with a conflict error.
+The chair manually records the attendance of a unit. The system creates an attendance record and rejects duplicate check-ins with a conflict error.
 
 ## QR Code Self-Check-in
 
 <Steps>
 
-1. **Generate QR token.** The administrator generates a signed check-in token for the meeting. The token is an HMAC-signed JWT (HS256) and contains the `meeting_id`, the check-in method, and the tenant slug. The validity period is controlled by the `CHECKIN_TOKEN_EXPIRY` environment variable (default: 30 minutes).
+1. **Generate QR token.** The administrator generates a signed check-in token for the meeting. The token contains the meeting reference, the check-in method, and the tenant slug. The validity period is configurable (default: 30 minutes).
 
 2. **Validate token.** Before login, the frontend can validate the token to resolve the meeting. The token itself does not grant access — the owner must authenticate afterwards.
 
-3. **Perform self-check-in.** The authenticated owner checks in one or more of their units. The system verifies that the owner actively owns the unit (`ValidUntil` is not set) and that the unit is not yet checked in. Already checked-in units are skipped — self-check-in is idempotent.
+3. **Perform self-check-in.** The authenticated owner checks in one or more of their units. The system verifies that the owner actively owns the unit and that the unit is not yet checked in. Already checked-in units are skipped — self-check-in is idempotent.
 
 </Steps>
 
 <Aside type="note" title="Method Check">
-  Self-check-in is only allowed if the meeting's check-in method is `QR_CODE` (or empty, which allows self-check-in for backward compatibility).
+  Self-check-in is only allowed if the meeting's check-in method is QR code (or empty, which allows self-check-in for backward compatibility).
 </Aside>
 
 ## Tablet Signature Check-in
@@ -47,52 +47,52 @@ The signature check-in runs in two steps on the administrator's tablet:
 
 ### Step 1: Retrieve Preview
 
-The `CheckinPreview` shows the owner which units are covered by their signature:
+The system shows the owner which units are covered by their signature:
 
-- **Own units** (`own_units`) – all active ownerships within the community scope of the meeting.
-- **Represented units** (`proxy_units`) – units for which the owner is the proxy of an active proxy. For each represented unit, the grantor (`proxy_grantor_id`) is shown.
-- **Total** – `total_units` and `total_value_quota` sum the covered units and their value quotas.
+- **Own units** – all active ownerships within the community scope of the meeting.
+- **Represented units** – units for which the owner is the proxy of an active proxy. For each represented unit, the grantor is shown.
+- **Total** – the covered units and their value quotas are summed.
 
 ### Step 2: Capture Signature
 
-The `SignatureCheckIn` method stores the digital signature:
+The system stores the digital signature:
 
-- **`captured_by_id`** – the administrator operating the tablet.
-- **`image_data`** – the signature as JPEG or PNG image data.
-- **Own units** receive an `Attendance` record with `method = SIGNATURE`.
-- **Represented units** do not receive their own attendance. They are automatically marked as represented via the proxy in the presence builder. The `SignatureUnit` join table documents all covered units (own and represented) for audit purposes.
+- The administrator operating the tablet is recorded.
+- The signature image is stored.
+- Own units receive an attendance record with the signature method.
+- Represented units do not receive their own attendance. They are automatically marked as represented via the proxy. All covered units (own and represented) are documented for audit purposes.
 
-The signature is stored in a separate table (`signatures`) — separate from attendance — so that the image data remains tamper-proof and independently verifiable.
+The signature is stored separately from attendance, so that the image data remains tamper-proof and independently verifiable.
 
-## Attendance Entity
+## Attendance
 
-Each attendance (`Attendance`) records when and how a unit was checked in:
+Each attendance records when and how a unit was checked in:
 
-- **`owner_id`** – the owner.
-- **`unit_id`** – the checked-in unit.
-- **`method`** – the check-in method: `CHECKIN` (manual), `SELF_CHECKIN` (QR), `SIGNATURE` (tablet), or `VOTE` (automatic via voting).
+- **Owner** – the owner.
+- **Unit** – the checked-in unit.
+- **Method** – the check-in method: manual, self-check-in (QR), signature (tablet), or automatic via voting.
 
-A unit is considered present as soon as an `Attendance` record exists.
+A unit is considered present as soon as an attendance record exists.
 
-## Attendance Calculation (Presence Builder)
+## Attendance Calculation
 
-The presence builder aggregates attendance, proxies, and ownership into community-scoped snapshots (`CommunityPresence`). Per community, it calculates:
+The system aggregates attendance, proxies, and ownership into community-scoped snapshots. Per community, it calculates:
 
-- **`total_owners`**, **`total_head_votes`** (number of units), and **`total_value_quota`**.
-- **`present_owners`**, **`present_head_votes`**, and **`present_value_quota`**.
-- **`presence_head_pct`** and **`presence_value_pct`** – attendance percentages.
+- Total owners, total head votes (number of units), and total value quota.
+- Present owners, present head votes, and present value quota.
+- Attendance percentages for both head votes and value quotas.
 
-Each owner receives a status (`PresenceRecord`):
+Each owner receives a status:
 
-- **`PRESENT`** – owner is directly checked in.
-- **`REPRESENTED`** – owner is represented by an active proxy; `represented_by` references the proxy. Prerequisite: the proxy is present somewhere in the meeting.
-- **`ABSENT`** – neither present nor represented.
+- **Present** – owner is directly checked in.
+- **Represented** – owner is represented by an active proxy. Prerequisite: the proxy is present somewhere in the meeting.
+- **Absent** – neither present nor represented.
 
-MEG communities without their own units inherit the units of linked STWEGs, provided `InheritsOwners` is active and the MEG has no own units.
+MEG communities without their own units inherit the units of linked STWEGs, provided inheritance is active and the MEG has no own units.
 
 ## Automatic Attendance via Voting
 
-Casting a vote implies attendance: if an owner votes without having checked in beforehand, the system automatically creates an `Attendance` record with `method = VOTE`. When voting via a proxy, attendance is set for the proxy.
+Casting a vote implies attendance: if an owner votes without having checked in beforehand, the system automatically creates an attendance record. When voting via a proxy, attendance is set for the proxy.
 
 <CardGrid>
   <Card title="Manage Proxies" icon="seti:doc">

@@ -5,101 +5,94 @@ description: Rôles, isolation par mandant, gestion des propriétaires et impers
 
 import { Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote sépare l'identité d'authentification (`User`) de l'identité de propriétaire (`Owner`). Les rôles sont stockés par mandant dans la base de données, et non dérivés des claims JWT. Toutes les données sont isolées par mandant.
+ResiVote sépare l'identité d'authentification de l'identité de propriétaire. Les rôles sont stockés par mandant dans la base de données. Toutes les données sont isolées par mandant.
 
-## User vs Owner
+## Identité de connexion et identité de propriétaire
 
 ResiVote découple volontairement l'identité de connexion de la propriété :
 
-- **`User`** (`internal/domain/entity/user.go`) – l'identité d'authentification. Contient le `sub` ZITADEL (`ExternalUserID`), l'e-mail, le nom et un rôle. `TenantID` est nullable (`nil` pour `super_admin`).
-- **`Owner`** (`internal/domain/entity/owner.go`) – l'identité de propriété. Contient le nom, l'e-mail, le téléphone et une clé étrangère `UserID` optionnelle vers la table `users`. Un Owner peut posséder des unités dans plusieurs communautés d'un même mandant.
+- **Identité de connexion** – l'identité d'authentification. Contient l'identité ZITADEL, l'e-mail, le nom et un rôle. Pour les super-administrateurs, aucun mandant n'est attribué.
+- **Identité de propriétaire** – l'identité de propriété. Contient le nom, l'e-mail, le téléphone et un lien optionnel vers l'identité de connexion. Un propriétaire peut posséder des unités dans plusieurs communautés d'un même mandant.
 
-La liaison s'effectue lors de la première connexion : `LinkAllExternalUsersByEmail` associe le `sub` ZITADEL à tous les enregistrements User de même e-mail qui n'ont pas encore d'`ExternalUserID`.
+La liaison s'effectue lors de la première connexion : le système associe l'identité ZITADEL à tous les enregistrements de même e-mail qui n'ont pas encore d'identité externe.
 
-### Propriétés d'Owner
+### Propriétés du propriétaire
 
 | Champ | Signification |
 |------|---------------|
-| `ExternalUserID` | Identité globale (inter-mandants) |
-| `UserID` | FK optionnelle vers `users` (nullable pour les données héritées) |
-| `IsArchived` / `ArchivedAt` | Propriétaire marqué comme archivé |
-| `TenantID` | Mandant – les propriétaires ne peuvent posséder des unités qu'au sein d'un même mandant |
+| Identité externe | Identité globale (inter-mandants) |
+| Lien de connexion | Lien optionnel vers l'identité de connexion (nullable pour les données héritées) |
+| Archivage | Propriétaire marqué comme archivé |
+| Mandant | Les propriétaires ne peuvent posséder des unités qu'au sein d'un même mandant |
 
 ## Rôles
 
-ResiVote connaît quatre rôles (`internal/domain/entity/user.go`) :
+ResiVote connaît quatre rôles :
 
-### tenant_admin
+### Administrateur de mandant
 
-L'administrateur de mandant prépare les assemblées, invite les participants, gère les communautés et les unités, et tient le procès-verbal. Il ne voit que les données de son propre mandant (`TenantID` défini).
+L'administrateur de mandant prépare les assemblées, invite les participants, gère les communautés et les unités, et tient le procès-verbal. Il ne voit que les données de son propre mandant.
 
-### super_admin
+### Super-administrateur
 
-Le super-administrateur est global (`TenantID = nil`). Il gère les mandants, a accès aux routes super-admin et peut emprunter l'identité d'autres utilisateurs. Le rôle `super_admin` n'est **pas** stocké dans `UserTenantRole`, il reste un claim JWT global.
+Le super-administrateur est global. Il gère les mandants, a accès aux routes super-admin et peut emprunter l'identité d'autres utilisateurs. Le rôle de super-administrateur n'est pas stocké par mandant, il reste un rôle global.
 
-### meeting_chair
+### Président
 
-Le président dirige l'assemblée via le tableau de bord du président : il ouvre et ferme les points de l'ordre du jour, lance les votes, accorde des overrides de quorum et contrôle la visibilité des résultats en direct. Une garde frontend (`chair guard`) protège les fonctions du président.
+Le président dirige l'assemblée via le tableau de bord du président : il ouvre et ferme les points de l'ordre du jour, lance les votes, accorde des overrides de quorum et contrôle la visibilité des résultats en direct.
 
-### owner
+### Propriétaire
 
 Le propriétaire participe aux assemblées, vote et consulte ses documents dans le portail. Le rôle de propriétaire est le rôle par défaut pour les personnes ayant droit de vote.
 
-## UserTenantRole
+## Associations de mandants
 
-`UserTenantRole` (`internal/domain/entity/user_tenant_role.go`) est la **source de vérité** pour les associations de mandants – et non les claims JWT. Un utilisateur peut avoir plusieurs entrées, une par mandant.
+Les associations d'utilisateurs aux mandants sont la **source de vérité** pour les rôles par mandant. Un utilisateur peut avoir plusieurs entrées, une par mandant.
 
-<Aside type="warning" title="super_admin non stocké ici">
-Le rôle `super_admin` n'est volontairement pas stocké dans `UserTenantRole`. Il reste un claim JWT global, car les super-administrateurs opèrent de manière inter-mandants.
+<Aside type="warning" title="Super-administrateur non stocké par mandant">
+Le rôle de super-administrateur n'est volontairement pas stocké par mandant. Il reste un rôle global, car les super-administrateurs opèrent de manière inter-mandants.
 </Aside>
 
-Rôles autorisés dans `UserTenantRole` : `tenant_admin`, `meeting_chair`, `owner`.
+Rôles autorisés par mandant : administrateur de mandant, président, propriétaire.
 
 ## Isolation par mandant
 
-ResiVote est multi-mandants. Chaque entité porte un champ `TenantID` :
+ResiVote est multi-mandants. Chaque entité porte un mandant :
 
-- `Owner.TenantID` – les propriétaires sont liés à un mandant.
-- `Document.TenantID` – les documents sont isolés par mandant.
-- `Folder.TenantID` – les dossiers sont isolés par mandant.
-- `Meeting.TenantID` – les assemblées appartiennent à un mandant.
-- `AuditEntry.TenantID` – les journaux d'audit sont isolés par mandant.
+- Les propriétaires sont liés à un mandant.
+- Les documents sont isolés par mandant.
+- Les dossiers sont isolés par mandant.
+- Les assemblées appartiennent à un mandant.
+- Les journaux d'audit sont isolés par mandant.
 
-Les super-administrateurs (`TenantID = nil`) opèrent globalement. Tous les autres utilisateurs ne voient que les données de leur mandant. L'isolation par mandant est appliquée au niveau de la base de données (Row-Level Security) et au niveau de l'application (`ctxutil.TenantIDFromContext`).
+Les super-administrateurs opèrent globalement. Tous les autres utilisateurs ne voient que les données de leur mandant. L'isolation par mandant est appliquée au niveau de la base de données et au niveau de l'application.
 
 ## Gérer les propriétaires
 
-Les propriétaires sont des personnes ou organisations ayant droit de vote qui possèdent une ou plusieurs unités de logement. Ils sont enregistrés avec leur nom, adresse et e-mail, et associés aux unités correspondantes via `Ownership`.
+Les propriétaires sont des personnes ou organisations ayant droit de vote qui possèdent une ou plusieurs unités de logement. Ils sont enregistrés avec leur nom, adresse et e-mail, et associés aux unités correspondantes.
 
-Un propriétaire peut posséder des unités dans plusieurs communautés d'un même mandant. Les parts de propriété (`ShareNumerator`/`ShareDenominator`) déterminent la quote-part de valeur. `IsPrimaryVoter` marque l'électeur principal d'une unité.
+Un propriétaire peut posséder des unités dans plusieurs communautés d'un même mandant. Les parts de propriété déterminent la quote-part de valeur. L'électeur principal d'une unité est marqué comme tel.
 
-Les propriétaires archivés (`IsArchived = true`) sont masqués dans l'administration, mais conservés pour les procès-verbaux historiques.
+Les propriétaires archivés sont masqués dans l'administration, mais conservés pour les procès-verbaux historiques.
 
 ## Mandataires
 
-Un propriétaire peut mandater une autre personne avec une procuration (`Proxy`) pour participer à l'assemblée et voter en son nom. Les procurations peuvent être accordées librement ou avec mandat.
+Un propriétaire peut mandater une autre personne avec une procuration pour participer à l'assemblée et voter en son nom. Les procurations peuvent être accordées librement ou avec mandat.
 
-Le `VoteValidator` garantit que seul le mandataire (`GranteeID`) vote numériquement – le mandant (`GrantorID`) est bloqué tant qu'une procuration active existe. Les votes avec mandat doivent correspondre à l'instruction (`MandatedVote`).
+Le système garantit que seul le mandataire vote numériquement – le mandant est bloqué tant qu'une procuration active existe. Les votes avec mandat doivent correspondre à l'instruction.
 
 ## Impersonation
 
-Les super-administrateurs peuvent emprunter l'identité d'un autre utilisateur (`internal/application/impersonation_service.go`). Le processus utilise ZITADEL Token Exchange (RFC 8693) :
+Les super-administrateurs peuvent emprunter l'identité d'un autre utilisateur. Le processus utilise ZITADEL Token Exchange :
 
-- Le super-administrateur échange son access-token contre un nouveau JWT qui emprunte l'identité de l'utilisateur cible.
-- Le JWT résultant contient un claim `act` qui identifie l'initiateur de l'impersonation.
-- Chaque action pendant l'impersonation est enregistrée dans le journal d'audit avec `ImpersonatedByID` (version de hachage v3).
+- Le super-administrateur échange son jeton d'accès contre un nouveau jeton qui emprunte l'identité de l'utilisateur cible.
+- Le jeton résultant identifie l'initiateur de l'impersonation.
+- Chaque action pendant l'impersonation est enregistrée dans le journal d'audit avec l'identité de l'initiateur.
 
 <Aside type="note" title="Traçabilité complète">
-L'impersonation est entièrement traçable dans le journal d'audit. La chaîne de hachage (v3) intègre l'identité de l'initiateur dans chaque entrée d'audit.
+L'impersonation est entièrement traçable dans le journal d'audit. La chaîne de hachage intègre l'identité de l'initiateur dans chaque entrée d'audit.
 </Aside>
 
 ## Sécuriser l'accès
 
-Chaque utilisateur se connecte via ZITADEL (OIDC). L'authentification s'effectue via des liens personnels ou des codes d'invitation (`RedeemInvitation`). Les administrateurs de mandant ne voient que les données de leur propre mandant.
-
-Détails sur la chaîne de hachage d'audit et la vérification d'intégrité voir `/reference/sicherheit/`.
-
-## Liens complémentaires
-
-<LinkCard title="Référence des rôles" href="/reference/rollen/" description="Définitions détaillées des rôles et autorisations." />
-<LinkCard title="Sécurité et audit" href="/reference/sicherheit/" description="Chaînes de hachage, journalisation d'impersonation et vérification d'intégrité." />
+Chaque utilisateur se connecte via ZITADEL. L'authentification s'effectue via des liens personnels ou des codes d'invitation. Les administrateurs de mandant ne voient que les données de leur propre mandant.
