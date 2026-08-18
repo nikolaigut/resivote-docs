@@ -1,0 +1,37 @@
+---
+title: Documentation ResiVote
+description: Documentation publique de ResiVote – des assemblées des propriétaires numériques, simples et sécurisées.
+template: splash
+hero:
+  tagline: Organisez des assemblées des propriétaires en toute simplicité, sécurité et conformité juridique.
+  actions:
+    - text: Comment fonctionne ResiVote
+      link: /guides/so-funktioniert/
+      icon: right-arrow
+    - text: Page d'accueil
+      link: https://resivote.ch
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import TopicRedirect from '../../../components/TopicRedirect.astro';
+
+<TopicRedirect />
+
+## Vue d'ensemble
+
+<CardGrid stagger>
+	<Card title="Configuration rapide" icon="rocket">
+		En quelques étapes vers votre première assemblée des propriétaires numérique.
+	</Card>
+	<Card title="Conforme au droit" icon="open-book">
+		Tous les processus et documents importants sont documentés de manière vérifiable.
+	</Card>
+	<Card title="Convivial pour les participants" icon="laptop">
+		Les propriétaires peuvent participer via leur navigateur – sans logiciel supplémentaire.
+	</Card>
+	<Card title="Tout en vue" icon="setting">
+		Procès-verbaux, votes et résolutions centralisés en un seul endroit.
+	</Card>
+</CardGrid>

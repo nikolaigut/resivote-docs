@@ -1,0 +1,37 @@
+---
+title: ResiVote Documentation
+description: Public documentation for ResiVote – simple, digital owners' meetings.
+template: splash
+hero:
+  tagline: Conduct owners' meetings digitally — simply, securely, and in compliance with the law.
+  actions:
+    - text: How ResiVote Works
+      link: /guides/so-funktioniert/
+      icon: right-arrow
+    - text: To Landing Page
+      link: https://resivote.ch
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import TopicRedirect from '../../../components/TopicRedirect.astro';
+
+<TopicRedirect />
+
+## Overview
+
+<CardGrid stagger>
+	<Card title="Quick Setup" icon="rocket">
+		Reach your first digital owners' meeting in just a few steps.
+	</Card>
+	<Card title="Legally Compliant" icon="open-book">
+		All key processes and documents are documented in an auditable manner.
+	</Card>
+	<Card title="Participant-Friendly" icon="laptop">
+		Owners can participate via their browser — no additional software required.
+	</Card>
+	<Card title="Everything at a Glance" icon="setting">
+		Minutes, votes, and resolutions centralized in one place.
+	</Card>
+</CardGrid>
