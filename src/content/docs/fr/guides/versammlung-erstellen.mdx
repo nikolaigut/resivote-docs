@@ -20,7 +20,23 @@ Chaque assemblée traverse un flux de statuts défini :
 | Clôturée | L'assemblée a été clôturée. |
 | Archivée | L'assemblée est archivée. |
 
-Transitions valides : Brouillon → Publiée, Publiée → Enregistrement, Enregistrement → En cours, En cours → Clôturée, Clôturée → Archivée. À partir du statut archivée, aucune autre transition n'est possible.
+```d2
+direction: right
+Brouillon: Phase de préparation
+Publiée: Invitations envoyées
+Enregistrement: Phase d'enregistrement ouverte
+"En cours": Points en traitement
+Clôturée: Assemblée terminée
+Archivée: aucune modification possible
+
+Brouillon -> Publiée: publier
+Publiée -> Enregistrement: ouvrir l'enregistrement
+Enregistrement -> "En cours": démarrer la séance
+"En cours" -> Clôturée: terminer
+Clôturée -> Archivée: archiver
+```
+
+À partir du statut archivée, aucune autre transition n'est possible.
 
 ## Modes d'assemblée
 

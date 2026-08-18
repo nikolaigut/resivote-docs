@@ -106,6 +106,20 @@ The system collects attendances, proxies, and ownership shares and aggregates th
 
 ### Process
 
+```d2
+direction: right
+Communities: load
+Attendances: load
+"Proxies": load
+Mappings: "Unit → Attendance\nUnit → Proxy"
+"Per community": "Load units\nSum shares\nCalculate head & value"
+
+Communities -> Mappings
+Attendances -> Mappings
+"Proxies" -> Mappings
+Mappings -> "Per community"
+```
+
 <Steps>
   1. **Load communities** – all communities of the meeting.
   2. **Load attendances** – all attendance records of the meeting.

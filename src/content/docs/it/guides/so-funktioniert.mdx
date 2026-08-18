@@ -7,7 +7,21 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 ResiVote vi accompagna dalla bozza al verbale firmato – il tutto in uno spazio digitale. Un'assemblea attraversa una macchina a stati definita:
 
-Bozza → Pubblicata → Check-in → In corso → Conclusa → Archiviata
+```d2
+direction: right
+Bozza: Preparare l'assemblea
+Pubblicato: Inviti inviati
+"Check-in": Presenza registrata
+"In corso": Sessione attiva
+Concluso: Punti trattati
+Archiviato: sola lettura
+
+Bozza -> Pubblicato: pubblicare
+Pubblicato -> "Check-in": aprire il check-in
+"Check-in" -> "In corso": avviare la sessione
+"In corso" -> Concluso: concludere la sessione
+Concluso -> Archiviato: archiviare
+```
 
 Oltre all'assemblea in diretta, ResiVote supporta la risoluzione circolare (Art. 712m cpv. 2 ZGB) come alternativa.
 
@@ -71,7 +85,26 @@ La presenza, lo stato del quorum e i risultati delle votazioni vengono trasmessi
 
 Ogni punto all'ordine del giorno attraversa degli stati:
 
-In attesa → In presentazione → Votazione anticipata (opzionale) → In votazione → Concluso (oppure saltato)
+```d2
+direction: right
+"In attesa": non ancora trattato
+Presentazione: fase di discussione
+"Pre-votazione": pre-votazione asincrona
+"Votazione aperta": votazione attiva
+Concluso: risultato determinato
+Saltato: non trattato
+
+"In attesa" -> Presentazione: presentare
+Presentazione -> "Pre-votazione": opzionale
+Presentazione -> "Votazione aperta": aprire
+"Pre-votazione" -> "Votazione aperta": transizione
+"Votazione aperta" -> Concluso: concludere
+"In attesa" -> Saltato: saltare
+Presentazione -> Saltato: saltare
+Concluso -> Presentazione: riaprire
+```
+
+I punti conclusi possono essere riaperti o presentati nuovamente.
 
 ### Espressione del voto
 

@@ -20,6 +20,22 @@ Ogni assemblea attraversa un flusso di stati fisso:
 | Conclusa | L'assemblea è stata conclusa. |
 | Archiviata | L'assemblea è archiviata. |
 
+```d2
+direction: right
+Bozza: Fase di preparazione
+Pubblicato: Inviti inviati
+"Check-in": Fase di check-in aperta
+"In corso": Punti in trattamento
+Concluso: Assemblea conclusa
+Archiviato: nessuna modifica possibile
+
+Bozza -> Pubblicato: pubblicare
+Pubblicato -> "Check-in": aprire il check-in
+"Check-in" -> "In corso": avviare la sessione
+"In corso" -> Concluso: concludere
+Concluso -> Archiviato: archiviare
+```
+
 Le transizioni valide sono: Bozza → Pubblicata, Pubblicata → Check-in, Check-in → In corso, In corso → Conclusa, Conclusa → Archiviata. Dallo stato archiviata non sono possibili ulteriori transizioni.
 
 ## Modalità di assemblea

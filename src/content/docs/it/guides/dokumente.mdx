@@ -100,6 +100,20 @@ Il sistema verifica per ogni documento:
 
 L'importazione dei regolamenti è un processo in due fasi:
 
+```d2
+direction: right
+
+"Fase 1: Estrarre" {
+  "Caricare il PDF" -> "Estrarre il testo" -> "Pulire il testo" -> "Filtrare il testo" -> "Chiamare l'IA" -> "Analizzare il JSON" -> "Restituire la bozza"
+}
+
+"Fase 2: Confermare" {
+  "Verificare i dati" -> "Confermare" -> "Creare la comunità" -> "Creare le unità" -> "Importare i proprietari"
+}
+
+"Restituire la bozza" -> "Verificare i dati": L'utente modifica
+```
+
 ### Fase 1: estrarre
 
 <Steps>
@@ -122,7 +136,7 @@ L'importazione dei regolamenti è un processo in due fasi:
   5. **Importare i proprietari** – opzionale: se è presente un'e-mail o un nome, viene creato un proprietario o associato tramite e-mail, più una quota di proprietà (1/1, votante principale).
 </Steps>
 
-<Aside type="warning" title="Nessun rollback automatico">
+<Aside type="caution" title="Nessun rollback automatico">
 Se la creazione di un'unità fallisce, la comunità già creata non viene automaticamente cancellata. Il chiamante deve gestire i fallimenti parziali.
 </Aside>
 

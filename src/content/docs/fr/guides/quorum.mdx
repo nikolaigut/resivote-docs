@@ -106,6 +106,20 @@ Le système collecte les présences, procurations et parts de propriété et les
 
 ### Déroulement
 
+```d2
+direction: right
+Communautés: charger
+Présences: charger
+Procurations: charger
+Correspondances: "Unité → Présence\nUnité → Procuration"
+"Par communauté": "Charger les unités\nSommer les parts\nCalculer têtes & valeurs"
+
+Communautés -> Correspondances
+Présences -> Correspondances
+Procurations -> Correspondances
+Correspondances -> "Par communauté"
+```
+
 <Steps>
   1. **Charger les communautés** – toutes les communautés de l'assemblée.
   2. **Charger les présences** – tous les enregistrements de présence de l'assemblée.

@@ -27,6 +27,23 @@ Der Vorsitz erfasst die Anwesenheit einer Einheit manuell. Doppelte Check-ins we
 
 ## QR-Code-Self-Check-in
 
+```d2
+shape: sequence_diagram
+direction: right
+
+Admin; System; Eigentümer
+
+Admin -> System: QR-Token generieren
+System -> Admin: signierter Token (30 min gültig)
+Eigentümer -> System: QR-Code scannen
+System -> Eigentümer: Token validieren (Versammlung auflösen)
+Eigentümer -> System: Login via ZITADEL
+System -> Eigentümer: Authentifizierung bestätigen
+Eigentümer -> System: Einheiten zum Check-in wählen
+System -> System: Eigentum & Doppel-Check-in prüfen
+System -> Eigentümer: Check-in bestätigen (idempotent)
+```
+
 <Steps>
 
 1. **QR-Token generieren.** Der Administrator generiert einen signierten Check-in-Token für die Versammlung. Der Token ist zeitlich begrenzt gültig (Standard: 30 Minuten).

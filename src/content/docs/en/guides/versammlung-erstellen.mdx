@@ -20,6 +20,22 @@ Every meeting follows a fixed status workflow. State transitions are validated b
 | Closed | Meeting has been ended. |
 | Archived | Meeting is archived. |
 
+```d2
+direction: right
+Draft: Preparation phase
+Published: Invitations sent
+Check-in: Check-in phase open
+"In progress": Items being handled
+Closed: Meeting ended
+Archived: no further changes possible
+
+Draft -> Published: publish
+Published -> Check-in: open check-in
+Check-in -> "In progress": start session
+"In progress" -> Closed: end
+Closed -> Archived: archive
+```
+
 Valid transitions: Draft → Published, Published → Check-in, Check-in → In progress, In progress → Closed, Closed → Archived. No further transitions are possible from Archived.
 
 ## Meeting Modes

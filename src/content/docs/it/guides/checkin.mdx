@@ -27,6 +27,23 @@ Il presidente registra la presenza di un'unità manualmente. Il sistema crea un 
 
 ## Self-check-in tramite QR-Code
 
+```d2
+shape: sequence_diagram
+direction: right
+
+Admin; Sistema; Proprietario
+
+Admin -> Sistema: Generare il token QR
+Sistema -> Admin: Token firmato (30 min valido)
+Proprietario -> Sistema: Scansionare il QR code
+Sistema -> Proprietario: Validare il token (risolvere l'assemblea)
+Proprietario -> Sistema: Login via ZITADEL
+Sistema -> Proprietario: Confermare l'autenticazione
+Proprietario -> Sistema: Selezionare le unità da registrare
+Sistema -> Sistema: Verificare la proprietà & duplicati
+Sistema -> Proprietario: Confermare il check-in (idempotente)
+```
+
 <Steps>
 
 1. **Generare il token QR.** L'amministratore genera un token di check-in firmato per l'assemblea. Il token contiene l'identificatore dell'assemblea, il metodo di check-in e il mandante. La durata di validità è di 30 minuti (configurabile).

@@ -20,6 +20,25 @@ Jeder Traktandum durchläuft einen eigenen Status-Workflow:
 | Abgeschlossen | Abstimmung abgeschlossen. |
 | Übersprungen | Traktandum wurde übersprungen. |
 
+```d2
+direction: right
+Wartend: noch nicht behandelt
+Präsentation: Diskussionsphase
+Vorabstimmung: asynchrone Vorabstimmung
+"Abstimmung offen": Stimmabgabe aktiv
+Abgeschlossen: Ergebnis feststehen
+Übersprungen: nicht behandelt
+
+Wartend -> Präsentation: präsentieren
+Präsentation -> Vorabstimmung: optional
+Präsentation -> "Abstimmung offen": öffnen
+Vorabstimmung -> "Abstimmung offen": überführen
+"Abstimmung offen" -> Abgeschlossen: schliessen
+Wartend -> Übersprungen: überspringen
+Präsentation -> Übersprungen: überspringen
+Abgeschlossen -> Präsentation: wieder öffnen
+```
+
 Geschlossene Traktanden lassen sich wieder öffnen oder erneut präsentieren.
 
 ## Stimmarten

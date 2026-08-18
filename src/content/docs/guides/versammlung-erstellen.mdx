@@ -20,7 +20,23 @@ Jede Versammlung durchläuft einen festen Status-Workflow:
 | Abgeschlossen | Versammlung wurde beendet. |
 | Archiviert | Versammlung ist archiviert. |
 
-Gültige Übergänge: Entwurf → Veröffentlicht, Veröffentlicht → Check-in, Check-in → Laufend, Laufend → Abgeschlossen, Abgeschlossen → Archiviert. Aus dem archivierten Zustand sind keine weiteren Übergänge möglich.
+```d2
+direction: right
+Entwurf: Vorbereitungsphase
+Veröffentlicht: Einladungen verschickt
+Check-in: Check-in-Phase geöffnet
+Laufend: Traktanden werden behandelt
+Abgeschlossen: Versammlung beendet
+Archiviert: keine Änderungen mehr möglich
+
+Entwurf -> Veröffentlicht: veröffentlichen
+Veröffentlicht -> Check-in: Check-in öffnen
+Check-in -> Laufend: Sitzung starten
+Laufend -> Abgeschlossen: beenden
+Abgeschlossen -> Archiviert: archivieren
+```
+
+Aus dem archivierten Zustand sind keine weiteren Übergänge möglich.
 
 ## Versammlungsmodi
 

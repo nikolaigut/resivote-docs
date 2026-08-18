@@ -37,6 +37,17 @@ Le système peut générer des brouillons de passages de procès-verbal. L'appel
 
 ### Déroulement
 
+```d2
+direction: right
+"Collecter le contexte": "Assemblée, point,\nprésence, résultat"
+"Construire le prompt": "Prompt système (CH STWEG/MEG)\n+ prompt utilisateur"
+"Appeler l'IA": "fournisseur configuré"
+"Nettoyer": "uniquement le formatage autorisé"
+"Résultat": "proposition nettoyée\n+ métriques d'usage"
+
+"Collecter le contexte" -> "Construire le prompt" -> "Appeler l'IA" -> "Nettoyer" -> "Résultat"
+```
+
 <Steps>
   1. **Collecter le contexte** – Le système charge l'assemblée, le point de l'ordre du jour, la présence et le résultat du vote.
   2. **Construire le prompt** – Le système génère un prompt système (contexte STWEG/MEG suisse) et un prompt utilisateur avec le point de l'ordre du jour, le quorum, la présence et le résultat.
@@ -116,7 +127,7 @@ Après la clôture de l'assemblée, l'administrateur finalise le procès-verbal 
   4. **Archiver l'assemblée** – changement de statut de clôturée à archivée.
 </Steps>
 
-<Aside type="warning" title="Aucune modification ultérieure">
+<Aside type="caution" title="Aucune modification ultérieure">
 Après le statut archivée, aucune modification n'est plus possible. La chaîne de hachage d'audit rend toute manipulation ultérieure détectable.
 </Aside>
 

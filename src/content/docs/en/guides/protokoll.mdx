@@ -37,6 +37,17 @@ ResiVote can generate drafts for minutes passages. The caller must have write pe
 
 ### Process
 
+```d2
+direction: right
+"Collect context": "Meeting, item,\nattendance, result"
+"Build prompt": "System prompt (CH STWEG/MEG)\n+ user prompt"
+"Generate suggestion": "configured provider"
+"Sanitize": "only allowed formatting"
+"Return result": "cleaned proposal\n+ usage metrics"
+
+"Collect context" -> "Build prompt" -> "Generate suggestion" -> "Sanitize" -> "Return result"
+```
+
 <Steps>
   1. **Collect context** – The system loads the meeting, agenda item, attendance, and voting result.
   2. **Build prompt** – A system prompt (Swiss STWEG/MEG context) and a user prompt with agenda item, quorum, attendance, and result are generated.
@@ -120,7 +131,7 @@ After the meeting concludes, the administrator finalizes the minutes:
   4. **Archive the meeting** – state transition from closed to archived.
 </Steps>
 
-<Aside type="warning" title="No Subsequent Changes">
+<Aside type="caution" title="No Subsequent Changes">
 After the archived state, no further changes are possible. The audit hash chain makes any subsequent manipulation detectable.
 </Aside>
 

@@ -116,6 +116,20 @@ ResiVote prüft pro Dokument:
 
 Der Reglement-Import ist ein zweiphasiger Prozess:
 
+```d2
+direction: right
+
+"Phase 1: Extrahieren" {
+  "PDF hochladen" -> "Text extrahieren" -> "Text bereinigen" -> "Text filtern" -> "KI aufrufen" -> "JSON parsen" -> "Draft zurückgeben"
+}
+
+"Phase 2: Bestätigen" {
+  "Daten prüfen" -> "Bestätigen" -> "Gemeinschaft anlegen" -> "Einheiten anlegen" -> "Eigentümer importieren"
+}
+
+"Draft zurückgeben" -> "Daten prüfen": Benutzer editiert
+```
+
 ### Phase 1: Extrahieren
 
 <Steps>
@@ -138,7 +152,7 @@ Der Reglement-Import ist ein zweiphasiger Prozess:
   5. **Eigentümer importieren** – optional: wenn E-Mail oder Name vorhanden, wird ein Eigentümer angelegt oder per E-Mail matchiert, plus eine Eigentümerschaft (1/1, als Hauptwähler markiert).
 </Steps>
 
-<Aside type="warning" title="Kein automatisches Rollback">
+<Aside type="caution" title="Kein automatisches Rollback">
 Wenn eine Einheit-Erstellung fehlschlägt, wird die bereits erstellte Gemeinschaft nicht automatisch zurückgerollt. Der Aufrufer muss Teilfehler behandeln.
 </Aside>
 

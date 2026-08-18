@@ -106,6 +106,20 @@ Il sistema raccoglie presenze, procure e quote di proprietà e le aggrega in sna
 
 ### Svolgimento
 
+```d2
+direction: right
+Comunità: caricare
+Presenze: caricare
+Procure: caricare
+Corrispondenze: "Unità → Presenza\nUnità → Procura"
+"Per comunità": "Caricare le unità\nSommare le quote\nCalcolare teste & valori"
+
+Comunità -> Corrispondenze
+Presenze -> Corrispondenze
+Procure -> Corrispondenze
+Corrispondenze -> "Per comunità"
+```
+
 <Steps>
   1. **Caricare le comunità** – tutte le comunità dell'assemblea.
   2. **Caricare le presenze** – tutti i record di presenza dell'assemblea.

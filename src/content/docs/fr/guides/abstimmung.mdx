@@ -20,7 +20,26 @@ Chaque point de l'ordre du jour traverse son propre flux de statuts :
 | Clôturé | Vote clôturé. |
 | Sauté | Le point de l'ordre du jour a été sauté. |
 
-Transitions valides : En attente → Présentation / Vote anticipé / Ouvert / Sauté, Présentation → Ouvert / Clôturé / En attente / Sauté, Vote anticipé → Présentation / Ouvert / En attente / Clôturé, Ouvert → Clôturé / Présentation / En attente. Les points clôturés peuvent être rouverts ou représentés.
+```d2
+direction: right
+"En attente": pas encore traité
+Présentation: phase de discussion
+"Vote anticipé": vote asynchrone
+Ouvert: vote actif
+Clôturé: résultat déterminé
+Sauté: non traité
+
+"En attente" -> Présentation: présenter
+Présentation -> "Vote anticipé": optionnel
+Présentation -> Ouvert: ouvrir
+"Vote anticipé" -> Ouvert: transférer
+Ouvert -> Clôturé: clôturer
+"En attente" -> Sauté: sauter
+Présentation -> Sauté: sauter
+Clôturé -> Présentation: rouvrir
+```
+
+Les points clôturés peuvent être rouverts ou représentés.
 
 ## Types de vote
 

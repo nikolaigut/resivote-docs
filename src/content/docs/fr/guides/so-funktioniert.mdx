@@ -7,7 +7,21 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 ResiVote vous accompagne du brouillon au procès-verbal signé – le tout dans un espace numérique unique. Une assemblée traverse un cycle de vie défini :
 
-Brouillon → Publiée → Enregistrement → En cours → Clôturée → Archivée
+```d2
+direction: right
+Brouillon: Préparer l'assemblée
+Publiée: Invitations envoyées
+Enregistrement: Présence enregistrée
+"En cours": Séance active
+Clôturée: Points traités
+Archivée: lecture seule
+
+Brouillon -> Publiée: publier
+Publiée -> Enregistrement: ouvrir l'enregistrement
+Enregistrement -> "En cours": démarrer la séance
+"En cours" -> Clôturée: terminer la séance
+Clôturée -> Archivée: archiver
+```
 
 Outre l'assemblée en direct, ResiVote prend en charge la résolution circulaire (Art. 712m al. 2 ZGB) comme alternative.
 
@@ -71,7 +85,26 @@ La présence, le statut du quorum et les résultats des votes sont diffusés en 
 
 Chaque point de l'ordre du jour traverse des états :
 
-En attente → Présentation → Vote anticipé (optionnel) → Ouvert → Clôturé (ou sauté)
+```d2
+direction: right
+"En attente": pas encore traité
+Présentation: phase de discussion
+"Vote anticipé": vote asynchrone
+Ouvert: vote actif
+Clôturé: résultat déterminé
+Sauté: non traité
+
+"En attente" -> Présentation: présenter
+Présentation -> "Vote anticipé": optionnel
+Présentation -> Ouvert: ouvrir
+"Vote anticipé" -> Ouvert: transférer
+Ouvert -> Clôturé: clôturer
+"En attente" -> Sauté: sauter
+Présentation -> Sauté: sauter
+Clôturé -> Présentation: rouvrir
+```
+
+Les points clôturés peuvent être rouverts ou présentés à nouveau.
 
 ### Vote
 

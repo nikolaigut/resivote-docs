@@ -27,6 +27,23 @@ Le président enregistre manuellement la présence d'une unité. Le système cr�
 
 ## Self check-in par QR-code
 
+```d2
+shape: sequence_diagram
+direction: right
+
+Admin; Système; Propriétaire
+
+Admin -> Système: Générer le jeton QR
+Système -> Admin: Jeton signé (30 min valide)
+Propriétaire -> Système: Scanner le QR code
+Système -> Propriétaire: Valider le jeton (résoudre l'assemblée)
+Propriétaire -> Système: Connexion via ZITADEL
+Système -> Propriétaire: Confirmer l'authentification
+Propriétaire -> Système: Sélectionner les unités à enregistrer
+Système -> Système: Vérifier la propriété & doublon
+Système -> Propriétaire: Confirmer le check-in (idempotent)
+```
+
 <Steps>
 
 1. **Générer un jeton QR.** L'administrateur génère un jeton d'enregistrement signé pour l'assemblée. Le jeton contient l'identifiant de l'assemblée, la méthode d'enregistrement et le slug du mandant. La durée de validité est de 30 minutes par défaut.

@@ -20,6 +20,25 @@ Ogni punto all'ordine del giorno attraversa un proprio flusso di stati:
 | Concluso | Votazione conclusa. |
 | Saltato | Il punto all'ordine del giorno è stato saltato. |
 
+```d2
+direction: right
+"In attesa": non ancora trattato
+Presentazione: fase di discussione
+"Pre-votazione": pre-votazione asincrona
+"Votazione aperta": votazione attiva
+Concluso: risultato determinato
+Saltato: non trattato
+
+"In attesa" -> Presentazione: presentare
+Presentazione -> "Pre-votazione": opzionale
+Presentazione -> "Votazione aperta": aprire
+"Pre-votazione" -> "Votazione aperta": transizione
+"Votazione aperta" -> Concluso: concludere
+"In attesa" -> Saltato: saltare
+Presentazione -> Saltato: saltare
+Concluso -> Presentazione: riaprire
+```
+
 I punti all'ordine del giorno chiusi possono essere riaperti o ripresentati.
 
 ## Tipi di votazione

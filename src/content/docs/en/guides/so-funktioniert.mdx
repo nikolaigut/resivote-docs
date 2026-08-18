@@ -7,7 +7,21 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 ResiVote guides you from the draft to the signed minutes — all within a single digital space. A meeting follows a defined lifecycle:
 
-Draft → Published → Check-in → In progress → Closed → Archived
+```d2
+direction: right
+Draft: Prepare meeting
+Published: Invitations sent
+Check-in: Attendance recorded
+"In progress": Session active
+Closed: Items handled
+Archived: read-only
+
+Draft -> Published: publish
+Published -> Check-in: open check-in
+Check-in -> "In progress": start session
+"In progress" -> Closed: end session
+Closed -> Archived: archive
+```
 
 In addition to live meetings, ResiVote supports the circular resolution (Art. 712m para. 2 ZGB) as an alternative.
 
@@ -71,7 +85,24 @@ Presence, quorum status, and voting results are pushed to all participants in re
 
 Each agenda item goes through its own lifecycle:
 
-Pending → Presenting → Pre-voting (optional) → Open → Closed (or skipped)
+```d2
+direction: right
+Pending: not yet handled
+Presenting: discussion phase
+"Pre-voting": asynchronous pre-voting
+Open: voting active
+Closed: result determined
+Skipped: not handled
+
+Pending -> Presenting: present
+Presenting -> "Pre-voting": optional
+Presenting -> Open: open
+"Pre-voting" -> Open: transition
+Open -> Closed: close
+Pending -> Skipped: skip
+Presenting -> Skipped: skip
+Closed -> Presenting: reopen
+```
 
 ### Casting a Vote
 

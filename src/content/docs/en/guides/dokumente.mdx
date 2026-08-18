@@ -111,6 +111,20 @@ Access is checked per document:
 
 The regulations import is a two-phase process:
 
+```d2
+direction: right
+
+"Phase 1: Extract" {
+  "Upload PDF" -> "Extract text" -> "Sanitize text" -> "Filter text" -> "Call AI" -> "Parse result" -> "Return draft"
+}
+
+"Phase 2: Confirm" {
+  "Review data" -> "Confirm" -> "Create community" -> "Create units" -> "Import owners"
+}
+
+"Return draft" -> "Review data": User edits
+```
+
 ### Phase 1: Extract
 
 <Steps>
@@ -133,7 +147,7 @@ The regulations import is a two-phase process:
   5. **Import owners** – optional: if email or name is present, an owner is created or matched by email, plus an ownership record.
 </Steps>
 
-<Aside type="warning" title="No Automatic Rollback">
+<Aside type="caution" title="No Automatic Rollback">
 If a unit creation fails, the already-created community is not automatically rolled back. The caller must handle partial failures.
 </Aside>
 

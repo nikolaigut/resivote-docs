@@ -37,6 +37,17 @@ ResiVote kann Entwürfe für Protokollpassagen generieren. Der Aufrufer muss Sch
 
 ### Ablauf
 
+```d2
+direction: right
+"Kontext sammeln": "Versammlung, Traktandum,\nAnwesenheit, Ergebnis"
+"Prompt bauen": "System-Prompt (CH STWEG/MEG)\n+ User-Prompt"
+"KI aufrufen": "konfigurierter Anbieter"
+Bereinigen: "nur erlaubte Formatierungen"
+"Ergebnis": "bereinigter Vorschlag\n+ Verbrauchskennzahlen"
+
+"Kontext sammeln" -> "Prompt bauen" -> "KI aufrufen" -> Bereinigen -> "Ergebnis"
+```
+
 <Steps>
   1. **Kontext sammeln** – Das System lädt Versammlung, Traktandum, Anwesenheit und Abstimmungsergebnis.
   2. **Prompt bauen** – ResiVote erzeugt einen System-Prompt (schweizerisches STWEG/MEG-Kontext) und einen User-Prompt mit Traktandum, Quorum, Anwesenheit und Ergebnis.
@@ -130,7 +141,7 @@ Nach Abschluss der Versammlung finalisiert der Administrator das Protokoll:
   4. **Versammlung archivieren** – Statuswechsel von abgeschlossen zu archiviert.
 </Steps>
 
-<Aside type="warning" title="Keine nachträglichen Änderungen">
+<Aside type="caution" title="Keine nachträglichen Änderungen">
 Nach der Archivierung sind keine Änderungen mehr möglich. Die Audit-Hash-Kette macht jede nachträgliche Manipulation nachweisbar.
 </Aside>
 

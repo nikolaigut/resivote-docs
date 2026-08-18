@@ -20,6 +20,25 @@ Each agenda item goes through its own status workflow, validated by the backend:
 | Closed | Voting completed. |
 | Skipped | Agenda item was skipped. |
 
+```d2
+direction: right
+Pending: not yet handled
+Presenting: discussion phase
+"Pre-voting": asynchronous pre-voting
+Open: voting active
+Closed: result determined
+Skipped: not handled
+
+Pending -> Presenting: present
+Presenting -> "Pre-voting": optional
+Presenting -> Open: open
+"Pre-voting" -> Open: transition
+Open -> Closed: close
+Pending -> Skipped: skip
+Presenting -> Skipped: skip
+Closed -> Presenting: reopen
+```
+
 Valid transitions: Pending → Presenting / Pre-voting / Open / Skipped, Presenting → Open / Closed / Pending / Skipped, Pre-voting → Presenting / Open / Pending / Closed, Open → Closed / Presenting / Pending. Closed agenda items can be reopened or presented again.
 
 ## Vote Types

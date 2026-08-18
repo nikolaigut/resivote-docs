@@ -27,6 +27,23 @@ The chair manually records the attendance of a unit. The system creates an atten
 
 ## QR Code Self-Check-in
 
+```d2
+shape: sequence_diagram
+direction: right
+
+Admin; System; Owner
+
+Admin -> System: Generate QR token
+System -> Admin: Signed token (30 min valid)
+Owner -> System: Scan QR code
+System -> Owner: Validate token (resolve meeting)
+Owner -> System: Login via ZITADEL
+System -> Owner: Confirm authentication
+Owner -> System: Select units to check in
+System -> System: Verify ownership & duplicate check-in
+System -> Owner: Confirm check-in (idempotent)
+```
+
 <Steps>
 
 1. **Generate QR token.** The administrator generates a signed check-in token for the meeting. The token contains the meeting reference, the check-in method, and the tenant slug. The validity period is configurable (default: 30 minutes).

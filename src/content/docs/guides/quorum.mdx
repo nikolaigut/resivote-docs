@@ -106,6 +106,20 @@ ResiVote sammelt Anwesenheiten, Vollmachten und Eigentumsanteile und aggregiert 
 
 ### Ablauf
 
+```d2
+direction: right
+Gemeinschaften: laden
+Anwesenheiten: laden
+Vollmachten: laden
+Zuordnungen: "Einheit → Anwesenheit\nEinheit → Vollmacht"
+"Pro Gemeinschaft": "Einheiten laden\nAnteile summieren\nKopf & Wert berechnen"
+
+Gemeinschaften -> Zuordnungen
+Anwesenheiten -> Zuordnungen
+Vollmachten -> Zuordnungen
+Zuordnungen -> "Pro Gemeinschaft"
+```
+
 <Steps>
   1. **Gemeinschaften laden** – alle Gemeinschaften der Versammlung.
   2. **Anwesenheiten laden** – alle Anwesenheits-Datensätze der Versammlung.

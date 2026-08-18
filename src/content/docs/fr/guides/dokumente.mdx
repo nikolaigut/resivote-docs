@@ -116,6 +116,20 @@ Le système vérifie par document :
 
 L'import de règlement est un processus en deux phases :
 
+```d2
+direction: right
+
+"Phase 1 : Extraction" {
+  "Télécharger le PDF" -> "Extraire le texte" -> "Nettoyer le texte" -> "Filtrer le texte" -> "Appeler l'IA" -> "Analyser le JSON" -> "Retourner le brouillon"
+}
+
+"Phase 2 : Confirmation" {
+  "Vérifier les données" -> "Confirmer" -> "Créer la communauté" -> "Créer les unités" -> "Importer les propriétaires"
+}
+
+"Retourner le brouillon" -> "Vérifier les données": L'utilisateur édite
+```
+
 ### Phase 1 : Extraction
 
 <Steps>
@@ -138,7 +152,7 @@ L'import de règlement est un processus en deux phases :
   5. **Importer les propriétaires** – optionnel : si un e-mail ou un nom est présent, un propriétaire est créé ou associé par e-mail, plus une part de propriété (1/1, électeur principal).
 </Steps>
 
-<Aside type="warning" title="Pas de rollback automatique">
+<Aside type="caution" title="Pas de rollback automatique">
 Si la création d'une unité échoue, la communauté déjà créée n'est pas automatiquement annulée. L'appelant doit gérer les échecs partiels.
 </Aside>
 
