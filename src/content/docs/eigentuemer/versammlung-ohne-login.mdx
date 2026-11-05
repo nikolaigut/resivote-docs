@@ -1,0 +1,88 @@
+---
+title: Teilnahme ohne Login (Saal/PIN)
+description: Physische Teilnahme vor Ort im Versammlungssaal ohne Benutzerkonto – Stimmabgabe via Smartphone oder Tablet mit Stimm-Code und Saal-PIN.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Für Eigentümer, die physisch im Versammlungssaal anwesend sind und kein ResiVote-Konto oder Passwort besitzen (oder dieses vergessen haben), bietet ResiVote die **Saalabstimmung ohne Login** an.
+
+**Zuständige Rolle: `eigentümer`**  
+*Empfohlene Geräte: Smartphone (Mobile) & Tablet*
+
+---
+
+## 1. Was Sie für den Einstieg benötigen
+
+Sie benötigen **keine Registrierung**, keine E-Mail-Adresse und kein Passwort. Sie brauchen lediglich zwei Angaben:
+
+1. **Stimm-Code:** Diesen finden Sie auf Ihrer persönlichen, gedruckten Einladung oder auf der Stimmkarte, die Ihnen beim Saaleinlass ausgehändigt wurde (Format z. B. `ABCD-EFGH`).
+2. **Saal-PIN:** Eine 4-stellige Nummer, die von der Versammlungsleitung vor Ort über den Beamer gross an die Leinwand projiziert wird.
+
+---
+
+## 2. Einstieg im Saal (`/saal`)
+
+Sie können auf zwei einfache Arten beitreten:
+
+- **Variante A (QR-Code):** Scannen Sie mit der Kamera Ihres Smartphones den QR-Code auf den Saaltischen oder der Einlasskarte. Der Stimm-Code wird automatisch übernommen.
+- **Variante B (Browser-Aufruf):** Öffnen Sie Ihren Browser (Safari, Chrome) und rufen Sie die Adresse `resivote.ch/saal` auf.
+
+### Anmeldung im Saal auf dem Smartphone
+
+![Anmelden im Saal auf dem Smartphone](/screenshots/owner/mobile/hall-login-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Einfache Eingabemaske für Stimm-Code und Saal-PIN ohne Benutzerkonto.*
+
+### Anmeldung auf dem Tablet
+
+![Anmelden im Saal auf dem Tablet](/screenshots/owner/tablet/hall-login-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Touch-optimierte PIN- und Code-Eingabe auf grösseren Bildschirmen.*
+
+<Steps>
+  1. Tragen Sie Ihren persönlichen **Stimm-Code** ein.
+  2. Geben Sie die 4-stellige **Saal-PIN** von der Beamer-Leinwand ein.
+  3. Tippen Sie auf **«Anmelden»**.
+</Steps>
+
+---
+
+## 3. Der digitale Abstimmungsdrücker
+
+Nach der Eingabe verwandelt sich Ihr Bildschirm in ein schnelles, berührungsempfindliches Stimmgerät:
+
+### Abstimmung auf dem Smartphone
+
+![Saalabstimmung auf dem Smartphone](/screenshots/owner/mobile/hall-voting-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Grossflächige Abstimmungstasten (Ja, Nein, Enthaltung) mit Timer-Anzeige.*
+
+### Abstimmung auf dem Tablet
+
+![Saalabstimmung auf dem Tablet](/screenshots/owner/tablet/hall-voting-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersichtliche Darstellung für Teilnehmer mit Tablet.*
+
+<Steps>
+  1. **Abstimmungsstart:** Sobald die Versammlungsleitung das Traktandum freigibt, leuchten die Tasten auf.
+  2. **Ihre Stimme abgeben:**
+     - **Grün:** Ja
+     - **Rot:** Nein
+     - **Grau:** Enthaltung
+  3. **Timer:** Die verbleibende Zeit läuft als Countdown herunter. Sie können Ihre Stimme bis zum Ablauf des Timers beliebig ändern.
+  4. **Schliessung:** Mit dem Schlussgong wird das Ergebnis fixiert und erscheint unmittelbar auf der Beamer-Leinwand im Saal.
+</Steps>
+
+<Aside type="caution">
+  Verlassen Sie die Versammlung vorzeitig, tippen Sie auf **«Abmelden»** oder melden Sie sich am Empfang ab. So wird die Beschlussfähigkeit (Quorum) für nachfolgende Traktanden automatisch angepasst.
+</Aside>
+
+---
+
+## 4. Vergleich: Mit Login vs. Ohne Login
+
+| Merkmal | Teilnahme mit Login (Portal) | Teilnahme ohne Login (Saal/PIN) |
+| :--- | :--- | :--- |
+| **Benutzerkonto nötig** | Ja (E-Mail & Passwort) | **Nein** (Kein Account nötig) |
+| **Ort** | Überall (Online, Hybrid, vor Ort) | Vor Ort im Versammlungssaal |
+| **Zugang über** | Portal-URL (`/portal`) | Saal-Link (`/saal`) oder QR-Code |
+| **Benötigte Daten** | Zugangsdaten des Eigentümers | Stimm-Code & Saal-PIN |
+| **Funktionsumfang** | Traktanden, Dokumente, Forum, Tickets, Vollmachten | Reiner digitaler Abstimmungsdrücker |
+| **Empfohlen für** | Online-Teilnehmer & Power-User | Schnelle Stimmabgabe vor Ort |
