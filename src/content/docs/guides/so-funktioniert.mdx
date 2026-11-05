@@ -5,7 +5,29 @@ description: Der Ablauf einer digitalen Eigentümerversammlung mit ResiVote – 
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote begleitet euch vom Entwurf bis zum signierten Protokoll – alles in einem digitalen Raum. Eine Versammlung durchläuft einen festen Lebenszyklus:
+ResiVote begleitet Immobilienverwaltungen und Eigentümer vom ersten Entwurf bis zum rechtskonform archivierten Protokoll – alles in einer modernen Webanwendung für Schweizer Stockwerkeigentümergemeinschaften (STWEG) und Miteigentümergemeinschaften (MEG).
+
+<Aside type="note" title="Rollen im Benutzerhandbuch">
+Dieses Handbuch unterscheidet durchgehend zwischen zwei Anwenderrollen:
+- **`tenant_admin` (Verwaltung / Versammlungsleitung):** Bereitet Versammlungen vor, pflegt Liegenschaften und Eigentümerdaten, steuert Live-Sitzungen und führt das Protokoll. Arbeitet vorwiegend am **Desktop** und während der Versammlung flexibel am **Tablet**.
+- **`eigentümer` (Stockwerk- oder Miteigentümer):** Nimmt an Versammlungen teil, stimmt live ab, vergibt Vollmachten und greift auf Dokumente und Protokolle zu. Nutzt dafür typischerweise das **Tablet** oder das **Smartphone (Mobile)**.
+
+*(Die Rolle `super_admin` dient ausschliesslich dem technischen Plattformbetrieb und wird in diesem Anwenderhandbuch nicht behandelt.)*
+</Aside>
+
+<Aside type="tip" title="Live-Demo zum Mitmachen">
+Sie können alle hier beschriebenen Schritte ohne Installation direkt in der interaktiven Demo-Umgebung ausprobieren:
+- **Demo-URL:** [https://demo.resivote.ch](https://demo.resivote.ch)
+- **Rolle `tenant_admin`:** `demo.admin@resivote.ch` | Passwort: `Demo-Admin2026`
+- **Rolle `eigentümer`:** `demo.owner1@resivote.ch` | Passwort: `Demo-Owner12026`
+- *(Alternativer Eigentümer:* `demo.owner2@resivote.ch` | Passwort: `Demo-Owner22026`*)*
+</Aside>
+
+---
+
+## Lebenszyklus einer Versammlung
+
+Jede Eigentümerversammlung durchläuft in ResiVote einen klaren, gesetzlich fundierten Lebenszyklus:
 
 ```d2
 direction: right
@@ -23,75 +45,87 @@ Laufend -> Abgeschlossen: Sitzung beenden
 Abgeschlossen -> Archiviert: archivieren
 ```
 
-Neben der Live-Versammlung unterstützt ResiVote den Zirkularbeschluss (Art. 712m Abs. 2 ZGB) als Alternative.
+Neben der synchronen Live-Versammlung (Präsenz, Hybrid oder Online) unterstützt ResiVote auch den **Zirkularbeschluss** (Art. 712m Abs. 2 ZGB) als rein asynchrones Abstimmungsverfahren.
+
+---
 
 ## 1. Versammlung vorbereiten
 
-Die Versammlung startet als Entwurf. Der Administrator legt Datum, Uhrzeit, Ort und Titel fest.
+**Zuständige Rolle: `tenant_admin` (Verwaltung)**  
+*Empfohlenes Gerät: Desktop oder Tablet*
 
-### Mehrere Gemeinschaften
+Die Versammlung startet im Status **Entwurf**. Der Mandanten-Administrator (`tenant_admin`) erfasst Datum, Uhrzeit, Ort und Titel und verknüpft die zuständigen Gemeinschaften.
 
-Eine Versammlung kann mehrere Gemeinschaften umfassen. Gemeinschaften können zu einer Überbauung gruppiert sein – ein STWEG plus ein zugehöriges MEG in derselben Versammlung.
+### Liegenschaften & Gemeinschaften verwalten
 
-### Traktanden
+In ResiVote können STWEG- und MEG-Liegenschaften strukturiert erfasst werden. Eine Versammlung kann mehrere Gemeinschaften umfassen (z. B. drei STWEG-Häuser plus gemeinsame Autoeinstellhalle oder Aussenanlagen):
 
-Jedes Traktandum definiert:
+![Gemeinschaften-Übersicht für tenant_admin auf dem Desktop](/screenshots/tenant-admin/desktop/communities-list.png)
+*Desktop-Ansicht für `tenant_admin`: Übersicht der Gemeinschaften mit Einheiten, Stimmrechtsmodellen und Wertquoten.*
 
-- **Typ** – Ja/Nein-Abstimmung, Wahl, Freitext-Vorschlag oder Protokollführung festlegen (ohne Abstimmung)
-- **Quorum** – einfache Mehrheit, qualifizierte Mehrheit, Einstimmigkeit, absolute Mehrheit oder ein benutzerdefinierter Prozentsatz
-- **Gemeinschaft** – kann auf eine einzelne Gemeinschaft beschränkt sein oder für alle Gemeinschaften der Versammlung gelten
+Auch auf dem Tablet behält die Verwaltung die volle Kontrolle über alle Liegenschaften:
 
-Details zu Quorum-Typen siehe `/guides/quorum/`.
+![Admin-Dashboard auf dem Tablet](/screenshots/tenant-admin/tablet/admin-dashboard-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Übersichtliche Kachel- und Tabellendarstellung für die mobile Verwaltung.*
 
-## 2. Teilnehmer einladen
+### Traktanden & Beschlussanträge
 
-Mit der Veröffentlichung verschickt ResiVote die Einladungen.
+Für jedes Traktandum legt `tenant_admin` fest:
+- **Typ:** Ja/Nein/Enthaltung-Abstimmung, Personenwahl, Freitext-Beschluss oder prozedurales Traktandum (ohne Stimmabgabe).
+- **Quorum:** Einfache Mehrheit, qualifizierte Mehrheit (Art. 647b/d/e & 712g ZGB), Einstimmigkeit, absolute Mehrheit oder reglementarisches Sonderquorum.
+- **Gemeinschaftsbezug:** Gilt der Beschluss für alle Gemeinschaften der Versammlung oder nur für ein bestimmtes Gebäude.
 
-### Geplante E-Mails
+---
 
-Einladungen und Erinnerungen werden geplant und automatisch zum jeweiligen Zeitpunkt versendet. Bei Fehlversagen erfolgt ein automatischer Retry.
+## 2. Teilnehmer einladen & Login
 
-### Einladungs-PDF und Vollmachtskarte
+**Beteiligte Rollen: `tenant_admin` (Versand) & `eigentümer` (Empfang/Login)**
 
-Pro Empfänger erzeugt ResiVote eine Einladungs-PDF und eine personalisierte Vollmachtskarte. Beide werden als Anhang mitgesendet.
+Mit der Veröffentlichung werden personalisierte Einladungs-PDFs und Vollmachtskarten generiert und per E-Mail zugestellt.
 
-### Login
+### Authentifizierung & Eigentümerportal
 
-Die Authentifizierung erfolgt über ZITADEL. Eigentümer melden sich mit ihrem persönlichen Link an. Die Zuordnung der Identität zum Eigentümer erfolgt beim ersten Login automatisch.
+Die Authentifizierung erfolgt sicher über ZITADEL. Eigentümer melden sich mit ihrer hinterlegten E-Mail-Adresse an. Die Verknüpfung zwischen dem Benutzerkonto und allen gehaltenen Stockwerkeinheiten erfolgt automatisch.
 
-## 3. Versammlung durchführen
+Eigentümer greifen über das Portal bequem von jedem Tablet oder Smartphone auf ihre Versammlungen zu:
 
-Der Administrator öffnet die Versammlung für den Check-in und startet dann die Live-Sitzung.
+![Eigentümer-Portal auf dem Tablet](/screenshots/owner/tablet/portal-meetings-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersicht aller aktuellen und vergangenen Versammlungen sowie Zirkularbeschlüsse.*
 
-### Check-in-Methoden
+Auch auf dem Smartphone ist das Portal voll responsive und für die mobile Einhandbedienung optimiert:
 
-Die Versammlung konfiguriert eine Check-in-Methode:
+![Eigentümer-Portal auf dem Smartphone](/screenshots/owner/mobile/portal-mobile-meetings.png)
+*Mobile-Ansicht für `eigentümer`: Direkter Zugriff auf Traktanden, Dokumente und Vollmachten auf dem Smartphone.*
 
-| Methode | Ablauf |
-|---------|--------|
-| Manuell | Vorsitz/Admin markiert Teilnehmer manuell (Standard) |
-| QR-Code | Eigentümer scannen einen QR-Code mit dem Smartphone (Self-Check-in) |
-| Signatur | Eigentümer wählen sich aus einem Dropdown auf dem Tablet des Admins und signieren digital; alle eigenen Einheiten und Vollmacht-Einheiten werden als anwesend markiert |
+---
 
-### Vorsitz-Dashboard und Live-Protokoll
+## 3. Check-in & Anwesenheit
 
-Der Vorsitz steuert die Versammlung über ein Dashboard: Traktanden öffnen/schliessen, Abstimmungen starten, Live-Ergebnisse einsehen. Das Live-Protokoll wird parallel geführt – der Protokollführer (Eigentümer oder Mandanten-Admin) schreibt Notizen pro Traktandum.
+**Beteiligte Rollen: `tenant_admin` (Präsenzleitung) & `eigentümer` (Selbst-Check-in)**  
+*Geräte: Tablet für tenant_admin, Smartphone für eigentümer*
 
-### Live-Updates
+Vor Beginn der Versammlung öffnet `tenant_admin` die Check-in-Phase. Drei Methoden stehen zur Auswahl:
+1. **Manuell:** Die Verwaltung hakt anwesende Eigentümer in der Präsenzliste ab.
+2. **QR-Code:** Eigentümer scannen mit dem Smartphone einen im Saal projizierten QR-Code (Self-Check-in).
+3. **Digitale Signatur:** Eigentümer tragen sich am Tablet der Verwaltung ein und signieren direkt mit dem Finger oder Stylus.
 
-Präsenz, Quorum-Status und Abstimmungsergebnisse werden in Echtzeit an alle Teilnehmer übermittelt.
+Details siehe [Check-in und Anwesenheit](/guides/checkin/).
 
-## 4. Beschlüsse fassen
+---
 
-Jedes Traktandum durchläuft eigene Zustände:
+## 4. Live-Sitzung & Beschlussfassung
+
+**Beteiligte Rollen: `tenant_admin` (Versammlungsleitung) & `eigentümer` (Stimmberechtigte)**
+
+Der Traktanden-Workflow garantiert einen transparenten und rechtssicheren Ablauf:
 
 ```d2
 direction: right
 Wartend: noch nicht behandelt
 Präsentation: Diskussionsphase
-Vorabstimmung: asynchrone Vorabstimmung
+Vorabstimmung: asynchrone Stimmabgabe
 "Abstimmung offen": Stimmabgabe aktiv
-Abgeschlossen: Ergebnis feststehen
+Abgeschlossen: Ergebnis feststehend
 Übersprungen: nicht behandelt
 
 Wartend -> Präsentation: präsentieren
@@ -99,60 +133,27 @@ Präsentation -> Vorabstimmung: optional
 Präsentation -> "Abstimmung offen": öffnen
 Vorabstimmung -> "Abstimmung offen": überführen
 "Abstimmung offen" -> Abgeschlossen: schliessen
-Wartend -> Übersprungen: überspringen
-Präsentation -> Übersprungen: überspringen
-Abgeschlossen -> Präsentation: wieder öffnen
 ```
 
-Geschlossene Traktanden lassen sich wieder öffnen oder erneut präsentieren.
+### Versammlungssteuerung (Rolle: `tenant_admin`)
 
-### Stimmabgabe
+Die Versammlungsleitung steuert den Fortgang am Desktop oder Tablet: Traktanden aufrufen, Beschlussantrag einblenden, Abstimmungstimer starten und Quorum prüfen.
 
-Vor jeder Stimmabgabe prüft das System:
+![Versammlungssteuerung auf dem Desktop](/screenshots/tenant-admin/desktop/live-meeting-control.png)
+*Desktop-Ansicht für `tenant_admin`: Live-Cockpit mit Traktandensteuerung, Echtzeit-Stimmfortschritt und Beschlussfähigkeit.*
 
-1. Die Versammlung läuft (oder befindet sich in der Vorabstimmung)
-2. Das Traktandum ist für die Abstimmung geöffnet
-3. Das Quorum beim Öffnen war erreicht – oder der Vorsitz hat eine Ausnahme erteilt
-4. Die Einheit gehört zu einer Gemeinschaft der Versammlung
-5. Das Traktandum gilt für die Gemeinschaft der Einheit
-6. Der Wähler ist Hauptwähler oder Bevollmächtigter
-7. Bei Vollmacht: deckt das Traktandum ab? Stimmt die Stimmabgabe mit der Weisung überein?
-8. Check-in erforderlich (falls konfiguriert)
+### Stimmabgabe (Rolle: `eigentümer`)
 
-### Kopf-Stimmen und Wertquoten
+Eigentümer stimmen während der offenen Abstimmungsphase mit einem Klick auf Tablet oder Smartphone ab:
 
-Je nach Stimmrechtsmodell der Gemeinschaft zählen Kopf-Stimmen, Wertquoten oder benutzerdefinierte Anteile. Die Stimmrechtsbegrenzung (Art. 712g ZGB) kappelt Kopf-Stimmen bei Überschreitung des reglementarischen Prozentsatzes.
+![Live-Teilnahme für Eigentümer auf dem Smartphone](/screenshots/owner/mobile/owner-meeting-view-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Traktandendetails, Antragsbegründung und Stimmabgabe auf dem Smartphone.*
 
-### Quorum-Engine und Ergebnisse
+---
 
-Das System berechnet pro Gemeinschaft Kopf-Stimmen und Wertquoten, vergleicht mit dem Schwellwert und ermittelt, ob der Beschluss insgesamt angenommen wurde. Details siehe `/guides/quorum/`.
+## 5. Live-Protokoll & Abschluss
 
-### Live-Ergebnis-Sichtbarkeit
+**Zuständige Rolle: `tenant_admin` (Protokollführung)**  
+*Geräte: Desktop oder Tablet für Verwaltung, Portal für Eigentümer*
 
-Die Versammlung steuert, wer Live-Ergebnisse sieht: alle Teilnehmer oder nur Vorsitz/Admin.
-
-## 5. Protokoll abschliessen
-
-Nach dem letzten Traktandum wird die Versammlung abgeschlossen und anschliessend archiviert.
-
-### Protokoll-PDF
-
-ResiVote erzeugt das bindende Protokoll mit allen Traktanden, Abstimmungsergebnissen, Anwesenheiten und Stimmrechtsbegrenzungen. Prozedurale Traktanden werden ausgefiltert. Details siehe `/guides/protokoll/`.
-
-### Audit-Log und Beweispaket
-
-Jede Aktion wurde während der Versammlung in der Audit-Hash-Kette protokolliert. Das Beweispaket exportiert die komplette Kette mit Integritätsverifikation.
-
-### Archivierung
-
-Nach der Archivierung sind keine Änderungen mehr möglich. Die Audit-Hash-Kette macht jede nachträgliche Manipulation nachweisbar.
-
-<Aside type="note" title="Zirkularbeschluss">
-Im Zirkularbeschluss-Modus entfallen Check-in und Live-Sitzung. Eigentümer stimmen asynchron innerhalb eines Zeitfensters ab. Die Quorum-Berechnung und das Protokoll funktionieren analog.
-</Aside>
-
-## Weiterführende Links
-
-<LinkCard title="Protokoll und Berichte" href="/guides/protokoll/" description="Live-Protokoll, KI-Vorschläge und PDF-Berichte." />
-<LinkCard title="Quorum und Präsenz" href="/guides/quorum/" description="Beschlussfähigkeit und Quorum-Berechnung." />
-<LinkCard title="Benutzer und Berechtigungen" href="/guides/benutzer/" description="Rollen, Mandanten und Zugriffskontrolle." />
+Während der Sitzung erfasst der Protokollführer (oder `tenant_admin`) Notizen direkt im integrierten Editor pro Traktandum. Nach Abschluss der Versammlung generiert ResiVote ein revisionssicheres PDF-Protokoll inklusive aller Stimmresultate, Anwesenheitsnachweise und digitaler Signaturen.

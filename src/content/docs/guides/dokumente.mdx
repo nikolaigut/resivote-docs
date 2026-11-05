@@ -1,182 +1,75 @@
 ---
 title: Dokumente und Reglemente
-description: Dokumentenablage, Ordnerstruktur, Verschlüsselung und Reglement-Import in ResiVote.
+description: Dokumentenablage, Ordnerstruktur, Dokumentvorlagen und Eigentümerzugriff in ResiVote.
 ---
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote verwaltet Dokumente in einer hierarchischen Ordnerstruktur pro Gemeinschaft. Alle Dateien werden verschlüsselt gespeichert. Der Reglement-Import extrahiert Metadaten und Einheiten aus PDFs per KI.
+ResiVote bietet eine strukturierte, verschlüsselte Dokumentenablage für alle Unterlagen einer Liegenschaft – von Reglementen und Plänen über Jahresrechnungen bis hin zu Versammlungsprotokollen.
 
-## Dokument
-
-Ein Dokument repräsentiert eine Datei im Eigentümerportal. Zugriff wird über den zugeordneten Ordner gesteuert.
-
-| Feld | Bedeutung |
-|------|-----------|
-| Mandant | Mandant (Multi-Tenant-Isolation) |
-| Gemeinschaft | Gemeinschaft (optional für mandantenweite Ordner) |
-| Ordner | Übergeordneter Ordner (zwingend) |
-| Titel | Anzeigename |
-| Kategorie | Kategorie (normalisiert) |
-| Dateiname | Bereinigter Dateiname |
-| MIME-Typ | MIME-Typ |
-| Dateigrösse | Dateigrösse |
-| Ungelesen | Ungelesen-Flag (transient) |
-
-### Dokumentkategorien
-
-ResiVote normalisiert die Kategorie und validiert gegen die erlaubten Werte:
-
-Protokoll, Einladung, Jahresrechnung, Reglement, Mitteilung, Formular, Sonstiges
-
-Ungültige Werte werden auf «Sonstiges» gesetzt.
-
-### Dateinamen-Bereinigung
-
-ResiVote entfernt Pfadkomponenten aus dem Dateinamen und ersetzt gefährliche Zeichen. Leere Namen werden auf einen Standardwert gesetzt. Dies verhindert Path-Traversal.
-
-## Ordner
-
-Ein Ordner bildet eine hierarchische Struktur innerhalb einer Gemeinschaft oder eines Mandanten.
-
-| Feld | Bedeutung |
-|------|-----------|
-| Gemeinschaft | Gemeinschaft (optional für mandantenweite Ordner) |
-| Übergeordneter Ordner | Übergeordneter Ordner (optional für Root) |
-| Eigentümer | Eigentümer bei persönlichen Ordnern (optional) |
-| Name | Ordnername |
-| Sichtbarkeit | Öffentlich oder eingeschränkt |
-| Pfad | Vollständiger Pfad (z. B. `Jahresberichte/2024`) |
-| Dokumentanzahl | Dokumentanzahl (transient) |
-
-### Sichtbarkeit
-
-- **Öffentlich** – sichtbar für alle Eigentümer der Gemeinschaft oder des Mandanten.
-- **Eingeschränkt** – nur für den Eigentümer sichtbar. Persönliche Ordner müssen eingeschränkt sein.
-
-### Ordner-Service
-
-ResiVote baut die Ordnerstruktur und validiert Regeln:
-
-- **Pfad-Eindeutigkeit** – innerhalb einer Gemeinschaft darf kein doppelter Pfad existieren.
-- **Gleicher Name in verschiedenen Gemeinschaften** – erlaubt, da die Eindeutigkeit pro Gemeinschaft geprüft wird.
-- **Sub-Ordner erben Sichtbarkeit** – ein Sub-Ordner muss dieselbe Sichtbarkeit und denselben Eigentümer wie der Parent haben.
-- **Parent muss gleiche Gemeinschaft** – ein Sub-Ordner muss in derselben Gemeinschaft wie sein Parent liegen.
-- **Persönlicher Ordner** – ResiVote legt automatisch einen eingeschränkten Ordner pro Eigentümer an, benannt nach dem Eigentümernamen.
-
-### Baum-Aufbau und Dokumentanzahl
-
-ResiVote lädt alle Ordner einer Gemeinschaft, optional den persönlichen Ordner, filtert für nicht-privilegierte Benutzer (nur öffentliche + eigene eingeschränkte), baut den Baum auf und befüllt die Dokumentanzahl pro Ordner.
-
-## Storage-Backends
-
-ResiVote unterstützt zwei Storage-Backends:
-
-| Backend | Konfiguration |
-|---------|--------------|
-| **Lokales Dateisystem** | Lokaler Pfad (Standard: `./uploads`) |
-| **S3 / MinIO** | S3-Endpoint, Bucket, Region, Access-Key, Secret-Key, Path-Style |
-
-Der Storage-Pfad wird als `documents/{Mandant}/{Gemeinschaft}/{Ordner}/{Dokument}/{Dateiname}` aufgebaut.
-
-### Maximal Upload-Grösse
-
-ResiVote begrenzt die Upload-Grösse. Standardwert: 50 MB. Dateien, die das Limit überschreiten, werden abgelehnt.
-
-## Verschlüsselung
-
-<Aside type="note" title="Encryption at Rest">
-Jedes Dokument wird vor dem Speichern verschlüsselt. Die Entschlüsselung erfolgt nur bei autorisiertem Download. Der Storage enthält niemals Klartext.
+<Aside type="note" title="Rollenverteilung bei Dokumenten">
+- **`tenant_admin` (Verwaltung):** Strukturiert Ordner, lädt Liegenschaftsakten hoch, verwaltet Dokumentvorlagen und steuert Sichtbarkeiten (Desktop & Tablet).
+- **`eigentümer` (Eigentümer):** Greift im Portal jederzeit auf alle relevanten Gemeinschaftsdokumente, Abrechnungen und Protokolle zu und kann Service-Tickets einreichen (Tablet & Mobile).
 </Aside>
 
-### Schichten
+---
 
-Die Verschlüsselung besteht aus zwei Komponenten:
+## 1. Dokumentenverwaltung durch die Verwaltung
 
-1. **Mandanten-Schlüsselverwaltung** – verwaltet Data-Encryption-Keys pro Mandant:
-   - Pro Mandant wird ein DEK generiert und mit dem Master-Key eingewickelt.
-   - Der DEK wird bei Bedarf entpackt.
-   - Pro Dokument wird ein separater Dokument-Key aus DEK und Dokument-ID abgeleitet.
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
 
-2. **Dokumenten-Verschlüsselung** – ver- und entschlüsselt Dateiinhalte:
-   - Beim Verschlüsseln wird ein zufälliger Initialisierungsvektor verwendet.
-   - Beim Entschlüsseln wird der Vorgang umgekehrt.
+Im Admin-Bereich verwaltet die Liegenschaftsverwaltung alle Dateien in einer hierarchischen Ordnerstruktur:
 
-Der Master-Key wird über die Konfiguration bereitgestellt.
+![Dokumentenverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/documents-admin.png)
+*Desktop-Ansicht für `tenant_admin`: Ordnerstruktur, Kategorisierung (Reglemente, Abrechnungen, Protokolle) und Upload.*
 
-### Zugriffskontrolle
+### Kategorien und Sicherheitsstandards
+- **Dokumentkategorien:** Protokoll, Einladung, Jahresrechnung, Reglement, Mitteilung, Formular, Sonstiges.
+- **Sichtbarkeit:**
+  - *Öffentlich:* Für alle Eigentümer der betreffenden Gemeinschaft sichtbar.
+  - *Eingeschränkt / Persönlich:* Nur für spezifische Einheiten bzw. Eigentümer einsehbar (z. B. individuelle Heizkostenabrechnungen).
+- **Verschlüsselung:** Alle Dateien werden im Ruhezustand (at rest) und während der Übertragung (in transit) modern verschlüsselt abgelegt.
 
-ResiVote prüft pro Dokument:
+### Dokumentvorlagen
+Für wiederkehrende Korrespondenz, Einladungsbriefe, Vollmachtskarten und Traktanden-Schemata pflegt `tenant_admin` zentrale Vorlagen:
 
-- **Persönlicher Ordner** – nur der Eigentümer erhält Zugriff.
-- **Gemeinschafts-Ordner** – Eigentümer müssen der Gemeinschaft angehören.
-- **Öffentlicher Ordner** – alle Eigentümer des Mandanten.
+![Dokumentvorlagen im Admin-Bereich](/screenshots/tenant-admin/desktop/document-templates.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Pflege von standardisierten Vorlagen für Einladungen und Berichte.*
 
-## Reglement-Import
+---
 
-Der Reglement-Import ist ein zweiphasiger Prozess:
+## 2. Dokumentenzugriff für Eigentümer
 
-```d2
-direction: right
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
 
-"Phase 1: Extrahieren" {
-  "PDF hochladen" -> "Text extrahieren" -> "Text bereinigen" -> "Text filtern" -> "KI aufrufen" -> "JSON parsen" -> "Draft zurückgeben"
-}
+Eigentümer haben ihr persönliches Dokumentenarchiv stets zur Hand.
 
-"Phase 2: Bestätigen" {
-  "Daten prüfen" -> "Bestätigen" -> "Gemeinschaft anlegen" -> "Einheiten anlegen" -> "Eigentümer importieren"
-}
+### Dokumentenablage auf dem Tablet
 
-"Draft zurückgeben" -> "Daten prüfen": Benutzer editiert
-```
+Auf dem Tablet können Reglemente, Pläne und Jahresberichte dank der grosszügigen Bildschirmfläche komfortabel durchgeblättert und heruntergeladen werden:
 
-### Phase 1: Extrahieren
+![Dokumentenansicht auf dem Tablet](/screenshots/owner/tablet/portal-documents-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersichtliche Ordnerkacheln und Dokumentenliste mit Download-Möglichkeit.*
 
-<Steps>
-  1. **PDF hochladen** – ResiVote nimmt ein PDF entgegen (max. 50 MB, PDF-Format validiert).
-  2. **Text extrahieren** – ResiVote zieht den Text aus dem PDF.
-  3. **Text bereinigen** – Steuerzeichen werden entfernt (ausser Zeilenumbrüche und Tabulatoren).
-  4. **Text filtern** – ResiVote behält nur relevante Abschnitte (Keywords, Quota-Muster, Unit-Muster). Header-Präfix immer. Maximal 40 000 Zeichen.
-  5. **KI aufrufen** – Der gefilterte Text wird an den konfigurierten KI-Anbieter gesendet.
-  6. **JSON parsen** – ResiVote parst die Antwort, validiert Werte (Gemeinschaftstyp, Stimmrechtsmodell), verwirft Einheiten ohne Bezeichnung, kappelt bei 500 Einheiten.
-  7. **Draft zurückgeben** – Ergebnis mit Gemeinschafts-Metadaten, Einheiten und Warnungen. Keine Datenbank-Schreibvorgänge.
-</Steps>
+### Schneller Zugriff auf dem Smartphone (Mobile)
 
-### Phase 2: Bestätigen
+Unterwegs auf dem Smartphone sind aktuelle Protokolle und Mitteilungen mit wenigen Klicks abrufbar:
 
-<Steps>
-  1. **Daten prüfen** – Der Benutzer überprüft und editiert den Draft im Frontend.
-  2. **Bestätigen** – ResiVote validiert Name und Typ (STWEG oder MEG).
-  3. **Gemeinschaft anlegen** – ResiVote erzeugt die Gemeinschaft mit allen Metadaten.
-  4. **Einheiten anlegen** – pro Einheit (Bezeichnung, Wertquote, Grundbuchnummer etc.).
-  5. **Eigentümer importieren** – optional: wenn E-Mail oder Name vorhanden, wird ein Eigentümer angelegt oder per E-Mail matchiert, plus eine Eigentümerschaft (1/1, als Hauptwähler markiert).
-</Steps>
+![Mobile Dokumentenansicht](/screenshots/owner/mobile/portal-mobile-documents.png)
+*Mobile-Ansicht für `eigentümer`: Kompakte Liste aller freigegebenen Dokumente zur mobilen Ansicht.*
 
-<Aside type="caution" title="Kein automatisches Rollback">
-Wenn eine Einheit-Erstellung fehlschlägt, wird die bereits erstellte Gemeinschaft nicht automatisch zurückgerollt. Der Aufrufer muss Teilfehler behandeln.
-</Aside>
+---
 
-### Reglement-konfigurierbare Quoren
+## 3. Anfragen und Service-Tickets
 
-Die Gemeinschaft hält drei optionale Reglement-Felder, die die Gemeinschafts-Typ-Standards überschreiben:
+**Beteiligte Rollen: `eigentümer` (Einreichung) & `tenant_admin` (Bearbeitung)**  
+*Gerät: Smartphone oder Tablet*
 
-| Feld | Bedeutung | Standard |
-|------|-----------|----------|
-| Kopf-Stimmen-Quorum in % | Kopf-Stimmen-Quorum | STWEG: 50, MEG: 50 |
-| Wertquoten-Quorum in % | Wertquoten-Quorum | STWEG: 50, MEG: 50 |
-| Mindestanzahl Eigentümer | Mindestanzahl anwesender Eigentümer | STWEG: 2, MEG: 1 |
+Haben Eigentümer Fragen zu einer Abrechnung, Reparaturmeldungen oder Anträge zur nächsten Versammlung, können sie direkt im Portal ein Ticket eröffnen:
 
-Details zur Quorum-Berechnung siehe `/guides/quorum/`.
+![Anfragen und Tickets auf dem Smartphone](/screenshots/owner/mobile/portal-tickets-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Ticket-Erfassung und Statusverfolgung für Anliegen an die Liegenschaftsverwaltung.*
 
-### Stimmrechtsbegrenzung (Art. 712g ZGB)
-
-Die Gemeinschaft hält zwei Felder für die reglementarische Stimmrechtsbegrenzung:
-
-- **Aktiv** – standardmässig deaktiviert. Muss explizit aktiviert werden.
-- **Prozentsatz** – Standard 50.00. Kappelt die Kopf-Stimmen eines Eigentümers, wenn sein Anteil am Gesamtwert den Prozentsatz übersteigt.
-
-Betroffene Eigentümer werden im Ergebnis markiert.
-
-## Weiterführende Links
-
-<LinkCard title="Quorum und Präsenz" href="/guides/quorum/" description="Beschlussfähigkeit und Reglement-Quoren." />
+Die Verwaltung (`tenant_admin`) sieht alle eingehenden Anfragen im Admin-Dashboard unter **«Anfragen»** und kann diese strukturiert beantworten oder in Pendenzen für die nächste Versammlung überführen.

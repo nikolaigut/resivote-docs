@@ -1,122 +1,101 @@
 ---
 title: Versammlung erstellen
-description: Versammlung anlegen, Traktanden definieren und veröffentlichen – vom Entwurf bis zur Einladung.
+description: Versammlung anlegen, Gemeinschaften verknüpfen, Traktanden definieren und Einladungen versenden.
 ---
 
 import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
 
-Diese Anleitung richtet sich an Mandanten-Administratoren und den Vorsitz. Sie beschreibt, wie ihr eine Versammlung im Entwurf anlegt, mit Traktanden bestückt und schliesslich veröffentlicht.
+Diese Anleitung richtet sich primär an die Rolle **`tenant_admin` (Verwaltung)**. Sie beschreibt Schritt für Schritt, wie eine Eigentümerversammlung angelegt, mit Traktanden bestückt und für Eigentümer (`eigentümer`) bereitgestellt wird.
 
-## Lebenszyklus einer Versammlung
+---
 
-Jede Versammlung durchläuft einen festen Status-Workflow:
+## Übersicht der Versammlungen
 
-| Status | Bedeutung |
-| --- | --- |
-| Entwurf | Vorbereitungsphase – Versammlung ist noch nicht sichtbar. |
-| Veröffentlicht | Einladungen wurden verschickt. |
-| Check-in | Check-in-Phase ist geöffnet. |
-| Laufend | Versammlung läuft, Traktanden werden behandelt. |
-| Abgeschlossen | Versammlung wurde beendet. |
-| Archiviert | Versammlung ist archiviert. |
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
 
-```d2
-direction: right
-Entwurf: Vorbereitungsphase
-Veröffentlicht: Einladungen verschickt
-Check-in: Check-in-Phase geöffnet
-Laufend: Traktanden werden behandelt
-Abgeschlossen: Versammlung beendet
-Archiviert: keine Änderungen mehr möglich
+In der Versammlungsübersicht sieht die Verwaltung alle Entwürfe, veröffentlichten Sitzungen, aktiven Live-Versammlungen und archivierten Protokolle auf einen Blick:
 
-Entwurf -> Veröffentlicht: veröffentlichen
-Veröffentlicht -> Check-in: Check-in öffnen
-Check-in -> Laufend: Sitzung starten
-Laufend -> Abgeschlossen: beenden
-Abgeschlossen -> Archiviert: archivieren
-```
+![Versammlungsübersicht im Admin-Bereich](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Desktop-Ansicht für `tenant_admin`: Status-Filter, Schnellauswahl für Steuerung, Live-Protokoll und Export.*
 
-Aus dem archivierten Zustand sind keine weiteren Übergänge möglich.
+---
 
-## Versammlungsmodi
+## 1. Neue Versammlung anlegen
 
-Beim Anlegen wählt ihr den Modus der Versammlung:
+Über die Schaltfläche **«Versammlung anlegen»** öffnet sich die Konfigurationsmaske:
 
-- **Live-Versammlung** – Präsenz-, Hybrid- oder Online-Versammlung in Echtzeit. Standardwert.
-- **Zirkularbeschluss** – (Art. 712m Abs. 2 ZGB). Erfordert zwingend die Angabe von Start- und Enddatum für das Abstimmungsfenster. Der Start muss vor dem Ende liegen.
-
-## Versammlung anlegen
+![Maske Versammlung anlegen](/screenshots/tenant-admin/desktop/meeting-create-form.png)
+*Desktop-Ansicht für `tenant_admin`: Eingabemaske für Grunddaten, Versammlungsmodus, Check-in-Methode und Sichtbarkeiten.*
 
 <Steps>
 
-1. **Grunddaten erfassen.** Legt Titel, Beschreibung, Datum und Ort fest. Das System prüft, ob am gewählten Zeitpunkt nicht bereits eine andere Versammlung desselben Mandanten geplant ist. Ein eindeutiger Slug wird automatisch generiert.
+1. **Grunddaten erfassen:**
+   - **Titel & Beschreibung:** Eindeutige Bezeichnung (z. B. «Ordentliche Eigentümerversammlung Sonnenhalde 2026»).
+   - **Datum, Uhrzeit & Ort:** Präsenzadresse oder Hybrid-/Online-Hinweis.
+   - **URL-Slug:** Ein sprechender URL-Slug wird automatisch vorgeschlagen.
 
-2. **Modus und Check-in-Methode wählen.** Wählt den Modus (Live-Versammlung oder Zirkularbeschluss). Wählt die Check-in-Methode:
-   - Manuell – der Vorsitz markiert anwesende Eigentümer manuell (Standard).
-   - QR-Code – Eigentümer checken sich selbst per QR-Code ein.
-   - Signatur – Eigentümer unterschreiben auf dem Tablet des Administrators.
+2. **Versammlungsmodus wählen:**
+   - **Live-Versammlung:** Standard für synchrone Präsenz-, Hybrid- oder Online-Sitzungen mit Live-Abstimmung.
+   - **Zirkularbeschluss:** Asynchroner Beschluss nach Art. 712m Abs. 2 ZGB. Erfordert ein fest definiertes Start- und Enddatum für das Stimmabgabefenster.
 
-3. **Sichtbarkeit der Live-Ergebnisse festlegen.** Bestimmt, wer Live-Ergebnisse während einer offenen Abstimmung sieht:
-   - Alle – alle Teilnehmer sehen die Zwischenergebnisse (Standard).
-   - Nur Vorsitz – nur Mandanten-Admin und Vorsitz sehen Live-Ergebnisse.
+3. **Check-in-Methode bestimmen:**
+   - **Manuell:** Die Versammlungsleitung hakt anwesende Eigentümer in der Präsenzliste ab.
+   - **QR-Code:** Eigentümer scannen mit dem Smartphone einen QR-Code zum Self-Check-in.
+   - **Signatur:** Eigentümer unterschreiben digital auf dem Tablet des Administrators.
 
-4. **Stimmabgabe-Bestätigung aktivieren (optional).** Aktiviert diese Option, wenn Eigentümer ihre Stimmabgabe explizit bestätigen müssen.
+4. **Sichtbarkeit der Live-Ergebnisse:**
+   - **Alle Teilnehmer:** Zwischenergebnisse und Stimmenzähler sind während der Abstimmung für Eigentümer sichtbar.
+   - **Nur Vorsitz:** Zwischenergebnisse bleiben bis zum offiziellen Schliessen der Abstimmung der Versammlungsleitung vorbehalten.
 
-5. **Gemeinschaften verknüpfen.** Verknüpft eine oder mehrere Gemeinschaften mit der Versammlung. Dies erlaubt Mehr-Gemeinschafts-Versammlungen.
+5. **Gemeinschaften verknüpfen:**
+   - Wählen Sie eine oder mehrere Gemeinschaften aus. ResiVote unterstützt Mehr-Gemeinschafts-Versammlungen, bei denen beispielsweise separate STWEG-Baukörper gemeinsam mit einer Miteigentümergemeinschaft (z. B. Tiefgarage) tagen.
 
 </Steps>
 
-## Traktanden anlegen
+---
 
-Jeder Traktandum gehört zu einer Versammlung und besitzt folgende Eigenschaften:
+## 2. Traktanden & Beschlüsse erfassen
 
-- **Reihenfolge** – Position innerhalb der Versammlung.
-- **Titel** und **Beschreibung** – Bezeichnung und Erläuterung.
-- **Typ** – Traktandentyp:
-  - Ja/Nein/Enthaltung-Abstimmung.
-  - Wahl; erfordert die Angabe der Kandidatennamen.
-  - Freitext-Abstimmung.
-  - Protokollführung festlegen, ohne Abstimmung.
-- **Quorum-Typ** – Quorenmodell für diesen Traktandum: einfache Mehrheit, qualifizierte Mehrheit, Einstimmigkeit, absolute Mehrheit oder benutzerdefiniert. Bei benutzerdefiniert definiert ihr den Prozentsatz und optional einen separaten Wertquoten-Schwellwert; die Basis kann auf anwesende oder alle berechtigten Eigentümer festgelegt werden.
-- **Gemeinschafts-Bezug** – kann auf eine einzelne Gemeinschaft beschränkt sein oder für alle Gemeinschaften der Versammlung gelten.
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
 
-Bei einer Live-Versammlung erstellt das System automatisch den prozeduralen Traktandum «Protokollführung festlegen». Sobald ihr den Protokollschreiber festlegt, schliesst das System diesen Traktandum automatisch.
+Nach dem Anlegen wechseln Sie in den Traktanden-Editor. Jedes Traktandum stellt einen Tagesordnungspunkt dar:
 
-## Protokollschreiber konfigurieren
+![Traktanden-Editor auf dem Desktop](/screenshots/tenant-admin/desktop/meeting-agenda-edit.png)
+*Desktop-Ansicht für `tenant_admin`: Strukturierung der Traktandenliste, Antragsformulierung, Quorum-Zuweisung und Anhänge.*
 
-Der Protokollschreiber wird beim Anlegen festgelegt:
+### Eigenschaften eines Traktandums
+- **Nummerierung & Reihenfolge:** Flexible Sortierung per Drag-and-Drop oder Pfeiltasten.
+- **Titel & Antragsbegründung:** Vollständiger Wortlaut des Beschlussantrags.
+- **Traktandentyp:**
+  - *Ja / Nein / Enthaltung:* Klassische Sachabstimmung.
+  - *Personenwahl:* Wahl von Ausschussmitgliedern oder Delegierten mit frei definierbaren Kandidatennamen.
+  - *Freitext:* Erfassung von Ideen oder qualitativen Vorschlägen.
+  - *Protokollführung / Information:* Reines Diskussionstraktandum ohne Stimmabgabe.
+- **Quorum-Modell:** Zuordnung der erforderlichen Mehrheit (z. B. einfache Mehrheit, qualifizierte Mehrheit nach Art. 647b ZGB, Einstimmigkeit).
+- **Gemeinschaftsbezug:** Bestimmt, ob alle anwesenden Gemeinschaften stimmberechtigt sind oder nur eine bestimmte Liegenschaft.
 
-- **Eigentümer** – ein Eigentümer führt das Protokoll.
-- **Mandanten-Admin** – ein Administrator führt das Protokoll.
+---
 
-Die Konfiguration ist nur für Live-Versammlungen erlaubt und nicht mehr änderbar, sobald die Versammlung abgeschlossen oder archiviert ist.
+## 3. Versammlungsdetails & Prüfung auf dem Tablet
 
-## Anhänge hochladen
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Tablet*
 
-Anhänge lassen sich auf zwei Ebenen verwalten:
+Vor der Veröffentlichung kann `tenant_admin` alle Details, zugeordneten Gemeinschaften und Traktanden bequem am Tablet überprüfen:
 
-- **Versammlungs-Anhänge** – allgemeine Dokumente für die gesamte Versammlung.
-- **Traktanden-Anhänge** – Dokumente, die zu einem spezifischen Traktandum gehören.
+![Versammlungsdetails auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-details-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Vollständige Übersicht über Metadaten, Gemeinschaften und Traktandenliste auf dem Tablet.*
 
-Zusätzlich unterstützt ResiVote Online-Slides für Präsentationen innerhalb eines Traktandums.
+---
 
-## Versammlung veröffentlichen
+## 4. Wie Eigentümer die erstellte Versammlung sehen
 
-Die Veröffentlichung vollzieht den Übergang vom Entwurf zur Veröffentlichung. Dabei passiert Folgendes:
+**Perspektive der Rolle: `eigentümer`**  
+*Gerät: Tablet oder Smartphone*
 
-1. Das System validiert und setzt den Status auf veröffentlicht.
-2. Das System plant die E-Mail-Sequenz: eine sofortige Einladung und eine Erinnerung sieben Tage vor dem Versammlungstermin.
-3. Die Einladungen werden möglichst sofort versendet; schlägt der Versand fehl, bleibt die Versammlung dennoch veröffentlicht.
+Sobald `tenant_admin` die Versammlung auf **«Veröffentlicht»** setzt, erhalten die Eigentümer ihre Einladung und sehen die Versammlung in ihrem Portal. Sie können alle Traktanden und Unterlagen vorab studieren:
 
-<Aside type="note" title="Aktualisierungen">
-  Versammlungen lassen sich nur im Entwurf oder im veröffentlichten Status bearbeiten. Sobald die Versammlung den Check-in oder einen späteren Status erreicht, sind Änderungen an den Grunddaten gesperrt.
-</Aside>
-
-<CardGrid>
-  <Card title="Abstimmungen durchführen" icon="seti:vote">
-    Wie Traktanden abgestimmt werden und welche Stimmmodelle gelten.
-  </Card>
-  <Card title="Check-in und Anwesenheit" icon="seti:check">
-    Wie Eigentümer an der Versammlung anwesend werden.
-  </Card>
-</CardGrid>
+![Traktandenvorschau im Eigentümerportal](/screenshots/owner/tablet/meeting-traktanden-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Klare Auflistung aller Traktanden, Beschlussanträge und Begleitdokumente im Portal.*

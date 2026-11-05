@@ -1,205 +1,75 @@
 ---
 title: Quorum und Präsenz
-description: Quorum-Typen, Beschlussfähigkeit, Präsenz-Berechnung und Community-Modelle in ResiVote.
+description: Quorum-Typen, Beschlussfähigkeit nach Schweizer ZGB, Präsenz-Berechnung und Quorum-Engine.
 ---
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-ResiVote berechnet Quoren nach schweizerischem Immobilienrecht (ZGB). Die Beschlussfähigkeit wird live während der Versammlung verfolgt und beim Öffnen eines Traktandums als Snapshot eingefroren.
+ResiVote verfügt über eine hochpräzise Quorum-Engine, die speziell für das schweizerische Sachenrecht (ZGB Art. 647 ff. und Art. 712a ff.) entwickelt wurde. Die Beschlussfähigkeit wird in Echtzeit berechnet und beim Öffnen eines Traktandums als unanfechtbarer Schnappschuss (Snapshot) fixiert.
 
-## Quorum-Typen
+<Aside type="note" title="Rollenperspektive auf Quorum und Präsenz">
+- **`tenant_admin` (Verwaltung):** Definiert die Quorum-Regeln bei der Vorbereitung, prüft die Beschlussfähigkeit vor Traktandenaufruf und kann im begründeten Ausnahmefall einen dokumentierten Quorum-Override setzen (Desktop & Tablet).
+- **`eigentümer` (Eigentümer):** Sieht transparent, welches Quorum für einen Beschluss gilt und ob die erforderliche Mehrheit erreicht wurde (Tablet & Mobile).
+</Aside>
 
-Jedes Traktandum definiert seinen Quorum-Typ:
+---
 
-| Typ | Bedeutung | Rechtsgrundlage |
-|-----|-----------|-----------------|
-| Einfache Mehrheit | Ja > 50% der anwesenden Kopf-Stimmen. Enthaltungen und nicht abgegebene Stimmen zählen als implizites Nein. | — |
-| Qualifizierte Mehrheit | Ja > 50% der anwesenden Eigentümer (Köpfe) **und** > 50% **aller** berechtigten Wertquoten. | Art. 647b/d/e, 712g Abs. 3 ZGB |
-| Einstimmigkeit | 100% **aller** registrierten Eigentümer (Köpfe) und Wertquoten müssen Ja stimmen. Absenzen ohne positive Vollmacht zählen als Nein. | Art. 647e ZGB |
-| Absolute Mehrheit | Ja > 50% **aller** registrierten Eigentümer (unabhängig von Anwesenheit). | — |
-| Benutzerdefiniert | Ja >= konfigurierbarer Prozentsatz der konfigurierten Basis. | Reglement |
+## Quorum-Typen nach Schweizer Recht
 
-### Benutzerdefiniertes Quorum
+Jedes Traktandum besitzt einen eindeutigen Quorum-Typ:
 
-Für das benutzerdefinierte Quorum hält das Traktandum drei Angaben:
+| Typ | Erforderliche Mehrheit | Gesetzliche Basis im ZGB |
+| --- | --- | --- |
+| **Einfache Mehrheit** | Mehr als 50% der **anwesenden** Kopf-Stimmen (Ja > Nein). Enthaltungen zählen als nicht zustimmend. | Gesetzlicher Standard (Art. 712m Abs. 1 ZGB) |
+| **Qualifizierte Mehrheit** | Mehr als 50% der **anwesenden Eigentümer** (Köpfe) **UND** mehr als 50% **aller berechtigten Wertquoten**. | Art. 647b, 647d, 712g Abs. 3 ZGB (z. B. nützliche bauliche Massnahmen) |
+| **Einstimmigkeit** | **100% aller** im Grundbuch eingetragenen Eigentümer und Wertquoten. Nicht anwesende Stimmen ohne Vollmacht gelten als Nein. | Art. 647e ZGB (z. B. luxuriöse Bauten, Zweckänderungen) |
+| **Absolute Mehrheit** | Mehr als 50% **aller** registrierten Eigentümer der Gemeinschaft (unabhängig von der Anwesenheit). | Reglementarische Sonderfälle |
+| **Benutzerdefiniert** | Frei konfigurierbare Prozentsätze für Köpfe und Wertquoten (z. B. 2/3-Mehrheit der anwesenden Quoten). | Gemäss individuellem STWEG-/MEG-Reglement |
 
-- **Prozentsatz** – Schwellwert in % (z. B. 66.67)
-- **Wertquoten-Prozentsatz** – optionaler separater Schwellwert für Wertquoten
-- **Basis** – anwesend oder alle berechtigten Eigentümer
+---
 
-### Quorum-Override
+## 1. Überwachung der Beschlussfähigkeit im Cockpit
 
-Der Vorsitzende kann einen Quorum-Block aufheben. Das Traktandum hält dazu:
+**Zuständige Rolle: `tenant_admin`**  
+*Geräte: Desktop am Leitungsplatz oder Tablet*
 
-- **Override** – wenn aktiv, werden Stimmen akzeptiert, auch wenn die Beschlussfähigkeit beim Öffnen nicht gegeben war.
-- **Grund** – zwingender Grundtext bei aktivem Override.
+Im Chair-Cockpit sieht die Versammlungsleitung den aktuellen Quorum-Status für jedes Traktandum live:
 
-Wenn kein Snapshot vorliegt, wird der Check übersprungen. Wenn die Beschlussfähigkeit nicht gegeben ist und kein Override gesetzt wurde, wird die Stimme abgelehnt.
+![Quorum-Überwachung im Admin-Cockpit](/screenshots/tenant-admin/desktop/live-meeting-control.png)
+*Desktop-Ansicht für `tenant_admin`: Echtzeit-Anzeige der anwesenden Köpfe und Wertquoten im Vergleich zum Quorum-Sollwert.*
 
-## Quorum-Engine
+Auch am Tablet wird sofort signalisiert, ob ein Traktandum beschlussfähig ist:
 
-Die Quorum-Engine ist die Kernkomponente für die Abstimmungsauswertung. Sie berechnet pro Gemeinschaft ein Ergebnis und aggregiert sie zu einem Gesamt-Ergebnis.
+![Quorum-Anzeige auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-control-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Farbige Indikatoren signalisieren Beschlussfähigkeit vor dem Öffnen der Stimmabgabe.*
 
-### Eingaben
+### Der Quorum-Snapshot
+Sobald `tenant_admin` ein Traktandum zur Abstimmung öffnet, friert die Quorum-Engine die aktuellen Anwesenheiten ein:
+1. **Unveränderliche Stimmbasis:** Eigentümer, die während einer laufenden Stimmabgabe eintreffen oder den Saal verlassen, verfälschen das Quorum dieses spezifischen Traktandums nicht mehr.
+2. **Revisionssicherheit:** Der Snapshot wird mit Zeitstempel im Audit-Log archiviert und ist Bestandteil des Beweispakets.
 
-- Traktandum mit Quorum-Typ und Schwellwerten
-- Gemeinschaften der Versammlung
-- Einheiten und Eigentumsanteile
-- Anwesenheiten
-- Vollmachten
-- Abgegebene Stimmen
+### Quorum-Override (Ausnahme-Freigabe)
+Sollte die Versammlung für ein Traktandum formal nicht beschlussfähig sein, aber die Anwesenden dennoch eine Konsultativabstimmung wünschen, kann `tenant_admin` einen **Override** aktivieren:
+- Ein Begründungstext muss zwingend eingegeben werden (z. B. «Beschlussfassung nach zweiter Einberufung gemäss Art. 712p Abs. 2 ZGB»).
+- Die Begründung und der Override werden prominent im Protokoll und im Audit-Log vermerkt.
 
-### Ausgaben pro Gemeinschaft
+---
 
-| Feld | Bedeutung |
-|------|-----------|
-| Ja/Nein/Enthaltung Kopf-Stimmen | Kopf-Stimmen |
-| Ja/Nein/Enthaltung Wertquoten | Wertquoten |
-| Schwellwerte Kopf/Wert | Erforderliche Ja-Stimmen |
-| Kopf/Wert erreicht | Ob Schwellwert erreicht |
-| Gesamtergebnis | Ob der Beschluss angenommen wurde (nil bei informativen Traktanden) |
-| Stimmrechtsbegrenzung | Ob und bei wem die Stimmrechtsbegrenzung angewendet wurde |
-| Nein/Enthaltung-Stimmende | Nachnamen der Nein/Enthaltung-Stimmenden (für Protokoll) |
-| Wahlergebnis | Ergebnis bei Wahlen |
-| Informativ | Kein Ja/Nein-Ergebnis (z. B. Freitext) |
-| Geerbt | MEG-Ergebnis von verknüpften STWEGs geerbt |
+## 2. Quorum-Transparenz für Eigentümer
 
-### Defensive Normalisierung
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
 
-Die Quorum-Engine normalisiert Eingaben defensiv: leere Gemeinschaften liefern ein informatives Ergebnis, fehlende Stimmen zählen als implizites Nein, und Rundungsfehler werden absorbiert.
+Eigentümer sehen in der Traktandenvorschau und während der Stimmabgabe stets das zugrunde liegende Quorum:
 
-### Gesamt-Ergebnis
+![Traktandenvorschau mit Quorum-Information](/screenshots/owner/tablet/meeting-traktanden-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Klare Ausweisung, ob eine einfache, qualifizierte oder einstimmige Mehrheit verlangt wird.*
 
-Der Beschluss ist angenommen, wenn **alle** Gemeinschaften das Quorum erreichen. Geerbte MEG-Ergebnisse werden nicht doppelt gezählt.
+---
 
-## Live-Quorum-Service
+## 3. Quorum-Engine bei Mehr-Gemeinschafts-Versammlungen
 
-Der Live-Quorum-Service beantwortet die Frage «ist die Versammlung beschlussfähig?» in Echtzeit, basierend auf aktueller Präsenz – unabhängig von abgegebenen Stimmen.
-
-### Beschlussfähigkeit
-
-Die Versammlung ist beschlussfähig, wenn **mehr als die Hälfte** der Kopf-Stimmen **und** mehr als die Hälfte der Wertquoten anwesend/vertreten sind, plus die Mindestanzahl Eigentümer. «Mehr als die Hälfte» ist eine **strikte** Ungleichung: bei gerader Gesamtzahl N ist der Schwellwert `N/2 + 1` (z. B. 4 Eigentümer → 3 nötig). Exakt 50% reicht nicht.
-
-### Stimmrechtsmodelle
-
-Welche Bedingungen gelten, hängt vom Stimmrechtsmodell der Gemeinschaft:
-
-| Modell | Kopf-Bedingung | Wertquoten-Bedingung |
-|--------|---------------|---------------------|
-| Kopf und Wert / Benutzerdefinierte Anteile | ja | ja |
-| Nur Kopf | ja | übersprungen |
-| Nur Wert | übersprungen | ja |
-
-### Ausgabe
-
-Pro Gemeinschaft:
-
-- Kopf-Quorum erreicht, Wert-Quorum erreicht, Mindestanzahl Eigentümer erreicht, Gesamt-Quorum erreicht
-- Erforderliche Kopf-Stimmen, erforderliche Wertquoten
-- Fehlende Kopf-Stimmen, fehlende Wertquoten, fehlende Eigentümer
-
-Die Versammlung ist beschlussfähig, wenn alle Gemeinschaften das Quorum erreichen.
-
-## Präsenz-Berechnung
-
-ResiVote sammelt Anwesenheiten, Vollmachten und Eigentumsanteile und aggregiert sie zu gemeinschaftsbezogenen Snapshots. Live-Quorum und API verwenden dieselbe Präsenz-Quelle.
-
-### Ablauf
-
-```d2
-direction: right
-Gemeinschaften: laden
-Anwesenheiten: laden
-Vollmachten: laden
-Zuordnungen: "Einheit → Anwesenheit\nEinheit → Vollmacht"
-"Pro Gemeinschaft": "Einheiten laden\nAnteile summieren\nKopf & Wert berechnen"
-
-Gemeinschaften -> Zuordnungen
-Anwesenheiten -> Zuordnungen
-Vollmachten -> Zuordnungen
-Zuordnungen -> "Pro Gemeinschaft"
-```
-
-<Steps>
-  1. **Gemeinschaften laden** – alle Gemeinschaften der Versammlung.
-  2. **Anwesenheiten laden** – alle Anwesenheits-Datensätze der Versammlung.
-  3. **Vollmachten laden** – alle Vollmachten der Versammlung.
-  4. **Zuordnungen bauen** – Einheit → Anwesenheit und Einheit → aktive Vollmacht.
-  5. **Pro Gemeinschaft aggregieren** – für jede Gemeinschaft: Einheiten laden, Eigentumsanteile summieren, anwesende/vertretene Kopf-Stimmen und Wertquoten berechnen.
-</Steps>
-
-### Präsenz-Status
-
-Jeder Eigentümer erhält einen Status:
-
-| Status | Bedeutung |
-|--------|-----------|
-| Anwesend | Eigentümer ist anwesend (Check-in erfolgt) |
-| Vertreten | Eigentümer wird durch einen Bevollmächtigten vertreten |
-| Abwesend | Eigentümer fehlt |
-
-Pro Gemeinschaft wird zusammengefasst: Gesamtzahl Eigentümer, Kopf-Stimmen, Wertquoten, anwesende Eigentümer, anwesende Kopf-Stimmen, anwesende Wertquoten, Anwesenheitsprozente für Kopf und Wert.
-
-### Vollmachten
-
-Ein Eigentümer kann eine andere Person bevollmächtigen. Das System prüft:
-
-- Nur der Bevollmächtigte darf digital abstimmen, nicht der Vollmachtgeber.
-- Die Vollmacht muss das Traktandum abdecken.
-- Mandatierte Stimmabgaben müssen mit der Weisung übereinstimmen.
-
-## Quorum-Snapshots
-
-Beim Öffnen eines Traktandums friert das System die aktuelle Präsenz und den Quorum-Status ein. Der Snapshot dient als Quorum-Basis für dieses Traktandum.
-
-### Persistenz
-
-Der Snapshot wird in der Datenbank gespeichert und überlebt Server-Neustarts. Er ist die Grundlage für den Quorum-Check bei der Stimmabgabe.
-
-| Feld | Bedeutung |
-|------|-----------|
-| Traktandum | eindeutig pro Traktandum |
-| Versammlung | Versammlung |
-| Snapshot | vollständiger Snapshot als JSON |
-| Zeitpunkt | Zeitpunkt der Momentaufnahme |
-| Beschlussfähigkeit beim Öffnen | war die Versammlung beim Öffnen beschlussfähig? |
-
-## Gemeinschafts-Typen und Standards
-
-### STWEG vs MEG
-
-ResiVote unterscheidet zwei Gemeinschafts-Typen:
-
-| Typ | Bedeutung | Standard-Quorum (Kopf/Wert/Min Owners) |
-|-----|-----------|---------------------------------------|
-| STWEG | Stockwerkeigentümergemeinschaft | 50% / 50% / 2 |
-| MEG | Miteigentümergemeinschaft | 50% / 50% / 1 |
-
-Die Standards können durch Reglement-Vorgaben überschrieben werden, wenn diese festgelegt sind.
-
-### Stimmrechtsmodelle
-
-| Modell | Beschreibung |
-|--------|-------------|
-| Kopf und Wert | Kopf-Stimmen + Wertquoten (STWEG-Standard) |
-| Nur Kopf | Nur Kopf-Stimmen (1 Einheit = 1 Stimme) |
-| Nur Wert | Nur Wertquoten |
-| Benutzerdefinierte Anteile | Benutzerdefinierte Anteile pro Einheit (MEG-spezifisch) |
-
-### MEG erbt Eigentümer von STWEG
-
-Ein MEG kann Eigentümer von verknüpften STWEGs erben:
-
-- **Eigentümer-Vererbung** – nur relevant für MEG. Wenn aktiv, verwaltet das MEG keine eigenen Einheiten/Eigentümer, sondern erbt sie von verknüpften STWEGs.
-- **Vererbungsbedingung** – die Vererbung greift nur, wenn das MEG keine eigenen Einheiten besitzt. Dies verhindert Doppelzählungen.
-- **Verknüpfung** – STWEGs und MEGs können miteinander verknüpft werden.
-
-Geerbte MEG-Ergebnisse werden als geerbt markiert und im Gesamt-Ergebnis nicht doppelt gezählt.
-
-### Überbauungen
-
-Eine Überbauung gruppiert mehrere Gemeinschaften (STWEG und/oder MEG). Eine Versammlung kann mehrere Gemeinschaften einer Überbauung umfassen.
-
-## Weiterführende Links
-
-<LinkCard title="Abstimmung" href="/guides/abstimmung/" description="Stimmabgabe, Validierung und Ergebnisse." />
+Besonders anspruchsvoll sind Überbauungen, bei denen mehrere STWEG-Baukörper (z. B. Sonnenhalde I, II, III) gemeinsam mit einer Miteigentümergemeinschaft (z. B. Autoeinstellhalle oder Spielplatz-Areal) tagen:
+- **Getrennte Auswertung:** Die Quorum-Engine berechnet für jede Gemeinschaft ein eigenständiges Quorum.
+- **Selektive Stimmberechtigung:** Traktanden, die nur ein bestimmtes Gebäude betreffen (z. B. Dachsanierung Haus I), sind nur für Eigentümer dieses Gebäudes freigeschaltet. Eigentümer anderer Baukörper können keine Stimme abgeben.
+- **Kombinierte Traktanden:** Bei Traktanden der Gesamtüberbauung werden sowohl die Kopfstimmen als auch die Wertquoten aller Teilgemeinschaften aggregiert.

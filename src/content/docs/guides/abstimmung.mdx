@@ -5,28 +5,26 @@ description: Traktanden öffnen, digital und analog abstimmen sowie Quoren und L
 
 import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
 
-Diese Anleitung beschreibt den Abstimmungsprozess – vom Öffnen eines Traktandums bis zum Ergebnis. Sie richtet sich an Mandanten-Administratoren und den Vorsitz.
+ResiVote ermöglicht eine transparente und rechtssichere Durchführung von Beschlussfassungen. Das Zusammenspiel zwischen Versammlungsleitung (`tenant_admin`) und Eigentümern (`eigentümer`) ist für maximale Effizienz im Saal und online optimiert.
 
-## Traktanden-Status
+<Aside type="note" title="Rollenverteilung bei Abstimmungen">
+- **`tenant_admin` (Versammlungsleitung):** Steuert den Ablauf, ruft Traktanden auf, startet den Abstimmungstimer, überwacht die Stimmbeteiligung in Echtzeit und blendet die Saal-Präsentation ein (Desktop & Tablet).
+- **`eigentümer` (Stimmberechtigte):** Gibt die Stimme (Ja, Nein, Enthaltung oder Personenwahl) für die eigenen Einheiten und bevollmächtigten Stimmen ab (Tablet & Mobile).
+</Aside>
 
-Jeder Traktandum durchläuft einen eigenen Status-Workflow:
+---
 
-| Status | Bedeutung |
-| --- | --- |
-| Wartend | Noch nicht behandelt. |
-| Präsentation | Präsentations- und Diskussionsphase; keine Abstimmung. |
-| Vorabstimmung | Asynchrone Vorabstimmung läuft. |
-| Abstimmung offen | Abstimmung ist geöffnet. |
-| Abgeschlossen | Abstimmung abgeschlossen. |
-| Übersprungen | Traktandum wurde übersprungen. |
+## Der Traktanden-Lebenszyklus
+
+Jedes Traktandum durchläuft einen kontrollierten Status-Workflow:
 
 ```d2
 direction: right
 Wartend: noch nicht behandelt
 Präsentation: Diskussionsphase
-Vorabstimmung: asynchrone Vorabstimmung
+Vorabstimmung: asynchrone Stimmabgabe
 "Abstimmung offen": Stimmabgabe aktiv
-Abgeschlossen: Ergebnis feststehen
+Abgeschlossen: Ergebnis feststehend
 Übersprungen: nicht behandelt
 
 Wartend -> Präsentation: präsentieren
@@ -35,81 +33,92 @@ Präsentation -> "Abstimmung offen": öffnen
 Vorabstimmung -> "Abstimmung offen": überführen
 "Abstimmung offen" -> Abgeschlossen: schliessen
 Wartend -> Übersprungen: überspringen
-Präsentation -> Übersprungen: überspringen
 Abgeschlossen -> Präsentation: wieder öffnen
 ```
 
-Geschlossene Traktanden lassen sich wieder öffnen oder erneut präsentieren.
+---
 
-## Stimmarten
+## 1. Versammlungssteuerung durch die Leitung
 
-Die Stimmart ergibt sich aus dem Traktanden-Typ:
+**Zuständige Rolle: `tenant_admin`**  
+*Geräte: Desktop am Leitungsplatz oder Tablet für mobile Moderation*
 
-- **Ja/Nein-Abstimmung** – Wahl zwischen Ja, Nein und Enthaltung.
-- **Wahl** – Kandidatenwahl; der Kandidatenname wird erfasst.
-- **Freitext** – Freitext-Antwort.
+### Cockpit am Desktop
+Die Versammlungsleitung steuert das Meeting über das zentrale Chair-Dashboard:
 
-## Stimmrechtsmodelle
+![Versammlungssteuerung auf dem Desktop](/screenshots/tenant-admin/desktop/live-meeting-control.png)
+*Desktop-Ansicht für `tenant_admin`: Traktanden-Kontrolle, Stimmbalken, Echtzeit-Quorum und Timer.*
 
-Jede Gemeinschaft definiert ihr Stimmrechtsmodell:
+### Steuerung flexibel am Tablet
+Wenn die Versammlungsleitung am Rednerpult steht oder sich im Saal bewegt, bietet das Tablet-Interface dieselben Kontrollmöglichkeiten im touch-optimierten Layout:
 
-- **Kopf und Wert** – Kopfstimmen und Wertquoten (STWEG-Standard).
-- **Nur Kopf** – nur Kopfstimmen (1 Einheit = 1 Stimme).
-- **Nur Wert** – nur Wertquoten.
-- **Benutzerdefinierte Anteile** – benutzerdefinierte Anteile pro Einheit (MEG-spezifisch).
+![Versammlungssteuerung auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-control-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Schnelles Aufrufen von Traktanden, Starten der Stimmabgabe und Einsehen des Quorums per Fingertipp.*
 
-### Kopfstimme und Wertquote
+### Saal- und Beameransicht
+Über einen separaten Monitor oder Beamer projiziert `tenant_admin` die Grossbild-Präsentationsansicht in den Versammlungssaal:
 
-Pro Stimme gilt: **1 Einheit = 1 Kopfstimme** (Art. 712o ZGB). Die Wertquote und allfällige benutzerdefinierte Anteile werden zum Zeitpunkt der Stimmabgabe als Snapshot im Stimmdatensatz festgehalten. So bleibt die Stimme auch nachträglich nachvollziehbar, selbst wenn sich die Eigentumsverhältnisse später ändern.
+![Präsentationsansicht für den Beamer](/screenshots/tenant-admin/desktop/meeting-presentation-view.png)
+*Beamer-Ansicht für den Saal: Grossformatige Anzeige des aktuellen Antrags, Countdown-Timer und Stimmresultate nach Beschlussfassung.*
 
-## Vorabstimmung (Pre-Voting)
+---
 
-Für asynchrone Abstimmungen lässt sich ein Traktandum in die Vorabstimmung überführen. Eigentümer können vorab stimmen, ohne anwesend zu sein. Beim Abstimmungsabschluss fliessen diese Stimmen in das Ergebnis ein. Die Vorabstimmung kann jederzeit zurückgesetzt werden; bereits abgegebene Stimmen bleiben erhalten, werden aber erst gezählt, wenn der Traktandum geöffnet oder die Vorabstimmung erneut gestartet wird.
+## 2. Stimmabgabe durch die Eigentümer
 
-## Digitale Stimmabgabe
+**Zuständige Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
+
+Sobald die Abstimmung geöffnet wird, erscheint der Stimmabgabe-Dialog automatisch auf den Geräten aller eingecheckten Eigentümer.
+
+### Stimmabgabe auf dem Tablet
+
+Auf dem Tablet sieht der Eigentümer den vollen Antragstext, Begleitdokumente und die Stimmbuttons:
+
+![Live-Versammlungsansicht auf dem Tablet](/screenshots/owner/tablet/owner-meeting-view-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersichtliches Layout mit Traktandenliste, Antragsdetails und Stimmbuttons.*
+
+### Stimmabgabe auf dem Smartphone (Mobile)
+
+Auf dem Smartphone stimmen Eigentümer schnell und unkompliziert per Fingertipp ab:
+
+![Live-Teilnahme auf dem Smartphone](/screenshots/owner/mobile/owner-meeting-view-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Klare Schaltflächen für Ja, Nein, Enthaltung und Anzeige der eigenen Wertquote.*
 
 <Steps>
 
-1. **Traktandum öffnen.** Der Vorsitz öffnet den Traktandum. Das System prüft die Beschlussfähigkeit (Quorum) anhand der aktuellen Anwesenheit. Ist das Quorum nicht erreicht, blockiert das System das Öffnen – ausser der Vorsitz hat eine Ausnahme erteilt.
-
-2. **Stimme abgeben.** Der Eigentümer wählt seine Einheit und seine Stimmoption. Falls die Einheit noch nicht eingecheckt war, wird sie automatisch als anwesend markiert – eine Stimmabgabe impliziert Anwesenheit.
-
-3. **Stimme ändern.** Stimmen sind unveränderlich (Audit-sicher). Wird eine Stimme geändert, markiert das System die alte Stimme als ersetzt und erstellt einen neuen Stimmdatensatz. So bleibt jeder Stimmwechsel lückenlos nachvollziehbar.
-
-4. **Traktandum schliessen.** Der Vorsitz schliesst den Traktandum. Das System berechnet das Quorum, speichert das Ergebnis und stoppt einen allfälligen Präsentations-Timer.
+1. **Option wählen:** Tippen Sie auf **Ja**, **Nein** oder **Enthaltung** (bzw. wählen Sie die Kandidaten bei Personenwahlen).
+2. **Vertretene Einheiten beachten:** Falls Sie eine Vollmacht für einen Miteigentümer halten, stimmt das System automatisch für alle vertretenen Einheiten und Wertquoten mit (sofern keine anderslautende Weisung vorliegt).
+3. **Bestätigung:** Die Stimme wird verschlüsselt an den Server übermittelt und mit einem grünen Häkchen bestätigt. Solange die Abstimmung offen ist, kann die Stimme korrigiert werden.
 
 </Steps>
 
-## Analoge Stimmabgabe
+---
 
-Eigentümer, die nicht digital abstimmen können, werden analog erfasst. Der Vorsitz gibt die Stimme stellvertretend ein.
+## 3. Saal-Voting (Hall Voting)
 
-- **Einzelne analoge Stimme** – erfasst eine Stimme für eine anwesende Einheit. Ist die Einheit nicht eingecheckt, aber über eine aktive Vollmacht vertreten, stimmt der Bevollmächtigte – sofern er selbst anwesend ist.
-- **Sammelabstimmung** – erfasst mehrere Handzeichen-Stimmen in einem Schritt. Alle Eingaben werden validiert und in einer Transaktion gespeichert. Schlägt eine Stimme fehl, wird keine Stimme persistiert.
+**Zuständige Rolle: `eigentümer`**  
+*Schnellabstimmung auf Tablet oder Smartphone*
 
-Analoge Stimmabgabe ist nur bei offener Abstimmung erlaubt. Pro Einheit ist nur eine aktive Stimme möglich; eine bereits abgegebene Stimme wird bei der analogen Erfassung nicht überschrieben.
+Für Teilnehmer, die im Saal ohne personalisierten Login abstimmen möchten oder bei Leihgeräten am Tisch, steht das schlanke Saal-Voting bereit:
 
-## Live-Ergebnisse
+![Saal-Voting auf dem Smartphone](/screenshots/owner/mobile/hall-voting-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Minimalistisches Saal-Voting-Interface (`/saal/:meetingId`) für latenzfreie Stimmabgaben.*
 
-Die Sichtbarkeit der Live-Ergebnisse steuert die Versammlung:
+Auch auf dem Tablet kann das Saal-Voting als Stimmterminal genutzt werden:
 
-- **Alle** – alle Teilnehmer sehen die Zwischenergebnisse, während die Abstimmung offen ist.
-- **Nur Vorsitz** – nur Mandanten-Admin und Vorsitz sehen Live-Ergebnisse bei offenen Traktanden.
+![Saal-Voting auf dem Tablet](/screenshots/owner/tablet/hall-voting-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Grossformatige Tasten für barrierefreies Abstimmen im Saal.*
 
-Geschlossene Ergebnisse sind für alle Teilnehmer sichtbar. Nicht-privilegierte Eigentümer sehen aggregierte Quoren-Zahlen, aber nicht die Identität von Nein-Stimmenden oder Enthaltungen.
+---
 
-## Stimmabgabe-Bestätigung
+## 4. Stimmarten & Stimmrechtsmodelle
 
-Ist die Bestätigung aktiviert, müssen Eigentümer ihre Stimmabgabe explizit bestätigen, bevor sie final erfasst wird.
+Je nach Reglement der Gemeinschaft unterstützt ResiVote unterschiedliche Stimmarten:
+- **Sachabstimmung:** Ja / Nein / Enthaltung.
+- **Wahlen:** Erfassung von Kandidaten mit Mehrfach- oder Einzelauswahl.
+- **Freitext:** Schriftliche Antrags- oder Ergänzungsvorschläge.
 
-## Quoren-Override
-
-Der Vorsitz kann eine Quoren-Sperre für einen Traktandum aufheben. Setzt er den Override, werden Stimmen akzeptiert, auch wenn die Beschlussfähigkeit beim Öffnen nicht gegeben war. Ein Grundtext ist dabei zwingend erforderlich. Jede Änderung des Overrides wird im Audit-Log protokolliert.
-
-## Präsentations-Timer
-
-Jeder Traktandum besitzt einen Countdown-Timer für die Präsentationsphase. Startzeitpunkt und Dauer werden gespeichert. So kann der Timer nach einem Reconnect oder Seitenreload synchronisiert werden. Beim Schliessen des Traktandums wird der Timer automatisch gestoppt und zurückgesetzt.
-
-<Aside type="note" title="Vollmachten">
-  Bevollmächtigte können für vertretene Einheiten abstimmen. Details dazu findet ihr in der Anleitung <a href="/guides/vollmachten/">Vollmachten verwalten</a>.
-</Aside>
+### Stimmrechtsmodelle nach ZGB
+- **Kopf und Wert (STWEG-Standard):** Zur Annahme ist sowohl die Mehrheit der anwesenden Personen (Köpfe) als auch der vertretenen Wertquoten erforderlich.
+- **Nur Kopf (MEG-Standard):** 1 Einheit / 1 Miteigentümer = 1 Stimme.
+- **Nur Wert:** Reine Wertquotenabstimmung (z. B. nach Tausendsteln).

@@ -1,77 +1,78 @@
 ---
 title: Vollmachten verwalten
-description: Vollmachten erteilen, einschränken und widerrufen – von der generellen bis zur mandatierten Stimmabgabe.
+description: Vollmachten erteilen, Weisungen hinterlegen und Stimmrechtsvertretung rechtssicher abbilden.
 ---
 
 import { Aside, Steps, CardGrid, Card } from '@astrojs/starlight/components';
 
-Diese Anleitung beschreibt, wie Vollmachten in ResiVote funktionieren. Sie richtet sich an Mandanten-Administratoren, den Vorsitz und Eigentümer.
+Das Schweizer Stockwerkeigentumsrecht erlaubt Eigentümern, sich an der Versammlung durch eine bevollmächtigte Person vertreten zu lassen (Art. 67 Abs. 2 i.V.m. Art. 712m Abs. 2 ZGB). ResiVote digitalisiert diesen Prozess lückenlos.
 
-## Vollmacht
-
-Eine Vollmacht überträgt das Stimmrecht für eine konkrete Einheit und Versammlung von einem Eigentümer an einen anderen. Sie besteht aus folgenden Angaben:
-
-- **Vollmachtgeber** – der Eigentümer, der die Vollmacht erteilt.
-- **Bevollmächtigter** – der Eigentümer, der die Vollmacht erhält.
-- **Einheit** – die Einheit, für die die Vollmacht gilt. Vollmachten sind pro Einheit und Versammlung eindeutig.
-- **Versammlung** – die Versammlung, auf die sich die Vollmacht bezieht.
-
-Ein Eigentümer kann nicht sich selbst bevollmächtigen. Pro Einheit und Versammlung ist nur eine aktive Vollmacht zulässig.
-
-## Vollmacht-Umfang
-
-Der Umfang einer Vollmacht wird festgelegt als:
-
-- **Voll** – die Vollmacht gilt für die gesamte Versammlung. Der Bevollmächtigte darf für alle Traktanden abstimmen.
-- **Eingeschränkt** – die Vollmacht ist auf bestimmte Traktanden beschränkt. Das System prüft pro Traktandum, ob er abgedeckt ist.
-
-## Mandatierte Stimmabgabe
-
-Bei eingeschränkten Vollmachten definiert jede Instruktion eine zwingende Stimmabgabe für einen bestimmten Traktandum:
-
-- **Traktandum** – der Traktandum, auf den die Instruktion zutrifft.
-- **Vorgeschriebene Stimme** – die vorgeschriebene Stimmoption (Ja, Nein, Enthaltung, Kandidat oder Freitext).
-
-<Aside type="caution" title="Bindende Instruktion">
-  Eine mandatierte Stimmabgabe ist bindend. Der Bevollmächtigte muss zwingend gemäss der Instruktion abstimmen. Das System erzwingt dies bei der Stimmabgabe.
+<Aside type="note" title="Rollenverteilung bei Vollmachten">
+- **`eigentümer` (Vollmachtgeber & Bevollmächtigter):** Erteilt Vollmachten digital im Portal (Smartphone oder Tablet), wählt zwischen freier oder mandatierter Vertretung und stimmt als Vertreter mit erweitertem Stimmgewicht ab.
+- **`tenant_admin` (Verwaltung):** Kontrolliert hinterlegte Vollmachten, erfasst postalisch eingereichte Vollmachtskarten und überwacht die korrekte Vertretung in der Anwesenheits- und Quorum-Berechnung (Desktop & Tablet).
 </Aside>
 
-## Vollmacht erteilen
+---
+
+## Arten der Stimmrechtsvertretung
+
+ResiVote unterscheidet zwei Arten von Vollmachten:
+
+### 1. Freie Vollmacht
+Der Bevollmächtigte vertritt den Vollmachtgeber uneingeschränkt bei allen Traktanden. Er stimmt nach eigenem Ermessen ab. Die Kopfstimmen und Wertquoten des Vollmachtgebers werden bei der Stimmabgabe des Bevollmächtigten automatisch addiert.
+
+### 2. Mandatierte Vollmacht (mit Weisung)
+Der Vollmachtgeber erteilt dem Bevollmächtigten für jedes Traktandum eine bindende Stimmweisung:
+- **Festgelegte Option:** z. B. Traktandum 3: *Ja*, Traktandum 4: *Nein*, Traktandum 5: *Enthaltung*.
+- **Systemerzwingung:** Bei der Stimmabgabe kann der Bevollmächtigte die festgelegte Stimme nicht abändern – das System blockiert abweichende Eingaben automatisch.
+
+---
+
+## 1. Vollmacht erteilen im Eigentümerportal
+
+**Zuständige Rolle: `eigentümer`**  
+*Geräte: Smartphone (Mobile) oder Tablet*
+
+Eigentümer, die verhindert sind, können direkt über ihr Portal eine Vollmacht erfassen:
+
+![Versammlungsübersicht mit Vollmacht-Option auf dem Tablet](/screenshots/owner/tablet/portal-meetings-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Zugriff auf Vollmachtsoptionen und Download der personalisierten Vollmachtskarte.*
+
+Auch auf dem Smartphone lässt sich eine Vollmacht in wenigen Sekunden aufsetzen:
+
+![Traktandeneinsicht vor Vollmachterteilung](/screenshots/owner/mobile/meeting-traktanden-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Einsicht in alle Traktanden zur Festlegung von mandatierten Stimmweisungen.*
 
 <Steps>
 
-1. **Versammlung im richtigen Status.** Vollmachten lassen sich nur erstellen, solange die Versammlung veröffentlicht ist, der Check-in läuft, die Versammlung läuft oder die Abstimmung offen ist. Im Entwurf, nach Abschluss oder nach Archivierung ist die Erstellung gesperrt.
-
-2. **Eigentümer und Einheit prüfen.** Das System verifiziert, dass der Vollmachtgeber die Einheit aktiv besitzt und die Einheit zum Gemeinschafts-Scope der Versammlung gehört. Der Bevollmächtigte muss ein berechtigter Eigentümer in den Gemeinschaften der Versammlung sein. Bei MEG-Einheiten dürfen auch MEG-Delegierte ohne direkte Eigentümerschaft in der MEG-Gemeinschaft bevollmächtigt werden.
-
-3. **Umfang und Instruktionen festlegen.** Wählt voll oder eingeschränkt. Bei eingeschränkt fügt ihr pro Traktandum eine Instruktion mit der mandatierten Stimmoption hinzu.
-
-4. **Vollmacht speichern.** Das System legt die Vollmacht an und aktualisiert sofort die Anwesenheit und das Live-Quorum, da sich die Vertretung ändert.
+1. **Versammlung öffnen:** Wählen Sie im Portal die bevorstehende Versammlung aus.
+2. **Vertreter bestimmen:** Wählen Sie einen berechtigten Miteigentümer oder die Verwaltung als Bevollmächtigten aus dem Dropdown.
+3. **Umfang definieren:**
+   - Wählen Sie **Voll** (freie Vertretung für die gesamte Versammlung), oder
+   - Wählen Sie **Eingeschränkt / Mandatiert** und vergeben Sie für jedes Traktandum eine verbindliche Weisung (Ja, Nein oder Enthaltung).
+4. **Vollmacht aktivieren:** Nach dem Absenden ist die Vollmacht hinterlegt. Der Vollmachtgeber erhält eine Bestätigung per E-Mail.
 
 </Steps>
 
-## Vollmacht widerrufen
+<Aside type="caution" title="Sperre des Vollmachtgebers">
+Sobald eine aktive Vollmacht für eine Einheit besteht, wird das persönliche Stimmrecht des Vollmachtgebers für die betreffende Sitzung gesperrt. Dies verhindert unbeabsichtigte Doppelstimmabgaben. Eine Vollmacht kann bis zum Aufruf des jeweiligen Traktandums widerrufen werden.
+</Aside>
 
-Eine Vollmacht kann widerrufen werden. Das System markiert die Vollmacht als widerrufen. Ein Widerruf aktualisiert ebenfalls sofort die Anwesenheit und das Live-Quorum.
+---
 
-## Vertretung bei der Stimmabgabe
+## 2. Vollmachten-Verwaltung durch die Administration
 
-Bei der Abstimmung berücksichtigt das System aktive Vollmachten automatisch:
+**Zuständige Rolle: `tenant_admin`**  
+*Geräte: Desktop oder Tablet*
 
-- Der Bevollmächtigte muss selbst an der Versammlung anwesend sein (eingecheckt unter einer beliebigen Einheit), damit die Vertretung zählt.
-- Stimmt der Bevollmächtigte für eine vertretene Einheit, wird die Stimme dem Bevollmächtigten zugeordnet und auf die Vollmacht verwiesen.
-- Bei direkter Anwesenheit des Eigentümers (physische Präsenz) übersteuert diese die Vollmacht – der Eigentümer stimmt selbst.
-- Bei der analogen Stimmabgabe gelten dieselben Regeln: ist die Einheit nicht eingecheckt, aber über eine aktive Vollmacht vertreten und der Bevollmächtigte anwesend, stimmt der Bevollmächtigte.
+Die Verwaltung sieht im Cockpit alle hinterlegten Vollmachten und deren Auswirkungen auf die Stimmenverteilung:
 
-## Vertretung beim Check-in
+![Echtzeit-Vertretungsanzeige im Versammlungs-Cockpit](/screenshots/tenant-admin/desktop/live-meeting-control.png)
+*Desktop-Ansicht für `tenant_admin`: Vollständige Übersicht über persönliche Präsenzen und vertretene Einheiten.*
 
-Vollmachten wirken sich automatisch auf die Anwesenheit aus. Vertretene Einheiten werden als vertreten markiert, sofern der Bevollmächtigte irgendwo in der Versammlung anwesend ist. Die vertretene Einheit fliessen in Kopf- und Wertquoten-Berechnungen ein. Details dazu in der Anleitung <a href="/guides/checkin/">Check-in und Anwesenheit</a>.
-
-<CardGrid>
-  <Card title="Check-in und Anwesenheit" icon="seti:check">
-    Wie vertretene Einheiten beim Check-in erfasst werden.
-  </Card>
-  <Card title="Abstimmungen durchführen" icon="seti:vote">
-    Wie Bevollmächtigte für vertretene Einheiten abstimmen.
-  </Card>
-</CardGrid>
+### Manuelle Erfassung durch die Verwaltung
+Treffen Vollmachten auf herkömmlichem Weg (per Post oder E-Mail-Scan) bei der Verwaltung ein, kann `tenant_admin` diese vor Versammlungsbeginn direkt erfassen:
+1. Im Admin-Bereich unter der Versammlung den Reiter **«Vollmachten»** aufrufen.
+2. Vollmachtgeber, Einheit und Bevollmächtigten auswählen.
+3. Den postalischen Scan als Beleg anfügen.
+4. Speichern – die Präsenzliste und das Quorum aktualisieren sich auf Knopfdruck.

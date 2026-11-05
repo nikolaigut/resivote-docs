@@ -1,37 +1,49 @@
 ---
 title: ResiVote Dokumentation
-description: Öffentliche Dokumentation für ResiVote – einfache, digitale Eigentümerversammlungen.
+description: Öffentliche Dokumentation und Benutzerhandbuch für ResiVote – einfache, rechtssichere digitale Eigentümerversammlungen.
 template: splash
 hero:
-  tagline: Einfach, sicher und rechtskonform Eigentümerversammlungen digital durchführen.
+  tagline: Einfach, sicher und rechtskonform Eigentümerversammlungen digital durchführen nach Schweizer ZGB.
   actions:
     - text: So funktioniert ResiVote
       link: /guides/so-funktioniert/
       icon: right-arrow
+    - text: Zur Live-Demo
+      link: https://demo.resivote.ch
+      icon: external
+      variant: primary
     - text: Zur Landingpage
       link: https://resivote.ch
       icon: external
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
 import TopicRedirect from '../../components/TopicRedirect.astro';
 
 <TopicRedirect />
 
-## Übersicht
+<Aside type="tip" title="Interaktive Live-Demo Zugangsdaten">
+Sie können alle Funktionen direkt in der Live-Demo ausprobieren:
+- **Demo-URL:** [https://demo.resivote.ch](https://demo.resivote.ch)
+- **Verwaltung (`tenant_admin`):** `demo.admin@resivote.ch` / `Demo-Admin2026` *(Desktop & Tablet)*
+- **Eigentümer (`eigentümer`):** `demo.owner1@resivote.ch` / `Demo-Owner12026` *(Tablet & Mobile)*
+- *(Zweiter Eigentümer:* `demo.owner2@resivote.ch` / `Demo-Owner22026`*)*
+</Aside>
+
+## Benutzerhandbuch nach Rollen & Geräten
 
 <CardGrid stagger>
-	<Card title="Schnell einrichten" icon="rocket">
-		In wenigen Schritten zur ersten digitalen Eigentümerversammlung.
+	<Card title="Für Verwaltungen (tenant_admin)" icon="laptop">
+		Vorbereitung von STWEG- und MEG-Versammlungen am **Desktop**, mobile Versammlungssteuerung und digitale Tablet-Signaturen am **Tablet**.
 	</Card>
-	<Card title="Rechtskonform" icon="open-book">
-		Alle wichtigen Prozesse und Unterlagen werden prüffähig dokumentiert.
+	<Card title="Für Eigentümer (eigentümer)" icon="phone">
+		Bequeme Einsicht in Traktanden, digitale Vollmachterteilung, Live-Stimmabgabe und Dokumentenabruf am **Tablet** oder **Smartphone (Mobile)**.
 	</Card>
-	<Card title="Teilnehmerfreundlich" icon="laptop">
-		Eigentümer können per Browser teilnehmen – ohne zusätzliche Software.
+	<Card title="Schweizer Rechtssicherheit" icon="open-book">
+		Gesetzeskonforme Beschlussfähigkeit und Quorum-Berechnung nach Art. 647 ff. und Art. 712a ff. ZGB für einfache, qualifizierte und einstimmige Mehrheiten.
 	</Card>
-	<Card title="Alles im Blick" icon="setting">
-		Protokolle, Abstimmungen und Beschlüsse zentral an einem Ort.
+	<Card title="Live-Cockpit & Protokoll" icon="setting">
+		Echtzeit-Synchronisation, Saal-Beameransicht, KI-gestützte Protokollvorschläge und revisionssichere Hash-Ketten-Auditierung.
 	</Card>
 </CardGrid>
