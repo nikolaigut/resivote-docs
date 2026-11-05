@@ -1,0 +1,53 @@
+---
+title: Notifications et préférences
+description: Configuration des notifications e-mail et push, fréquence des alertes et cloche de notification.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Pour garantir une information claire sans encombrer les boîtes aux lettres, ResiVote intègre un **paramétrage granulaire des notifications**. Chaque copropriétaire choisit les canaux et les thématiques qu'il souhaite suivre.
+
+<Aside type="note" title="Rôles pour les notifications">
+- **`eigentümer` (Copropriétaire) :** Configure ses préférences sur **tablette ou mobile** de façon distincte pour chaque domaine.
+- **`tenant_admin` (Gérance) :** Déclenche les notifications automatisées lors des changements de statut ou de publications officielles.
+</Aside>
+
+---
+
+## 1. Préférences sur tablette
+
+Sur tablette, chaque canal s'active ou se désactive d'un simple clic :
+
+![Préférences de notifications sur tablette](/screenshots/owner/tablet/portal-notification-settings-tablet.png)
+*Vue tablette pour `eigentümer` : matrice des rubriques avec commutateurs interactifs pour les e-mails et notifications push.*
+
+---
+
+## 2. Préférences sur smartphone (mobile)
+
+Sur mobile, la gestion des alertes s'effectue d'un geste :
+
+![Préférences de notifications sur smartphone](/screenshots/owner/mobile/portal-notification-settings-mobile.png)
+*Vue mobile pour `eigentümer` : réglages compacts adaptés aux smartphones pour gérer les alertes en déplacement.*
+
+---
+
+## 3. Les 5 catégories de notifications
+
+<CardGrid>
+  <Card title="Assemblées" icon="calendar">
+    Convocations aux assemblées générales, rappels avant séance, ouverture du check-in et publication du procès-verbal final.
+  </Card>
+  <Card title="Documents" icon="document">
+    Ajout de nouveaux règlements, comptes annuels, rapports de révision ou modèles par la gérance.
+  </Card>
+  <Card title="Forum communautaire" icon="comment">
+    Nouveaux sujets créés dans l'immeuble ou réponses à vos commentaires.
+  </Card>
+  <Card title="Tickets de service" icon="warning">
+    Changements de statut et réponses de la gérance concernant vos signalements.
+  </Card>
+  <Card title="Annonces" icon="email">
+    Circulaires officielles et affichages urgents de la gérance.
+  </Card>
+</CardGrid>

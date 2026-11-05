@@ -1,0 +1,61 @@
+---
+title: Notifications and Settings
+description: Configuring email and push notifications, frequency controls, and in-app alerts.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+To ensure co-owners stay informed without feeling overwhelmed, ResiVote provides a **granular notification matrix**. Each owner chooses exactly which channels and topics trigger alerts.
+
+<Aside type="note" title="Role Responsibilities in Notifications">
+- **`eigentümer` (Co-owner):** Customizes preferences in the portal on **tablet or mobile** across all life areas.
+- **`tenant_admin` (Management):** Triggers system notices automatically when meetings are published or decisions logged.
+</Aside>
+
+---
+
+## 1. Notification Preferences on Tablet
+
+On tablet, all channels can be toggled per category with a single click:
+
+![Notification Settings on Tablet](/screenshots/owner/tablet/portal-notification-settings-tablet.png)
+*Tablet view for `eigentümer`: Matrix of topic areas with interactive toggle icons for email and push notifications.*
+
+---
+
+## 2. Notification Preferences on Smartphone (Mobile)
+
+On mobile, preferences are easily adjusted with quick toggles:
+
+![Notification Settings on Smartphone](/screenshots/owner/mobile/portal-notification-settings-mobile.png)
+*Mobile view for `eigentümer`: Compact mobile switches for on-the-go alert management.*
+
+---
+
+## 3. The 5 Notification Categories
+
+<CardGrid>
+  <Card title="Meetings" icon="calendar">
+    Invitations to ordinary and extraordinary meetings, pre-meeting reminders, check-in opening, and published minutes.
+  </Card>
+  <Card title="Documents" icon="document">
+    Uploads of new bylaws, annual accounts, audit reports, or templates by property management.
+  </Card>
+  <Card title="Community Forum" icon="comment">
+    New discussion topics or replies to your comments in the owner forum.
+  </Card>
+  <Card title="Service Tickets" icon="warning">
+    Status changes and replies from management regarding your maintenance tickets.
+  </Card>
+  <Card title="Announcements" icon="email">
+    Official circulars and urgent building notices (e.g., maintenance schedules).
+  </Card>
+</CardGrid>
+
+---
+
+## 4. Channels
+
+- **Email Notifications:** Formal notices with direct links to documents, tickets, or meetings.
+- **Push Notifications (Browser & Mobile):** Instant alerts on smartphone or tablet for urgent matters.
+- **In-App Bell:** Top-header notification drawer displaying recent activity with direct jump links.

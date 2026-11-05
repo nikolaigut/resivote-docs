@@ -1,0 +1,49 @@
+---
+title: Community Forum
+description: Co-owner discussions, community topics, house guidelines, and administration moderation.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+ResiVote's **Community Forum** offers co-owners a private, dedicated space for neighborhood dialog. Whether discussing draft agenda items before a meeting, reviewing house rules, or planning joint initiatives like rooftop solar panels, the forum fosters alignment early.
+
+<Aside type="note" title="Role Responsibilities in the Forum">
+- **`eigentümer` (Co-owner):** Starts discussions, engages with neighbors on **tablet or smartphone**, comments on threads, and shares ideas.
+- **`tenant_admin` (Management):** Moderates topics on **desktop**, pins official notices, and locks concluded threads.
+</Aside>
+
+---
+
+## 1. Forum Moderation by Management
+
+**Responsible Role: `tenant_admin`**  
+*Device: Desktop*
+
+In the admin area under **"Forum"** (`/admin/forum`), administrators oversee discussions across all managed properties:
+
+![Forum Moderation in Admin](/screenshots/tenant-admin/desktop/admin-forum.png)
+*Desktop view for `tenant_admin`: Moderation dashboard, managing topics, and locking concluded discussions.*
+
+### Moderation Tools
+- **Lock / Close Topics:** Prevent further replies once a matter has been resolved or delegated to an official meeting.
+- **Enforce Netiquette:** Remove inappropriate or off-topic posts.
+- **Community Filtering:** Filter topics by specific condominium association.
+
+---
+
+## 2. Forum Access for Co-owners
+
+**Perspective of Role: `eigentümer`**  
+*Devices: Tablet or Smartphone (Mobile)*
+
+Co-owners enter the forum from the portal menu under **"Forum"** (`/portal/forum`).
+
+### Topic Thread on Tablet
+
+![Forum Discussion on Tablet](/screenshots/owner/tablet/portal-forum-detail-tablet.png)
+*Tablet view for `eigentümer`: Detailed discussion thread with author names, timestamps, replies, and reply composer.*
+
+### Mobile Overview on Smartphone
+
+![Forum Overview on Smartphone](/screenshots/owner/mobile/portal-forum-mobile.png)
+*Mobile view for `eigentümer`: Topic list for the co-ownership with reply counts and search bar.*

@@ -1,0 +1,44 @@
+---
+title: Forum della comunità
+description: Scambio tra comproprietari, discussioni sulla vita condominiale, regole di convivenza e moderazione.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Il **forum della comunità** di ResiVote offre ai comproprietari di uno stesso immobile un canale riservato per dialogare. Dalla discussione preliminare sulle trattande alla chiarificazione del regolamento della casa fino a iniziative comuni (es. pannelli solari, stazioni di ricarica), il forum favorisce il consenso prima dell'assemblea.
+
+<Aside type="note" title="Ruoli nel forum">
+- **`eigentümer` (Comproprietario):** Apre discussioni, interagisce con i vicini su **tablet o smartphone**, commenta gli interventi e condivide proposte.
+- **`tenant_admin` (Amministrazione):** Modera gli scambi su **desktop**, fissa in evidenza le regole e chiude le discussioni esaurite.
+</Aside>
+
+---
+
+## 1. Moderazione per l'amministrazione
+
+**Ruolo responsabile: `tenant_admin`**  
+*Dispositivo: Desktop*
+
+Sotto **«Forum»** (`/admin/forum`), l'amministrazione supervisiona le discussioni di tutti gli stabili gestiti:
+
+![Moderazione forum nell'amministrazione](/screenshots/tenant-admin/desktop/admin-forum.png)
+*Vista desktop per `tenant_admin`: pannello di moderazione, gestione dei post e blocco delle discussioni concluse.*
+
+---
+
+## 2. Accesso al forum per i comproprietari
+
+**Prospettiva del ruolo: `eigentümer`**  
+*Dispositivi: Tablet o Smartphone (mobile)*
+
+I comproprietari partecipano alle discussioni dal menu del portale sotto **«Forum»** (`/portal/forum`).
+
+### Discussione su tablet
+
+![Discussione forum su tablet](/screenshots/owner/tablet/portal-forum-detail-tablet.png)
+*Vista tablet per `eigentümer`: thread di discussione dettagliato con nomi degli autori, data e ora, risposte e campo per nuovi commenti.*
+
+### Panoramica su smartphone
+
+![Panoramica forum su smartphone](/screenshots/owner/mobile/portal-forum-mobile.png)
+*Vista mobile per `eigentümer`: elenco dei temi aperti nell'immobile con numero di risposte e barra di ricerca.*

@@ -1,0 +1,69 @@
+---
+title: Mitteilungen und Ankündigungen
+description: Digitale Anschlagwand, Rundschreiben der Verwaltung, Prioritätsstufen und Archivierung für Stockwerkeigentümer.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+ResiVote ersetzt den klassischen Papieraushang im Hauseingang durch ein modernes, digitales **Mitteilungssystem**. Liegenschaftsverwaltungen informieren Eigentümer zeitnah über Wartungsarbeiten, Ausfälle oder Beschlussumsetzungen – und Eigentümer haben alle Meldungen ortsunabhängig griffbereit.
+
+<Aside type="note" title="Rollenverteilung bei Mitteilungen">
+- **`tenant_admin` (Verwaltung):** Verfasst Ankündigungen auf dem **Desktop**, wählt Prioritäten (Normal, Dringend), bestimmt Zielgemeinschaften und veröffentlicht Rundschreiben.
+- **`eigentümer` (Eigentümer):** Empfängt Mitteilungen auf **Tablet oder Smartphone**, liest Meldungen, markiert sie als gelesen oder legt sie im Archiv ab.
+</Aside>
+
+---
+
+## 1. Verwaltung von Mitteilungen durch die Verwaltung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Im Administrationsbereich unter **«Mitteilungen»** (`/admin/messages`) steuert die Liegenschaftsverwaltung alle Mitteilungen:
+
+![Mitteilungen im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-messages.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Übersicht aller versandten und geplanten Rundschreiben mit Veröffentlichungsdatum und Zielgemeinschaft.*
+
+### Erstellung und Prioritäten
+Beim Verfassen einer neuen Mitteilung wählt die Verwaltung:
+1. **Zielgruppe / Gemeinschaft:** Versand an eine spezifische Stockwerkeigentümergemeinschaft oder alle Liegenschaften.
+2. **Prioritätsstufe:**
+   - **Normal:** Standardmitteilungen wie Gartenpflege, Ablesetermine oder allgemeine Hinweise.
+   - **Dringend / Wichtig:** Zeitkritische Ereignisse wie ein kurzfristiger Liftstillstand, Ausfall der Heizung, Wasserabstellung oder Sperrung der Tiefgarageneinfahrt. Dringende Mitteilungen werden optisch hervorgehoben.
+3. **Formatierung:** Der Texteditor unterstützt Absätze, Hervorhebungen und formatierte Links.
+
+---
+
+## 2. Abruf von Mitteilungen für Eigentümer
+
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
+
+Eigentümer finden alle Mitteilungen im Portal unter dem Reiter **«Mitteilungen»** (`/portal/messages`).
+
+### Mitteilungen auf dem Tablet
+
+Auf dem Tablet bietet die Listen- und Detailansicht viel Platz zum komfortablen Lesen längerer Rundschreiben:
+
+![Mitteilungen auf dem Tablet](/screenshots/owner/tablet/portal-messages-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersicht aller aktiven Mitteilungen mit Suchleiste, Tabs für Aktive/Archivierte und Schnellfunktionen.*
+
+### Unterwegs auf dem Smartphone (Mobile)
+
+Auf dem Smartphone sind dringende Meldungen unterwegs mit wenigen Klicks einsehbar:
+
+![Mitteilungen auf dem Smartphone](/screenshots/owner/mobile/portal-mobile-messages.png)
+*Mobile-Ansicht für `eigentümer`: Kompakte Liste ungelesener und aktiver Bekanntmachungen mit direktem Datumsbezug.*
+
+---
+
+## 3. Funktionen für Eigentümer
+
+Im Portal stehen Eigentümern praktische Werkzeuge zur Organisation zur Verfügung:
+
+<Steps>
+  1. **Ungelesen-Status:** Neue Nachrichten sind farblich hervorgehoben und tragen die Markierung «Ungelesen».
+  2. **Gelesen markieren:** Mit einem Klick auf **«Als gelesen markieren»** oder über den Sammelbutton **«Alle als gelesen markieren»** verschwindet der Hinweis.
+  3. **Archivierung:** Erledigte Mitteilungen (z.B. nach Abschluss einer Reparatur) können über **«Archivieren»** in den Reiter **«Archiviert»** verschoben werden, um die aktive Liste aufgeräumt zu halten.
+  4. **Volltextsuche:** Über das Suchfeld lassen sich ältere Rundschreiben (z.B. nach Stichworten wie «Waschküche», «Tiefgarage», «Heizung») blitzschnell wiederfinden.
+</Steps>

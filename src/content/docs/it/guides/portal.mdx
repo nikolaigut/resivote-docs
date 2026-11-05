@@ -1,0 +1,87 @@
+---
+title: Il portale dei proprietari
+description: Dashboard, le mie unità, quote di valore (millesimi), glossario PPP e accesso rapido per i comproprietari.
+---
+
+import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
+
+Il **portale dei proprietari** di ResiVote (`/portal`) costituisce la piattaforma digitale centrale per tutti i comproprietari in PPP (proprietà per piani) e comproprietà ordinaria. Riunisce l'intera vita del condominio: consultazione delle unità e dei millesimi, accesso rapido alle assemblee, comunicazioni dell'amministrazione, ticket di servizio e forum della comunità.
+
+<Aside type="note" title="Ruoli nel portale">
+- **`eigentümer` (Comproprietario):** Utilizza il portale principalmente su **tablet o smartphone (mobile)** per la panoramica quotidiana, il controllo delle quote, la partecipazione alle assemblee e i contatti con l'amministrazione.
+- **`tenant_admin` (Amministrazione):** Gestisce immobili, unità, account dei proprietari e documenti su **desktop e tablet**.
+</Aside>
+
+---
+
+## 1. Panoramica del dashboard per i proprietari
+
+Subito dopo il login, i comproprietari visualizzano il loro dashboard personalizzato, ottimizzato sia per tablet che per smartphone.
+
+### Visualizzazione su tablet
+
+Su tablet, la schermata offre una visuale completa e ordinata:
+
+![Dashboard su tablet](/screenshots/owner/tablet/portal-dashboard-tablet.png)
+*Vista tablet per `eigentümer`: saluto di benvenuto, evidenziazione della prossima assemblea con azioni rapide, riepilogo delle unità con quote millesimali e schede widget.*
+
+### Visualizzazione su smartphone (mobile)
+
+In mobilità, tutte le funzioni chiave sono a portata di pollice:
+
+![Dashboard su smartphone](/screenshots/owner/mobile/portal-dashboard-mobile.png)
+*Vista mobile per `eigentümer`: banner di benvenuto, scheda della prossima assemblea e barra di navigazione inferiore.*
+
+---
+
+## 2. Accesso rapido alla prossima assemblea
+
+Quando un'assemblea è imminente o già in corso, il dashboard la mostra in primo piano:
+
+- **Stato in tempo reale («Attivo»):** Non appena si apre il check-in o la seduta, compare un indicatore verde con il pulsante **«Partecipa ora»**, che conduce direttamente alla sala di voto.
+- **Ordine del giorno:** Il pulsante **«Vedi ordine del giorno»** apre una finestra con tutte le trattande, le proposte di delibera e gli allegati (preventivi, piani, consuntivi).
+- **Esportazione calendario:** Il pulsante **«Esporta calendario»** scarica un file `.ics` per sincronizzare l'appuntamento in Apple Calendar, Google Calendar o Outlook.
+
+---
+
+## 3. Le mie unità e quote millesimali (millesimi)
+
+Sotto **«Le mie unità»** sono elencati tutti gli appartamenti, posteggi o cantine intestati al proprietario connesso.
+
+### Quota di valore / Quota di comproprietà (millesimi)
+Mostra la quota iscritta a registro fondiario (es. `45 / 1000`). Se il proprietario possiede più unità, il portale calcola automaticamente il totale complessivo.
+
+### Delegato votante principale
+Per le unità intestate a più persone in proprietà comune o comproprietà indivisa (es. coniugi o comunioni ereditarie), il rappresentante designato a norma del diritto svizzero (art. 712l CC) è contraddistinto dal contrassegno **«Votante principale»**.
+
+### Glossario PPP integrato
+Un clic sull'icona informativa apre il **glossario PPP**, che spiega i concetti cardine del diritto svizzero della proprietà per piani (art. 712a–712t CC):
+- **Quota di valore (millesimi):** Parametro per la ripartizione dei costi e il calcolo della maggioranza qualificata.
+- **Voto per testa:** Un voto per ogni proprietario, a prescindere dal numero di unità possedute.
+- **Maggioranza semplice:** Maggioranza dei voti presenti o rappresentati.
+- **Maggioranza qualificata:** Maggioranza di tutti i comproprietari per teste che rappresenti contemporaneamente più della metà di tutte le quote millesimali.
+- **Unanimità:** Approvazione di tutti i comproprietari senza eccezione (es. per innovazioni voluttuarie ex art. 647e CC).
+
+---
+
+## 4. Widget di accesso rapido
+
+Cinque schede interattive offrono un accesso diretto alle sezioni operative:
+
+<CardGrid>
+  <Card title="Assemblee" icon="calendar">
+    Consultare sedute attive, imminenti e archiviate con i relativi verbali.
+  </Card>
+  <Card title="Documenti" icon="document">
+    Accedere all'archivio documentale con filtro per le nuove aggiunte.
+  </Card>
+  <Card title="Comunicazioni" icon="email">
+    Verificare gli avvisi e le circolari non lette dell'amministrazione.
+  </Card>
+  <Card title="Forum della comunità" icon="comment">
+    Partecipare alle discussioni aperte tra vicini di condominio.
+  </Card>
+  <Card title="Ticket di servizio" icon="warning">
+    Seguire lo stato di avanzamento delle richieste di riparazione e guasti.
+  </Card>
+</CardGrid>

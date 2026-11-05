@@ -1,0 +1,44 @@
+---
+title: Forum communautaire
+description: Échanges entre copropriétaires, discussions sur la vie de l'immeuble, règles de bonne conduite et modération.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Le **forum communautaire** de ResiVote offre aux copropriétaires d'un même immeuble un espace sécurisé pour dialoguer. Qu'il s'agisse de préparer un point d'ordre du jour, de clarifier le règlement intérieur ou de porter des projets communs (panneaux solaires, bornes de recharge), le forum facilite le consensus.
+
+<Aside type="note" title="Rôles dans le forum">
+- **`eigentümer` (Copropriétaire) :** Ouvre des sujets, échange avec ses voisins sur **tablette ou smartphone**, commente les publications et partage des idées.
+- **`tenant_admin` (Gérance) :** Modère les échanges sur **ordinateur**, épingle les règles officielles et clôt les discussions terminées.
+</Aside>
+
+---
+
+## 1. Modération par la gérance
+
+**Rôle responsable : `tenant_admin`**  
+*Appareil : Ordinateur (desktop)*
+
+Sous **« Forum »** (`/admin/forum`), la gérance surveille les discussions de l'ensemble des immeubles gérés :
+
+![Modération du forum dans l'administration](/screenshots/tenant-admin/desktop/admin-forum.png)
+*Vue ordinateur pour `tenant_admin` : tableau de modération, gestion des messages et verrouillage des discussions abouties.*
+
+---
+
+## 2. Accès au forum pour les copropriétaires
+
+**Perspective du rôle : `eigentümer`**  
+*Appareils : Tablette ou Smartphone (mobile)*
+
+Les copropriétaires accèdent aux discussions de leur immeuble sous **« Forum »** (`/portal/forum`).
+
+### Fil de discussion sur tablette
+
+![Discussion du forum sur tablette](/screenshots/owner/tablet/portal-forum-detail-tablet.png)
+*Vue tablette pour `eigentümer` : fil de discussion détaillé avec noms des auteurs, date et heure, réponses et formulaire de commentaire.*
+
+### Vue d'ensemble sur smartphone
+
+![Aperçu du forum sur smartphone](/screenshots/owner/mobile/portal-forum-mobile.png)
+*Vue mobile pour `eigentümer` : liste des sujets de l'immeuble avec nombre de réponses et champ de recherche.*

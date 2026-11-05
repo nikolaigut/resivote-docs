@@ -1,0 +1,59 @@
+---
+title: Circular Resolutions and Ballots
+description: Digital written voting under Art. 712m para. 2 Swiss Civil Code without holding an in-person meeting.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Not every co-ownership decision requires convening an in-person or hybrid general meeting. For routine approvals, urgent interim authorizations, or time-shifted votes, ResiVote supports **circular resolutions** (Art. 712m para. 2 Swiss Civil Code / ZGB) fully digitally in the Owner Portal.
+
+<Aside type="note" title="Role Responsibilities in Circular Resolutions">
+- **`tenant_admin` (Management):** Prepares the circular resolution on **desktop or tablet**, formulates motions, attaches supporting files, and sets the voting deadline.
+- **`eigentümer` (Co-owner):** Reviews the resolution package on **tablet or mobile**, casts an online vote (Yes / No / Abstain), and inspects the final tally.
+</Aside>
+
+---
+
+## 1. Legal Foundations in Switzerland
+
+Under Swiss condominium law (**Art. 712m para. 2 SCC**), decisions by circular letter generally require the **consent of all co-owners** (unanimity), unless the community's bylaws expressly permit a qualified or simple majority for written ballots.
+
+ResiVote securely accommodates both models:
+- **Unanimity Mode:** A motion only passes if every single eligible co-owner votes "Yes".
+- **Statutory Quorum:** Evaluates votes against the registered majority requirements when the deadline elapses.
+
+---
+
+## 2. Administration Workflow
+
+**Responsible Role: `tenant_admin`**  
+*Device: Desktop*
+
+In the meetings list (`/admin/meetings`), select **"Circular Resolution"** as the meeting type:
+
+![Meetings Overview with Circular Resolutions](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Desktop view for `tenant_admin`: Managing live meetings and circular resolutions with submission deadlines.*
+
+<Steps>
+  1. **Title & Deadline:** Set clear start and end dates for voting (e.g. 20-day return window).
+  2. **Formulate Motions:** Draft precise proposal wording.
+  3. **Attach Documents:** Include audit reports, architectural plans, or contractor quotes as PDFs.
+  4. **Publish:** Co-owners receive automated email and push alerts and gain instant voting access in the portal.
+</Steps>
+
+---
+
+## 3. Co-owner Voting in the Portal
+
+**Perspective of Role: `eigentümer`**  
+*Devices: Tablet or Smartphone (Mobile)*
+
+Active circular resolutions appear in the portal under **"Meetings"** (`/portal/meetings`):
+
+![Circular Resolutions on Tablet](/screenshots/owner/tablet/portal-meetings-tablet.png)
+*Tablet view for `eigentümer`: Active circular resolutions with remaining countdown and voting trigger.*
+
+### Voting on Mobile
+
+![Mobile Voting View](/screenshots/owner/mobile/meeting-traktanden-mobile.png)
+*Mobile view for `eigentümer`: Reviewing proposals and submitting Yes, No, or Abstain votes on the go.*

@@ -1,0 +1,67 @@
+---
+title: Tickets d'intervention et requêtes
+description: Signalement des pannes, envoi de photos depuis un smartphone, suivi du traitement et dialogue avec la gérance.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Le **système de requêtes et tickets d'intervention** de ResiVote remplace les appels et e-mails dispersés par un canal centralisé et traçable. Les propriétaires signalent un défaut, une panne ou posent une question administrative directement dans le portail, photos à l'appui.
+
+<Aside type="note" title="Rôles pour les tickets">
+- **`eigentümer` (Copropriétaire) :** Crée des requêtes et signale des pannes sur **tablette ou mobile**, joint des photos et échange dans le fil de discussion.
+- **`tenant_admin` (Gérance) :** Traite les demandes sur **ordinateur**, assigne des techniciens, met à jour le statut et peut transformer les points en motions d'assemblée.
+</Aside>
+
+---
+
+## 1. Traitement des tickets par la gérance
+
+**Rôle responsable : `tenant_admin`**  
+*Appareil : Ordinateur (desktop)*
+
+Dans l'espace d'administration sous **« Tickets »** (`/admin/tickets`), la gérance suit l'ensemble des signalements :
+
+![Gestion des tickets dans l'administration](/screenshots/tenant-admin/desktop/admin-tickets.png)
+*Vue ordinateur pour `tenant_admin` : liste générale des requêtes avec filtres par statut, communauté et catégorie.*
+
+### Workflow des statuts
+- **Ouvert :** Nouvelle demande en attente d'évaluation.
+- **En cours :** Artisan mandaté, clarifications ou devis en cours.
+- **Résolu :** Intervention réalisée (ex. réparation effectuée).
+- **Fermé :** Clôturé et archivé définitivement.
+
+---
+
+## 2. Signalement par le copropriétaire
+
+**Perspective du rôle : `eigentümer`**  
+*Appareils : Tablette ou Smartphone (mobile)*
+
+Les propriétaires accèdent à leurs demandes sous **« Tickets »** (`/portal/tickets`).
+
+### Création d'un ticket sur smartphone
+
+![Création d'un ticket sur smartphone](/screenshots/owner/mobile/portal-ticket-create-mobile.png)
+*Vue mobile pour `eigentümer` : formulaire de saisie avec choix de la communauté, objet, catégorie, texte et ajout direct de photos prises avec la caméra.*
+
+<Steps>
+  1. **Sélection de l'immeuble :** Si le propriétaire possède des lots dans plusieurs copropriétés.
+  2. **Catégorie :** *Dégât / Réparation*, *Comptabilité / Finances* ou *Général / Motion*.
+  3. **Description :** Préciser la panne observée (ex. « La barrière de parking ne s'ouvre plus à distance »).
+  4. **Joindre une photo :** Prendre une photo sur place et la joindre directement.
+  5. **Envoyer :** La gérance est notifiée immédiatement.
+</Steps>
+
+### Suivi des tickets sur smartphone
+
+![Liste des tickets sur smartphone](/screenshots/owner/mobile/portal-tickets-mobile.png)
+*Vue mobile pour `eigentümer` : aperçu clair des tickets actifs et résolus avec badges de statut.*
+
+---
+
+## 3. Fil de conversation sur tablette
+
+Sur tablette, ResiVote fournit un journal complet des échanges entre le propriétaire et la gérance :
+
+![Détails du ticket sur tablette](/screenshots/owner/tablet/portal-ticket-detail-tablet.png)
+*Vue tablette pour `eigentümer` : fil de discussion avec messages de la gérance et champ de réponse.*

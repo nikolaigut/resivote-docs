@@ -1,0 +1,88 @@
+---
+title: The Owner Portal
+description: Dashboard, My Units, value quotas (MEA), STWEG glossary, and quick access for co-owners.
+---
+
+import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
+
+ResiVote's **Owner Portal** (`/portal`) is the primary digital hub for co-owners (STWEG/MEG). It brings together daily property operations—from reviewing owned units and value quotas to quick access for upcoming meetings, announcements, service tickets, and the community forum.
+
+<Aside type="note" title="Role Responsibilities in the Portal">
+- **`eigentümer` (Co-owner):** Primarily uses the portal on **tablet or smartphone (mobile)** for daily overview, reviewing unit quotas, participating in meetings, and contacting property management.
+- **`tenant_admin` (Management):** Manages communities, units, owner accounts, and published documents on **desktop & tablet**.
+</Aside>
+
+---
+
+## 1. Owner Dashboard Overview
+
+Upon signing in, co-owners arrive at their personalized dashboard, optimized for both tablet and smartphone screens.
+
+### Tablet View
+
+On a tablet, the dashboard offers a spacious overview of all property areas:
+
+![Owner Portal Dashboard on Tablet](/screenshots/owner/tablet/portal-dashboard-tablet.png)
+*Tablet view for `eigentümer`: Welcome greeting, highlighted next meeting with quick actions, owned units with value quotas, and widget cards.*
+
+### Mobile View (Smartphone)
+
+On the go, all essential functions are accessible within thumb's reach:
+
+![Owner Portal Dashboard on Smartphone](/screenshots/owner/mobile/portal-dashboard-mobile.png)
+*Mobile view for `eigentümer`: Greeting banner, upcoming meeting card, and bottom navigation bar.*
+
+---
+
+## 2. Next Meeting Quick Access
+
+Whenever a general meeting is approaching or currently live, the dashboard highlights it prominently:
+
+- **Live Status ("Active"):** When a meeting is in *Check-In* or *In Progress*, a green live indicator appears alongside a **"Join Now"** button leading directly into the meeting room or hall voting screen.
+- **Agenda Preview:** Clicking **"View Agenda"** opens a modal with all agenda items, draft motions, and linked attachments (e.g., quotes, plans, financial statements).
+- **Calendar Export:** The **"Export Calendar"** button downloads an `.ics` file that adds the meeting directly to Apple Calendar, Google Calendar, or Outlook.
+- **Location:** Displays whether the meeting takes place in person (with physical address) or online / hybrid.
+
+---
+
+## 3. My Units and Value Quotas (MEA)
+
+Under **"My Units"**, all apartments, parking spaces, or storage rooms belonging to the signed-in owner are listed.
+
+### Value Quota / Co-ownership Share (MEA)
+Displays the registered land registry value quota (e.g., `45 / 1000`). If an owner holds multiple units, the portal automatically aggregates the total quota.
+
+### Primary Voter Badge
+If a unit is owned jointly (e.g., by married couples or heir communities), the designated voting delegate under Swiss law (Art. 712l SCC) is marked with the **"Primary Voter"** badge.
+
+### Built-in STWEG Glossary
+An info button next to the quotas opens the **STWEG Glossary**, explaining Swiss condominium law (Art. 712a–712t SCC) in simple terms:
+- **Value quota (thousandths):** Key for cost allocation and qualified majority calculations.
+- **Head count:** One vote per owner, regardless of the number of units owned.
+- **Simple majority:** Majority of votes present or represented.
+- **Qualified majority:** Majority of all co-owners by head count who also hold more than half of all value quotas.
+- **Unanimity:** Approval of all co-owners without exception (e.g. for luxury alterations under Art. 647e SCC).
+
+---
+
+## 4. Quick-Access Widgets
+
+Five widgets below the units provide instant jumps to specific portal features:
+
+<CardGrid>
+  <Card title="Meetings" icon="calendar">
+    Shows active, upcoming, and archived meetings with downloadable minutes.
+  </Card>
+  <Card title="Documents" icon="document">
+    Displays total documents with a filter for newly added files.
+  </Card>
+  <Card title="Announcements" icon="email">
+    Counts unread notices from property management.
+  </Card>
+  <Card title="Community Forum" icon="comment">
+    Shows active discussion topics among co-owners.
+  </Card>
+  <Card title="Service Tickets" icon="warning">
+    Tracks open maintenance tickets, defect reports, and inquiries.
+  </Card>
+</CardGrid>

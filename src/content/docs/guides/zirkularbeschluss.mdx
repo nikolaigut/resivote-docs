@@ -1,0 +1,71 @@
+---
+title: Zirkularbeschluss und Urnenabstimmung
+description: Schriftliche Beschlussfassung auf digitalem Weg gemäss Art. 712m Abs. 2 ZGB ohne physische Versammlung.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Nicht jede Entscheidung im Stockwerkeigentum erfordert eine physische oder hybride Eigentümerversammlung. Für Routineentscheide, dringende Sondervoten oder zeitlich versetzte Abstimmungen unterstützt ResiVote den **Zirkularbeschluss** (schriftliche Beschlussfassung nach Art. 712m Abs. 2 ZGB) vollständig digital im Eigentümer-Portal.
+
+<Aside type="note" title="Rollenverteilung beim Zirkularbeschluss">
+- **`tenant_admin` (Verwaltung):** Erstellt den Zirkularbeschluss auf dem **Desktop oder Tablet**, formuliert Anträge, hinterlegt Begleitdokumente und setzt die Rückmeldefrist fest.
+- **`eigentümer` (Eigentümer):** Prüft die Beschlussvorlage auf dem **Tablet oder Smartphone**, stimmt online ab (Ja / Nein / Enthaltung) und verfolgt das Endergebnis.
+</Aside>
+
+---
+
+## 1. Gesetzliche Grundlagen in der Schweiz
+
+Nach Schweizer Zivilgesetzbuch (**Art. 712m Abs. 2 ZGB**) bedürfen Zirkularbeschlüsse im Stockwerkeigentum grundsätzlich der **Zustimmung aller Stockwerkeigentümer** (Einstimmigkeit), sofern das Liegenschaftsreglement nicht ausdrücklich ein anderes Quorum (z. B. qualifiziertes oder einfaches Mehr) für schriftliche Beschlüsse vorsieht.
+
+ResiVote bildet beide Varianten rechtssicher ab:
+- **Einstimmigkeits-Modus:** Ein Beschluss gilt nur dann als angenommen, wenn ausnahmslos alle Stimmberechtigten mit «Ja» stimmen.
+- **Reglementarisches Quorum:** Auswertung gemäss den in den Liegenschafts-Statuten hinterlegten Mehrheitserfordernissen nach Ablauf der Rückmeldefrist.
+
+---
+
+## 2. Vorbereitung durch die Verwaltung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+In der Versammlungsübersicht (`/admin/meetings`) wählt die Verwaltung als Modus **«Zirkularbeschluss»**:
+
+![Zirkularbeschlüsse in der Versammlungsübersicht](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Desktop-Ansicht für `tenant_admin`: Verwaltung von Live-Versammlungen und Zirkularbeschlüssen mit Anzeige des Abstimmungszeitfensters.*
+
+<Steps>
+  1. **Titel & Frist festlegen:** Startdatum und verbindliches Enddatum für die Stimmabgabe definieren (z. B. 20 Tage Rückmeldefrist).
+  2. **Traktanden & Anträge formulieren:** Den genauen Beschlussantragstext erfassen.
+  3. **Dokumente anhängen:** Revisionsberichte, Pläne oder Handwerker-Offerten als PDF beifügen.
+  4. **Publizieren:** Alle Stockwerkeigentümer werden automatisch per E-Mail und Push benachrichtigt und erhalten Zugriff im Portal.
+</Steps>
+
+---
+
+## 3. Stimmabgabe für Eigentümer im Portal
+
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
+
+Eigentümer sehen aktive Zirkularbeschlüsse direkt im Portal unter **«Versammlungen»** (`/portal/meetings`):
+
+![Zirkularbeschlüsse auf dem Tablet](/screenshots/owner/tablet/portal-meetings-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Übersicht aktiver Beschlüsse mit verbleibender Frist und Abstimmungsknopf.*
+
+### Abstimmung auf dem Smartphone (Mobile)
+
+Eigentümer können Anträge auch von unterwegs direkt auf dem Handy prüfen und votieren:
+
+![Abstimmung über Traktanden mobil](/screenshots/owner/mobile/meeting-traktanden-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Traktanden mit Beschlussantrag und den Optionen Ja, Nein oder Enthaltung.*
+
+---
+
+## 4. Auswertung und Revisionssicherheit
+
+Nach Ablauf der Stimmfrist (oder sobald alle Stimmen vorliegen) schliesst das System den Zirkularbeschluss automatisch ab:
+
+1. **Quorumsberechnung:** Ermittlung der Kopfstimmen und Wertquoten.
+2. **Ergebnisprotokoll:** Automatischer PDF-Beschlussbericht mit detaillierter Stimmverteilung.
+3. **Audit-Trail:** Jede Stimmabgabe ist kryptografisch signiert und im Revisionsprotokoll festgehalten.

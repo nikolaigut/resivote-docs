@@ -1,0 +1,78 @@
+---
+title: Gemeinschafts-Forum
+description: Austausch unter Stockwerkeigentümern, Diskussionen zu Liegenschaftsthemen, Diskussionsregeln und Moderation.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das **Gemeinschafts-Forum** von ResiVote bietet den Miteigentümerinnen und Miteigentümern einer Liegenschaft einen geschützten Raum für den nachbarschaftlichen Dialog. Ob Vorbesprechung von Traktanden, Anliegen zur Hausordnung oder gemeinsame Projekte wie eine PV-Anlage – das Forum fördert den Konsens vor der eigentlichen Versammlung.
+
+<Aside type="note" title="Rollenverteilung im Forum">
+- **`eigentümer` (Eigentümer):** Startet Themen, diskutiert mit Nachbarn auf dem **Tablet oder Smartphone**, antwortet auf Beiträge und teilt Ideen.
+- **`tenant_admin` (Verwaltung):** Moderiert das Forum auf dem **Desktop**, pinnt offizielle Leitfäden und schliesst Threads bei Bedarf.
+</Aside>
+
+---
+
+## 1. Forenmoderation durch die Verwaltung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Im Admin-Bereich unter **«Forum»** (`/admin/forum`) überwacht die Liegenschaftsverwaltung die Diskussionsstränge aller betreuten Liegenschaften:
+
+![Forum-Moderation im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-forum.png)
+*Desktop-Ansicht für `tenant_admin`: Moderationsübersicht, Verwaltung von Beiträgen und Schliessen von abgeschlossenen Diskussionen.*
+
+### Moderationsmöglichkeiten
+- **Themen sperren / schliessen:** Wurde ein Anliegen geklärt oder an die Versammlung delegiert, kann der Thread geschlossen werden, um weitere Antworten zu deaktivieren.
+- **Einhaltung der Netiquette:** Unangemessene oder unsachliche Beiträge können gelöscht werden.
+- **Gemeinschaftsauswahl:** Filter nach der jeweiligen Liegenschaft.
+
+---
+
+## 2. Forennutzung für Eigentümer
+
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
+
+Eigentümer greifen im Portal über den Menüpunkt **«Forum»** (`/portal/forum`) auf die Diskussionen ihrer Liegenschaft zu.
+
+### Diskussionsverlauf auf dem Tablet
+
+Auf dem Tablet können Eigentümer Beiträgen folgen und direkt Antworten verfassen:
+
+![Foren-Diskussion auf dem Tablet](/screenshots/owner/tablet/portal-forum-detail-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Detaillierter Diskussionsstrang mit Verfassernamen, Zeitstempel, Antworten und Eingabefeld für neue Kommentare.*
+
+### Mobile Übersicht auf dem Smartphone
+
+Auf dem Smartphone lässt sich das Forengeschehen bequem von unterwegs verfolgen:
+
+![Forenübersicht auf dem Smartphone](/screenshots/owner/mobile/portal-forum-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Übersicht aller Themen der Gemeinschaft mit Anzahl Antworten und Suchleiste.*
+
+---
+
+## 3. Typische Einsatzbereiche des Forums
+
+<CardGrid>
+  <Card title="Traktanden vorbesprechen" icon="pencil">
+    Eigentümer tauschen sich bereits vor der offiziellen Einberufung über komplexe Themen aus (z. B. Budget für Fassadensanierung oder Wahl des Hauswarts).
+  </Card>
+  <Card title="Nutzung von Allgemeinflächen" icon="home">
+    Abstimmung und Klärung von Fragen rund um Veloraum, Trockenraum, Besucherparkplätze oder Gartenbeete.
+  </Card>
+  <Card title="Gemeinsame Initiativen" icon="star">
+    Planung von Investitionen wie Photovoltaik, Wallboxen / E-Ladestationen oder Wärmepumpenersatz.
+  </Card>
+  <Card title="Nachbarschaftliche Hinweise" icon="information">
+    Meldung von Fundgegenständen oder Ankündigung von privaten Umzügen und Lärmphasen.
+  </Card>
+</CardGrid>
+
+---
+
+## 4. Diskussionsregeln und Sicherheit
+
+Nur authentifizierte Eigentümer der jeweiligen Gemeinschaft haben Zugriff auf das Forum. Externe Dritte oder Mieter haben keinen Einblick. Jeder Beitrag ist eindeutig dem Eigentümer bzw. der jeweiligen Einheit zugeordnet, was für einen sachlichen und respektvollen Ton sorgt.

@@ -1,0 +1,52 @@
+---
+title: Delibera per circolare e voto per corrispondenza
+description: Deliberazione per iscritto per via digitale a norma dell'art. 712m cpv. 2 CC senza riunione in presenza.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Non tutte le decisioni all'interno di una PPP richiedono la convocazione di un'assemblea generale in presenza o ibrida. Per delibere ordinarie, approvazioni urgenti o votazioni scaglionate nel tempo, ResiVote gestisce la **delibera per circolare** (decisione per iscritto ex art. 712m cpv. 2 del Codice civile svizzero / CC) in forma completamente digitale.
+
+<Aside type="note" title="Ruoli per la delibera per circolare">
+- **`tenant_admin` (Amministrazione):** Prepara la delibera per circolare su **desktop o tablet**, redige le proposte, allega i documenti di supporto e stabilisce il termine di risposta.
+- **`eigentümer` (Comproprietario):** Esamina la documentazione su **tablet o mobile**, vota online (Sì / No / Astensione) e verifica l'esito finale.
+</Aside>
+
+---
+
+## 1. Basi legali in Svizzera
+
+Secondo l'articolo **712m cpv. 2 CC**, le decisioni prese mediante lettera circolare esigono di principio il **consenso di tutti i comproprietari** (unanimità), a meno che il regolamento condominiale non contempli espressamente un diverso quorum (es. maggioranza qualificata o semplice) per le votazioni per corrispondenza.
+
+ResiVote supporta entrambe le modalità con assoluta precisione giuridica:
+- **Modalità unanimità:** La proposta è approvata unicamente se la totalità degli aventi diritto esprime voto favorevole («Sì»).
+- **Quorum statutario:** Valutazione dei voti allo scadere del termine secondo i criteri di maggioranza registrati nello statuto dell'immobile.
+
+---
+
+## 2. Preparazione da parte dell'amministrazione
+
+**Ruolo responsabile: `tenant_admin`**  
+*Dispositivo: Desktop*
+
+Nell'elenco delle sedute (`/admin/meetings`), selezionare la modalità **«Delibera per circolare»** :
+
+![Panoramica delle delibere per circolare](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Vista desktop per `tenant_admin`: gestione delle assemblee in presenza e delle delibere per circolare con scadenze.*
+
+---
+
+## 3. Votazione dei comproprietari nel portale
+
+**Prospettiva del ruolo: `eigentümer`**  
+*Dispositivi: Tablet o Smartphone (mobile)*
+
+Le delibere attive compaiono sotto **«Assemblee»** (`/portal/meetings`):
+
+![Delibere per circolare su tablet](/screenshots/owner/tablet/portal-meetings-tablet.png)
+*Vista tablet per `eigentümer`: riepilogo delle delibere con conto alla rovescia del termine e pulsante di voto.*
+
+### Votazione da smartphone (mobile)
+
+![Votazione da smartphone](/screenshots/owner/mobile/meeting-traktanden-mobile.png)
+*Vista mobile per `eigentümer`: esame delle trattande e invio del voto Sì, No o Astensione con un solo tocco.*

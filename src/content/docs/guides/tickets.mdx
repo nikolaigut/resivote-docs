@@ -1,0 +1,77 @@
+---
+title: Service-Tickets und Schadensmeldungen
+description: Schadensmeldungen erfassen, Foto-Upload mit dem Smartphone, Statusverfolgung und Dialog zwischen Eigentümer und Verwaltung.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das integrierte **Ticket- und Anfragesystem** von ResiVote ersetzt unkoordinierte E-Mails und Telefonate durch einen strukturierten, nachvollziehbaren Meldeprozess. Eigentümer melden Mängel, Schäden oder administrative Anliegen direkt aus dem Portal – auf Wunsch mit Beweisfotos vom Smartphone.
+
+<Aside type="note" title="Rollenverteilung bei Tickets">
+- **`eigentümer` (Eigentümer):** Erfasst Anfragen und Schadensmeldungen auf **Tablet oder Smartphone**, lädt Fotos hoch und antwortet im Chatverlauf.
+- **`tenant_admin` (Verwaltung):** Bearbeitet eingehende Tickets auf dem **Desktop**, weist Prioritäten und Verantwortliche zu, kommuniziert mit dem Eigentümer und leitet Pendenzen für die Versammlung ab.
+</Aside>
+
+---
+
+## 1. Ticketbearbeitung durch die Verwaltung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Im Administrationsbereich unter **«Tickets»** (`/admin/tickets`) hat die Liegenschaftsverwaltung alle gemeldeten Anliegen im Blick:
+
+![Ticketverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-tickets.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Ticketliste über alle verwalteten Liegenschaften mit Filter nach Gemeinschaft, Status und Kategorie.*
+
+### Status-Workflow in der Verwaltung
+Jedes Ticket durchläuft einen transparenten Lebenszyklus:
+- **Offen:** Neu eingegangene Meldung, wartet auf Sichtung.
+- **In Bearbeitung:** Handwerker aufgeboten, Klärung im Gange oder Offerten eingeholt.
+- **Gelöst:** Massnahme ausgeführt (z.B. Reparatur abgeschlossen).
+- **Geschlossen:** Vom Eigentümer oder der Verwaltung final archiviert.
+
+Verwaltungen können Tickets direkt einem zuständigen Mitarbeiter zuweisen oder in eine Pendenz (**«Aufgaben / Tasks»**) für die nächste Eigentümerversammlung überführen.
+
+---
+
+## 2. Schadensmeldungen für Eigentümer
+
+**Perspektive der Rolle: `eigentümer`**  
+*Geräte: Tablet oder Smartphone (Mobile)*
+
+Eigentümer rufen ihre Anfragen im Portal unter **«Tickets»** (`/portal/tickets`) auf.
+
+### Neues Ticket erfassen auf dem Smartphone
+
+Das Erfassen eines Schadens ist speziell für die mobile Nutzung vor Ort optimiert:
+
+![Neues Ticket erfassen auf dem Smartphone](/screenshots/owner/mobile/portal-ticket-create-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Modal-Dialog mit Gemeinschaftsauswahl, Betreff, Kategorie, Fehlerbeschreibung und Foto-Upload.*
+
+<Steps>
+  1. **Gemeinschaft wählen:** Falls der Eigentümer Einheiten in mehreren Liegenschaften besitzt.
+  2. **Betreff & Kategorie:** Zuweisung zu *Schaden / Reparatur*, *Abrechnung / Finanzen* oder *Allgemein / Antrag*.
+  3. **Beschreibung:** Genaue Schilderung des Mangels (z. B. «Schranke der Tiefgarage öffnet nicht mehr nach Knopfdruck»).
+  4. **Foto anhängen:** Direkt vor Ort mit der Smartphone-Kamera ein Bild des Schadens aufnehmen und dem Ticket beifügen.
+  5. **Absenden:** Die Verwaltung wird unverzüglich benachrichtigt.
+</Steps>
+
+### Ticketübersicht auf dem Smartphone
+
+![Ticketübersicht auf dem Smartphone](/screenshots/owner/mobile/portal-tickets-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Liste aller offenen und erledigten Tickets mit farbigen Status-Badges.*
+
+---
+
+## 3. Verlauf und Chat im Ticket auf dem Tablet
+
+Auf dem Tablet bietet ResiVote einen vollständigen Kommunikationsverlauf zwischen Eigentümer und Liegenschaftsverwaltung:
+
+![Ticket-Detailansicht auf dem Tablet](/screenshots/owner/tablet/portal-ticket-detail-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Detailansicht eines Tickets mit Chatverlauf, Rückfragen der Verwaltung und Antwortfeld.*
+
+### Vorteile des integrierten Verlaufs
+- **Kein Informationsverlust:** Alle Mitteilungen, Terminzusagen von Handwerkern und Dokumente bleiben an einer Stelle gebündelt.
+- **Nachvollziehbarkeit:** Der Verlauf ist mit Zeitstempeln und Verfassernamen dokumentiert.
+- **Transparenz:** Beide Seiten sehen jederzeit, wer am Zug ist und wie der aktuelle Bearbeitungsstand lautet.

@@ -27,17 +27,28 @@ export default defineConfig({
 			},
 			sidebar: [
 				{
-					label: 'Guides',
+					label: 'Eigentümer-Portal',
+					items: [
+						{ label: 'Das Eigentümer-Portal', slug: 'guides/portal' },
+						{ label: 'Mitteilungen & Rundschreiben', slug: 'guides/mitteilungen' },
+						{ label: 'Service-Tickets & Anfragen', slug: 'guides/tickets' },
+						{ label: 'Gemeinschafts-Forum', slug: 'guides/forum' },
+						{ label: 'Dokumente & Reglemente', slug: 'guides/dokumente' },
+						{ label: 'Benachrichtigungen & Einstellungen', slug: 'guides/benachrichtigungen' },
+					],
+				},
+				{
+					label: 'Versammlungen & Beschlüsse',
 					items: [
 						{ label: 'So funktioniert ResiVote', slug: 'guides/so-funktioniert' },
-						{ label: 'Benutzer und Berechtigungen', slug: 'guides/benutzer' },
 						{ label: 'Versammlung erstellen', slug: 'guides/versammlung-erstellen' },
+						{ label: 'Zirkularbeschluss & Urnenabstimmung', slug: 'guides/zirkularbeschluss' },
 						{ label: 'Abstimmungen durchführen', slug: 'guides/abstimmung' },
 						{ label: 'Vollmachten verwalten', slug: 'guides/vollmachten' },
 						{ label: 'Check-in und Anwesenheit', slug: 'guides/checkin' },
 						{ label: 'Quorum und Präsenz', slug: 'guides/quorum' },
 						{ label: 'Protokoll und Berichte', slug: 'guides/protokoll' },
-						{ label: 'Dokumente und Reglemente', slug: 'guides/dokumente' },
+						{ label: 'Benutzer und Berechtigungen', slug: 'guides/benutzer' },
 					],
 				},
 			],

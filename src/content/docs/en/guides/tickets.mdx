@@ -1,0 +1,71 @@
+---
+title: Service Tickets and Maintenance
+description: Defect reporting, smartphone photo uploads, status tracking, and direct chat with property management.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+ResiVote's integrated **ticketing and inquiry system** replaces disjointed emails and calls with a structured, trackable reporting process. Co-owners submit maintenance requests and administrative inquiries directly from the portal—including on-site photos captured with their smartphone camera.
+
+<Aside type="note" title="Role Responsibilities in Tickets">
+- **`eigentümer` (Co-owner):** Submits inquiries and defect reports on **tablet or mobile**, uploads photos, and replies in the message thread.
+- **`tenant_admin` (Management):** Processes tickets on **desktop**, assigns priorities and staff, converses with owners, and converts items into meeting agenda topics.
+</Aside>
+
+---
+
+## 1. Ticket Management by Property Administrators
+
+**Responsible Role: `tenant_admin`**  
+*Device: Desktop*
+
+In the admin area under **"Tickets"** (`/admin/tickets`), management reviews all reported issues across managed properties:
+
+![Ticket Management in Admin](/screenshots/tenant-admin/desktop/admin-tickets.png)
+*Desktop view for `tenant_admin`: Central ticket queue with filters for community, status, and category.*
+
+### Ticket Status Workflow
+- **Open:** Newly submitted issue awaiting triage.
+- **In Progress:** Service technician dispatched or clarifications under way.
+- **Resolved:** Required maintenance completed.
+- **Closed:** Formally closed by owner or administration.
+
+Administrators can convert tickets into actionable tasks or formal agenda items for the next co-owners' meeting with one click.
+
+---
+
+## 2. Submitting Tickets as a Co-owner
+
+**Perspective of Role: `eigentümer`**  
+*Devices: Tablet or Smartphone (Mobile)*
+
+Co-owners manage their requests under **"Tickets"** (`/portal/tickets`).
+
+### Creating a New Ticket on Mobile
+
+Submitting a defect is optimized for mobile on-site capture:
+
+![Creating a Ticket on Smartphone](/screenshots/owner/mobile/portal-ticket-create-mobile.png)
+*Mobile view for `eigentümer`: Modal dialog with property selection, subject, category, description, and direct camera upload.*
+
+<Steps>
+  1. **Select Community:** If the owner has units in multiple buildings.
+  2. **Category & Subject:** Categorize under *Damage / Maintenance*, *Billing / Financials*, or *General / Motion*.
+  3. **Description:** Describe the problem precisely (e.g., "Underground garage barrier does not open via remote").
+  4. **Attach Photo:** Snap a picture on site and attach it instantly.
+  5. **Submit:** Property management receives an immediate notification.
+</Steps>
+
+### Mobile Ticket Overview
+
+![Mobile Ticket Overview](/screenshots/owner/mobile/portal-tickets-mobile.png)
+*Mobile view for `eigentümer`: Quick overview of all open and resolved tickets with color-coded status badges.*
+
+---
+
+## 3. Communication Thread on Tablet
+
+On tablet, ResiVote presents a full conversation log between owner and management:
+
+![Ticket Details on Tablet](/screenshots/owner/tablet/portal-ticket-detail-tablet.png)
+*Tablet view for `eigentümer`: Detailed ticket view with dialogue thread, management updates, and reply input.*

@@ -1,0 +1,53 @@
+---
+title: Notifiche e impostazioni
+description: Configurazione delle notifiche e-mail e push, gestione delle frequenze e avvisi in-app.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Per assicurare un'informazione tempestiva senza intasare la casella di posta, ResiVote offre una **configurazione granulare delle notifiche**. Ogni comproprietario decide liberamente su quali canali e per quali categorie desidera ricevere avvisi.
+
+<Aside type="note" title="Ruoli per le notifiche">
+- **`eigentümer` (Comproprietario):** Imposta le preferenze sul portale da **tablet o mobile** per ciascuna area tematica.
+- **`tenant_admin` (Amministrazione):** Innesca le notifiche automatiche di sistema in occasione di variazioni di stato o pubblicazioni ufficiali.
+</Aside>
+
+---
+
+## 1. Impostazioni notifiche su tablet
+
+Su tablet, ciascun canale può essere attivato o disattivato con un semplice tocco:
+
+![Impostazioni notifiche su tablet](/screenshots/owner/tablet/portal-notification-settings-tablet.png)
+*Vista tablet per `eigentümer`: matrice delle categorie con icone interattive per e-mail e notifiche push.*
+
+---
+
+## 2. Impostazioni notifiche su smartphone (mobile)
+
+In mobilità, la regolazione delle notifiche è rapida e intuitiva:
+
+![Impostazioni notifiche su smartphone](/screenshots/owner/mobile/portal-notification-settings-mobile.png)
+*Vista mobile per `eigentümer`: interruttori compatti per la gestione degli avvisi da cellulare.*
+
+---
+
+## 3. Le 5 categorie di notifica
+
+<CardGrid>
+  <Card title="Assemblee" icon="calendar">
+    Convocazioni alle assemblee ordinarie e straordinarie, promemoria di inizio, apertura del check-in e pubblicazione del verbale definitivo.
+  </Card>
+  <Card title="Documenti" icon="document">
+    Caricamento di nuovi regolamenti, consuntivi d'esercizio, relazioni di revisione o modelli da parte dell'amministrazione.
+  </Card>
+  <Card title="Forum della comunità" icon="comment">
+    Nuove discussioni avviate nell'immobile o risposte ai propri commenti nel forum dei proprietari.
+  </Card>
+  <Card title="Ticket di servizio" icon="warning">
+    Aggiornamenti di stato (es. da «In lavorazione» a «Risolto») e risposte dell'amministrazione alle proprie segnalazioni.
+  </Card>
+  <Card title="Comunicazioni" icon="email">
+    Circolari formali e avvisi urgenti della gestione immobiliare.
+  </Card>
+</CardGrid>
