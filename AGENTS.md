@@ -12,19 +12,19 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 Guides use [D2](https://d2lang.com/) diagrams via the `astro-d2` integration. D2 code blocks (` ```d2 `) are rendered to SVG at build time.
 
-### Prerequisite: D2 binary
+### Prerequisite: D2 / D2.js
 
-The D2 binary must be installed on the build machine. Install it user-locally:
+The project uses `astro-d2` with `experimental: { useD2js: true }`, which runs D2 via WebAssembly (JS) without requiring a system D2 binary in CI / Cloudflare Pages.
+
+For local development or testing with the native binary:
 
 ```sh
 curl -fsSL https://d2lang.com/install.sh | sh -
 ```
 
-This installs `d2` to `~/.local/bin/d2`. Verify with `d2 --version`.
-
 ### Deployment (Cloudflare Pages)
 
-Cloudflare Pages builds run `astro build`, which requires the D2 binary. Ensure the build environment installs D2 before the build command, e.g. by prepending the install step to the Pages build command, or use `skipGeneration: true` in `astro-d2` config and commit the prebuilt `public/d2/` SVGs.
+Cloudflare Pages builds run `astro build`. Because `astro-d2` is configured with `experimental: { useD2js: true }`, D2 diagrams are compiled using `@terrastruct/d2` (WASM) during the standard build step without needing the D2 binary installed on the build runner.
 
 ## Documentation
 

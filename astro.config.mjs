@@ -42,6 +42,10 @@ export default defineConfig({
 				},
 			],
 		}),
-		astroD2(),
+		astroD2({
+			experimental: {
+				useD2js: true,
+			},
+		}),
 	],
 });
