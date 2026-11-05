@@ -1,0 +1,56 @@
+---
+title: Liegenschaften & Eigentümerstamm verwalten
+description: Gemeinschaften anlegen, Einheiten mit Wertquoten (MEA) strukturieren und Eigentümerstamm pflegen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Die Basis jeder korrekten Beschlussfassung und Abrechnung in ResiVote sind präzise Stammdaten. In diesem Leitfaden erfahren Verwaltungen (`tenant_admin`), wie Liegenschaften (Gemeinschaften), einzelne Einheiten und Eigentümerkonten angelegt und gepflegt werden.
+
+---
+
+## 1. Liegenschaften / Gemeinschaften verwalten
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Gemeinschaften»** (`/admin/communities`) verwaltet die Liegenschaftsverwaltung alle betreuten Liegenschaften:
+
+![Liegenschaftsliste im Admin-Bereich](/screenshots/tenant-admin/desktop/communities-list.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Übersicht aller Gemeinschaften mit Einheiten- und Eigentümeranzahl.*
+
+### Liegenschafts-Konfiguration
+- **Rechtsform:** Stockwerkeigentümergemeinschaft (STWEG) oder Miteigentümergemeinschaft (MEG).
+- **Gesamtwertquote:** In der Regel `1000 / 1000` (Tausendstel) oder `10000 / 10000`.
+- **Reglementarische Besonderheiten:** Statutarische Abweichungen (z. B. spezielle Quoren für schriftliche Zirkularbeschlüsse nach Art. 712m Abs. 2 ZGB).
+
+---
+
+## 2. Einheiten und Wertquoten (MEA)
+
+Jede Liegenschaft besteht aus rechtlich definierten Einheiten (Wohnungen, Gewerbeflächen, Einstellhallenplätze, Bastelräume):
+
+- **Einheitsnummer & Katasternummer:** Identifikation gemäss Grundbuchplan.
+- **Wertquote (Miteigentumsanteil – MEA):** Definiert das wirtschaftliche Gewicht (z. B. `45 / 1000`) für Kostenverteiler und qualifizierte Mehrheiten.
+- **Summenprüfung:** ResiVote prüft automatisch, ob die Summe aller Einheitenquoten exakt der Gesamtwertquote der Liegenschaft entspricht.
+
+---
+
+## 3. Eigentümerstamm und Stimmberechtigung
+
+Unter **«Eigentümer»** (`/admin/owners`) pflegt die Verwaltung die Eigentümerdaten und versendet Einladungen für das Portal:
+
+![Eigentümerverwaltung auf dem Desktop](/screenshots/tenant-admin/desktop/owners-management.png)
+*Desktop-Ansicht für `tenant_admin`: Vollständige Eigentümerkartei mit E-Mail-Adressen, Postadressen und zugewiesenen Einheiten.*
+
+### Mobil auf dem Tablet einsehbar
+Auch unterwegs oder während der Versammlung haben Verwaltungen vollen Zugriff auf die Eigentümerkartei:
+
+![Eigentümerliste auf dem Tablet](/screenshots/tenant-admin/tablet/owners-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Schnelle Übersicht aller Eigentümer zur Verifizierung vor Ort.*
+
+### Zuweisung bei Gesamteigentum & Erbengemeinschaften
+Gehört eine Einheit mehreren Personen gemeinsam (z. B. Ehepaare, Erbengemeinschaften oder Miteigentümer):
+- Nach **Art. 712l ZGB** kann das Stimmrecht für eine Einheit nur durch **eine gemeinsame Vertretung** ausgeübt werden.
+- Die Verwaltung legt im Eigentümerprofil fest, welche Person als **Hauptstimmberechtigter** (`is_primary_voter`) autorisiert ist.
+- Im Eigentümer-Portal wird diese Person transparent mit dem Badge «Hauptstimmberechtigt» gekennzeichnet.

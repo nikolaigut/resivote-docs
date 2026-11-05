@@ -1,0 +1,67 @@
+---
+title: Versammlung erstellen & vorbereiten
+description: Planung von Eigentümerversammlungen, Traktandenliste, Beschlussanträge, Vorlagen und Einladungsversand für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Eine sorgfältige Vorbereitung ist der Schlüssel zu einer rechtskonformen und speditiven Eigentümerversammlung. In diesem Leitfaden erfahren Verwaltungen (`tenant_admin`), wie Sitzungen geplant, Traktanden mit präzisen Beschlussanträgen strukturiert und Einladungen generiert werden.
+
+---
+
+## 1. Versammlungsübersicht & Neuanlage
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Versammlungen»** (`/admin/meetings`) finden Verwaltungen alle geplanten, laufenden und archivierten Sitzungen:
+
+![Versammlungsübersicht im Admin-Bereich](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Desktop-Ansicht für `tenant_admin`: Chronologische Übersicht aller Versammlungen mit Status, Datum und Versammlungsmodus.*
+
+### Neuanlage-Formular
+
+Mit dem Button **«Neue Versammlung»** öffnet sich die Erfassungsmaske:
+
+![Formular zur Erstellung einer Versammlung](/screenshots/tenant-admin/desktop/meeting-create-form.png)
+*Desktop-Ansicht für `tenant_admin`: Eingabe von Titel, Datum, Uhrzeit, physischem Versammlungsort und Auswahl des Durchführungsmodus.*
+
+---
+
+## 2. Versammlungsmodi
+
+ResiVote unterstützt alle im Schweizer Markt üblichen Durchführungsformen:
+
+1. **Präsenzversammlung:** Physische Zusammenkunft im Saal; mobile Saalabstimmung via Smartphone oder Tablet.
+2. **Hybride Versammlung:** Vor-Ort-Teilnehmer und online zugeschaltete Eigentümer stimmen synchron im selben Live-Cockpit ab.
+3. **Reine Online-Versammlung:** Vollständig digitale Durchführung mit Videokonferenz-Integration.
+4. **Zirkularbeschluss (Art. 712m Abs. 2 ZGB):** Rein asynchrone Beschlussfassung im Portal über ein definiertes Zeitfenster ohne Live-Sitzung.
+
+---
+
+## 3. Traktandenliste & Beschlussanträge
+
+Der Kern der Versammlung ist die Traktandenliste. Unter **«Traktanden bearbeiten»** erfasst die Verwaltung die einzelnen Geschäfte:
+
+![Traktandenliste bearbeiten](/screenshots/tenant-admin/desktop/meeting-agenda-edit.png)
+*Desktop-Ansicht für `tenant_admin`: Strukturierung der Traktanden mit Reihenfolge, Antragstext, Quorumsvorgabe und Dateianhängen.*
+
+### Pflichtangaben pro Traktandum
+<Steps>
+  1. **Nummerierung & Titel:** Eindeutige Bezeichnung gemäss Einladungsschreiben.
+  2. **Antragstext:** Der wörtliche Beschlussantrag, über den mit Ja / Nein / Enthaltung abgestimmt werden soll.
+  3. **Erforderliches Mehr (Quorum):**
+     - *Einfaches Mehr (Köpfe):* Routinegeschäfte, Wahl des Ausschusses, Abnahme des Protokolls.
+     - *Qualifiziertes Mehr (Köpfe + Wertquoten):* Wichtige Verwaltungshandlungen und nützliche bauliche Massnahmen (Art. 647d ZGB).
+     - *Einstimmigkeit (alle Stimmen):* Zweckänderung der Liegenschaft, bauliche Luxusmassnahmen (Art. 647e ZGB).
+  4. **Dokumentenanhänge:** Verknüpfung mit Jahresrechnung, Budget, Offerten oder Plänen.
+</Steps>
+
+---
+
+## 4. Einladungsversand & Dokumentenpaket
+
+Nach Fertigstellung der Traktandenliste publiziert die Verwaltung die Versammlung:
+- **Einladungs-PDF:** Generiert automatisch ein formelles Einladungsschreiben mit vollständiger Traktandenliste.
+- **Stimmrechts- und Vollmachtskarten:** PDF-Vorlagen mit individuellem QR-Code für den Saaleinlass.
+- **Benachrichtigung der Eigentümer:** Automatischer Versand per E-Mail und Push ins Eigentümer-Portal.

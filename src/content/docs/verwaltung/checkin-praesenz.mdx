@@ -1,0 +1,46 @@
+---
+title: Check-in & Anwesenheitskontrolle
+description: Empfang am Saaleingang, digitale Unterschrift am Tablet, QR-Code-Scan und Erfassung von Stimmvertretungen für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das Check-in bildet das rechtliche Fundament jeder Versammlung: Nur wer ordnungsgemäss als anwesend oder vertreten eingebucht ist, darf an den Abstimmungen teilnehmen und zählt für das Eröffnungsquorum (Art. 712p ZGB).
+
+---
+
+## 1. Mobiler Check-in-Schalter am Tablet
+
+**Zuständige Rolle: `tenant_admin` oder Mitarbeiter (`staff`)**  
+*Gerät: Tablet*
+
+Am Saaleingang empfängt die Verwaltung eintreffende Eigentümer mit dem Tablet im dedizierten Check-in-Modus:
+
+![Tablet-Check-in mit digitaler Unterschrift](/screenshots/tenant-admin/tablet/tablet-checkin-signature.png)
+*Tablet-Ansicht für `tenant_admin`: Eigentümerliste mit Einheitszuweisung und digitalem Unterschriftsfeld zur rechtssicheren Bestätigung.*
+
+### Ablauf beim Einlass
+<Steps>
+  1. **Eigentümer aufrufen:** Suche nach Name, Wohnungsnummer oder Scan des QR-Codes auf der Einladungskarte.
+  2. **Identifikation & Vertretungen prüfen:** Das System zeigt sofort an, welche eigenen Einheiten und welche vorab erteilten Vollmachten zugeordnet sind.
+  3. **Digitale Unterschrift:** Der Eigentümer signiert direkt mit dem Finger oder Stylus auf dem Tablet.
+  4. **Stimmkarte / Freischaltung:** Der Eigentümer ist eingebucht und erhält seine Saalstimmkarte oder den Aktivierungslink für sein Smartphone.
+</Steps>
+
+---
+
+## 2. Präsenz- und Versammlungsübersicht am Tablet
+
+Während des Einlasses überwacht die Verwaltung den Zuwachs an Köpfen und Wertquoten in Echtzeit:
+
+![Versammlungsdetails und Präsenz auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-details-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Übersicht der anwesenden und vertretenen Einheiten sowie Erreichen des Eröffnungsquorums.*
+
+---
+
+## 3. Vertretungen vor Ort nacherfassen
+
+Bringen Eigentümer spontan eine schriftliche Papiervollmacht mit an den Einlass:
+- Die Verwaltung erfasst die Vollmacht im Check-in-Dialog mit zwei Klicks.
+- Das System überträgt das Stimmgewicht der vertretenen Einheit automatisch auf den anwesenden Bevollmächtigten.
+- Fehlbuchungen und Doppelstimmabgaben sind systemisch ausgeschlossen.

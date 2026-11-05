@@ -5,20 +5,20 @@ template: splash
 hero:
   tagline: Einfach, sicher und rechtskonform Eigentümerversammlungen digital durchführen nach Schweizer ZGB.
   actions:
-    - text: So funktioniert ResiVote
-      link: /guides/so-funktioniert/
+    - text: Handbuch für Verwaltungen
+      link: /verwaltung/uebersicht/
+      icon: right-arrow
+      variant: primary
+    - text: Handbuch für Eigentümer
+      link: /eigentuemer/portal/
       icon: right-arrow
     - text: Zur Live-Demo
       link: https://demo.resivote.ch
       icon: external
-      variant: primary
-    - text: Zur Landingpage
-      link: https://resivote.ch
-      icon: external
       variant: minimal
 ---
 
-import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside, LinkCard } from '@astrojs/starlight/components';
 import TopicRedirect from '../../components/TopicRedirect.astro';
 
 <TopicRedirect />
@@ -31,19 +31,19 @@ Sie können alle Funktionen direkt in der Live-Demo ausprobieren:
 - *(Zweiter Eigentümer:* `demo.owner2@resivote.ch` / `Demo-Owner22026`*)*
 </Aside>
 
-## Benutzerhandbuch nach Rollen & Geräten
+## Zwei getrennte Handbücher
 
-<CardGrid stagger>
-	<Card title="Für Verwaltungen (tenant_admin)" icon="laptop">
-		Vorbereitung von Versammlungen am **Desktop**, mobile Sitzungssteuerung am **Tablet**, Verwaltung von Liegenschaften, Tickets, Mitteilungen und Vorlagen.
-	</Card>
-	<Card title="Für Eigentümer (eigentümer)" icon="phone">
-		Tägliches Portal auf **Tablet** und **Smartphone (Mobile)**: Einsicht in eigene Einheiten & Wertquoten (MEA), Schadensmeldungen erfassen, Forum und Stimmabgabe.
-	</Card>
-	<Card title="Eigentümer-Portal & Alltag" icon="star">
-		Digitale Anschlagwand für Mitteilungen, Service-Tickets mit Handykamera-Upload, Miteigentümer-Forum, Perioden-Dokumentenablage mit ZIP-Download.
-	</Card>
-	<Card title="Schweizer Rechtssicherheit & ZGB" icon="open-book">
-		Gesetzeskonforme Beschlussfähigkeit nach Art. 647 ff. und Art. 712a ff. ZGB für Live-Versammlungen und Zirkularbeschlüsse (Art. 712m Abs. 2 ZGB).
-	</Card>
+Wählen Sie Ihren gewünschten Bereich:
+
+<CardGrid>
+  <LinkCard
+    title="🏢 Handbuch für Verwaltungen (tenant_admin)"
+    href="/verwaltung/uebersicht/"
+    description="Liegenschaften & Einheiten anlegen, Versammlungen vorbereiten, Live-Cockpit & Beamer steuern, Tablet-Check-in, Quorum nach ZGB, Protokollierung, Vorlagen, Mitteilungen und Tickets."
+  />
+  <LinkCard
+    title="🏡 Handbuch für Eigentümer (eigentümer)"
+    href="/eigentuemer/portal/"
+    description="Persönliches Dashboard, eigene Einheiten & Wertquoten (MEA), STWEG-Glossar, Saalabstimmung per Smartphone, Vollmachten verwalten, Zirkularbeschluss, Dokumentenarchiv, Mitteilungen und Tickets."
+  />
 </CardGrid>

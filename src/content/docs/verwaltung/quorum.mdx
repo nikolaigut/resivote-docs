@@ -1,0 +1,52 @@
+---
+title: Quorum & Beschlussfähigkeit
+description: Gesetzliche Quorumsregeln, Stimmengewichtung nach Köpfen und Wertquoten, Beschlusskontrolle für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Die genaue Ermittlung der Beschlussfähigkeit und der erforderlichen Mehrheiten ist eine der anspruchsvollsten Aufgaben der Versammlungsleitung. ResiVote übernimmt diese Berechnungen vollautomatisch und manipulationssicher nach Schweizer ZGB.
+
+---
+
+## 1. Beschlussfähigkeit bei der Eröffnung (Art. 712p ZGB)
+
+Bevor die Versammlungsleitung in die Traktanden einsteigen darf, prüft ResiVote die Beschlussfähigkeit:
+
+```d2
+direction: right
+Anwesenheit: "Köpfe zählen\nWertquoten summieren"
+Prüfung: "≥ 50% aller Eigentümer?\nUND ≥ 500/1000 Wertquoten?"
+Beschlussfähig: "Versammlung eröffnen"
+"Nicht beschlussfähig": "2. Versammlung einberufen\n(Art. 712p Abs. 2 ZGB)"
+
+Anwesenheit -> Prüfung
+Prüfung -> Beschlussfähig: Ja
+Prüfung -> "Nicht beschlussfähig": Nein
+```
+
+### Die zwei gesetzlichen Erfordernisse:
+1. **Kopfquorum:** Mindestens die Hälfte aller Stockwerkeigentümer muss anwesend oder vertreten sein (bei 10 Eigentümern mind. 5).
+2. **Wertquoten-Quorum:** Die Erschienenen müssen zugleich mindestens die Hälfte aller Miteigentumsanteile vertreten (mindestens `500 / 1000`).
+
+<Aside type="caution" title="Zweite Versammlung bei Beschlussunfähigkeit">
+Wird das Quorum verfehlt, darf die Versammlung keine gültigen Beschlüsse fassen. ResiVote unterstützt die Einberufung einer **zweiten Versammlung** gemäss Art. 712p Abs. 2 ZGB, bei welcher mindestens ein Drittel aller Eigentümer (und mind. 1/3 aller Wertquoten) genügt.
+</Aside>
+
+---
+
+## 2. Die drei Mehrheitsstufen bei Abstimmungen
+
+Je nach Traktandum verlangt das Schweizer Recht unterschiedliche Mehrheiten:
+
+### 1. Einfaches Mehr (Art. 712m Abs. 1 ZGB)
+- **Kriterium:** Mehrheit der an der Versammlung anwesenden oder vertretenen Köpfe.
+- **Anwendungsbereich:** Abnahme der Jahresrechnung, Entlastung der Verwaltung, Genehmigung des Budgets, Wahl von Ausschussmitgliedern.
+
+### 2. Qualifiziertes Mehr (Art. 647c / 647d ZGB)
+- **Kriterium:** Die Mehrheit aller Eigentümer nach Köpfen, die zugleich mehr als die Hälfte aller Wertquoten vertreten.
+- **Anwendungsbereich:** Nützliche bauliche Massnahmen (Wertsteigerung, Energiesanierungen wie PV-Anlage, Fassadendämmung), Erlass oder Änderung des Liegenschaftsreglements.
+
+### 3. Einstimmigkeit (Art. 647e ZGB)
+- **Kriterium:** Zustimmung ausnahmslos aller Stockwerkeigentümer der Gemeinschaft.
+- **Anwendungsbereich:** Bauliche Luxusmassnahmen (Aufwand dient nur Verschönerung), Änderung der Zweckbestimmung der Liegenschaft, Aufhebung des Stockwerkeigentums.

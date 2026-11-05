@@ -1,0 +1,28 @@
+---
+title: Forum-Moderation
+description: Überwachung des Eigentümer-Forums, Schliessen von Themen und Netiquette für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das Gemeinschafts-Forum dient dem nachbarschaftlichen Dialog unter den Stockwerkeigentümern. In diesem Leitfaden erfahren Verwaltungen (`tenant_admin`), wie sie als Moderator agieren und Diskussionen strukturieren.
+
+---
+
+## 1. Moderations-Cockpit
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Forum»** (`/admin/forum`) hat die Verwaltung Einblick in alle Diskussionsstränge der betreuten Gemeinschaften:
+
+![Forum-Moderation im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-forum.png)
+*Desktop-Ansicht für `tenant_admin`: Moderationsübersicht, Verwaltung von Beiträgen und Schliessen von abgeschlossenen Diskussionen.*
+
+---
+
+## 2. Moderationswerkzeuge
+
+- **Thema schliessen (`is_locked`):** Wurde eine Fragestellung geklärt oder als Traktandum für die Versammlung übernommen, schliesst die Verwaltung den Thread mit einem Klick. Eigentümer können den Verlauf weiterhin lesen, aber keine weiteren Antworten verfassen.
+- **Beiträge löschen:** Verstösst ein Beitrag grob gegen die Netiquette oder enthält er unzulässige persönliche Angriffe, kann die Verwaltung den Eintrag entfernen.
+- **Gemeinschaftsauswahl:** Schneller Wechsel zwischen den verschiedenen betreuten Liegenschaften.

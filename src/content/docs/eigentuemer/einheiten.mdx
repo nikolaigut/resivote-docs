@@ -1,0 +1,52 @@
+---
+title: Meine Einheiten & Wertquoten (MEA)
+description: Eigene Wohnungen und Parkplätze einsehen, Wertquoten (Tausendstel) prüfen und das STWEG-Glossar nutzen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Im Bereich **«Meine Einheiten»** des Eigentümer-Portals sehen Sie auf einen Blick alle Ihnen zugeordneten Einheiten (Wohnungen, Einstellhallenplätze, Bastelräume) samt den hinterlegten Grundbuchdaten.
+
+---
+
+## 1. Einheiten und Wertquoten
+
+Für jedes Objekt zeigt das Portal:
+- **Einheitsbezeichnung:** Z. B. *4.5-Zimmer-Wohnung 2. OG rechts* oder *Einstellplatz Nr. 12*.
+- **Wertquote / MEA (Miteigentumsanteil):** Ihr Anteil an der Gesamtliegenschaft in Tausendsteln (z.B. `45 / 1000`).
+- **Gesamtwertquote:** Haben Sie mehrere Einheiten in derselben Liegenschaft, summiert das Portal Ihre gesamte Stimmkraft automatisch.
+
+---
+
+## 2. Hauptstimmberechtigte Person (Art. 712l ZGB)
+
+Gehört eine Wohnung mehreren Personen gemeinsam (z. B. Ehepaaren oder Erbengemeinschaften):
+- Gemäss Schweizer Recht (**Art. 712l ZGB**) kann für eine Einheit nur eine Stimme abgegeben werden.
+- Die als Stimmdelegierter benannte Person trägt im Portal die Kennzeichnung **«Hauptstimmberechtigt»**.
+
+---
+
+## 3. Das integrierte STWEG-Glossar
+
+Über das Info-Symbol neben Ihren Quoten können Sie jederzeit das **STWEG-Glossar** aufrufen. Es erklärt die Schweizer Rechtsbegriffe (Art. 712a–712t ZGB) leicht verständlich:
+
+<CardGrid>
+  <Card title="Wertquote (MEA)" icon="document">
+    Der Tausendstel-Anteil Ihrer Einheit an der gesamten Liegenschaft. Er bestimmt Ihren Kostenverteilschlüssel und Ihr Stimmgewicht bei qualifizierten Mehrheiten.
+  </Card>
+  <Card title="Kopfstimme" icon="approve-check">
+    Jeder Eigentümer hat grundsätzlich eine Kopfstimme, unabhängig davon, wie viele Wohnungen er im Haus besitzt.
+  </Card>
+  <Card title="Einfaches Mehr" icon="open-book">
+    Die Mehrheit der an der Versammlung anwesenden oder vertretenen Stimmen (z. B. für Budget, Jahresrechnung).
+  </Card>
+  <Card title="Qualifiziertes Mehr" icon="star">
+    Die Mehrheit aller Eigentümer nach Köpfen, die zugleich mehr als die Hälfte aller Wertquoten vertreten (z. B. für Reglementsänderungen oder nützliche bauliche Massnahmen).
+  </Card>
+  <Card title="Einstimmigkeit" icon="warning">
+    Zustimmung aller Eigentümer ohne Ausnahme (z. B. für bauliche Luxusmassnahmen gemäss Art. 647e ZGB).
+  </Card>
+  <Card title="Erneuerungsfonds" icon="setting">
+    Gemeinsam angespartes Sondervermögen der Gemeinschaft für künftige Sanierungen an Dach, Fassade, Lift oder Heizung.
+  </Card>
+</CardGrid>

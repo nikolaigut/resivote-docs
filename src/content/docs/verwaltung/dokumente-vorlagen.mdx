@@ -1,0 +1,38 @@
+---
+title: Dokumentenverwaltung & Vorlagen
+description: Ordnerstruktur, Kategorien, Sichtbarkeitsstufen und zentrale Dokumentvorlagen für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+ResiVote bietet eine verschlüsselte, strukturierte Dokumentenablage für alle Akten einer Liegenschaft – von Reglementen und Plänen über Abrechnungen bis hin zu zentralen Vorlagen.
+
+---
+
+## 1. Liegenschaftsakten verwalten
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Dokumente»** (`/admin/documents`) organisiert die Verwaltung alle Dateien in einer hierarchischen Ordnerstruktur:
+
+![Dokumentenverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/documents-admin.png)
+*Desktop-Ansicht für `tenant_admin`: Ordnerstruktur, Kategorisierung (Reglemente, Abrechnungen, Protokolle) und Upload.*
+
+### Kategorien und Sichtbarkeitsstufen
+- **Kategorien:** Protokoll, Einladung, Jahresrechnung, Reglement, Mitteilung, Formular, Sonstiges.
+- **Sichtbarkeit:**
+  - *Öffentlich:* Für alle Eigentümer der betreffenden Liegenschaft sichtbar.
+  - *Eingeschränkt / Persönlich:* Nur für spezifische Einheiten einsehbar (z. B. individuelle Heizkostenabrechnungen).
+- **Verschlüsselung:** Alle Dateien sind im Ruhezustand (at rest) und während der Übertragung (in transit) modern verschlüsselt.
+
+---
+
+## 2. Dokumentvorlagen
+
+Unter **«Vorlagen»** (`/admin/documents/templates`) pflegt die Verwaltung wiederkehrende Text- und Dokumentvorlagen:
+
+![Dokumentvorlagen im Admin-Bereich](/screenshots/tenant-admin/desktop/document-templates.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Pflege von standardisierten Vorlagen für Einladungen, Vollmachten und Berichte.*
+
+Standardvorlagen können mit einem Klick auf neue Versammlungen oder Gemeinschaften angewendet werden, was den administrativen Vorbereitungsaufwand drastisch reduziert.

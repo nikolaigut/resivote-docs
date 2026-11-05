@@ -1,0 +1,41 @@
+---
+title: Service-Tickets & Pendenzen verwalten
+description: Eingehende Schadensmeldungen bearbeiten, Zuweisung an Handwerker, Statusverfolgung und Pendenzen für Versammlungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das **Ticket- und Pendenzenmodul** von ResiVote bündelt alle Mängelrügen, Reparaturmeldungen und administrativen Anfragen der Eigentümer an einem zentralen Ort.
+
+---
+
+## 1. Ticketübersicht für die Verwaltung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Tickets»** (`/admin/tickets`) überwacht die Liegenschaftsverwaltung alle gemeldeten Anliegen:
+
+![Ticketverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-tickets.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Ticketliste über alle Liegenschaften mit Filter nach Gemeinschaft, Status und Kategorie.*
+
+---
+
+## 2. Der Bearbeitungs-Workflow
+
+Jedes Ticket durchläuft einen klaren Prozess:
+
+<Steps>
+  1. **Eingang & Sichtung (`Offen`):** Die Verwaltung prüft das Anliegen, die Beschreibung und eventuell mitgesendete Fotos des Schadens.
+  2. **Bearbeitung & Beauftragung (`In Bearbeitung`):** Die Verwaltung beauftragt Handwerker oder klärt den Sachverhalt. Über das Chatfeld im Ticket können Rückfragen direkt an den meldenden Eigentümer gestellt werden.
+  3. **Abschluss (`Gelöst`):** Die Reparatur ist ausgeführt oder das Anliegen beantwortet.
+  4. **Archivierung (`Geschlossen`):** Das Ticket wird nach Abschluss archiviert.
+</Steps>
+
+---
+
+## 3. Übernahme in Versammlungs-Traktanden
+
+Betrifft ein gemeldetes Ticket eine grössere Instandstellung an den gemeinschaftlichen Teilen (z. B. Erneuerung der Liftsteuerung oder Sanierung des Spielplatzes):
+- Die Verwaltung kann das Ticket mit einem Klick in die Pendenzenliste (**«Aufgaben»**) übernehmen.
+- Bei der nächsten Versammlungsvorbereitung lässt sich daraus direkt ein offizielles Traktandum mit Beschlussantrag und Kostenvoranschlag erstellen.

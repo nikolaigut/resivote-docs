@@ -1,0 +1,33 @@
+---
+title: Mitteilungen verfassen & publizieren
+description: Digitale Anschlagwand für Liegenschaften, Rundschreiben, Prioritätsstufen und Empfängerkreise für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Mit dem **Mitteilungssystem** ersetzt die Liegenschaftsverwaltung Papieraushänge im Treppenhaus durch eine rechtssichere, sofort sichtbare digitale Anschlagwand.
+
+---
+
+## 1. Mitteilungsübersicht im Admin-Bereich
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Mitteilungen»** (`/admin/messages`) steuert die Liegenschaftsverwaltung alle Mitteilungen:
+
+![Mitteilungen im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-messages.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Übersicht aller versandten und geplanten Rundschreiben mit Veröffentlichungsdatum und Zielgemeinschaft.*
+
+---
+
+## 2. Neue Mitteilung erfassen
+
+Beim Verfassen einer neuen Mitteilung definiert die Verwaltung:
+1. **Gemeinschaft:** Gezielte Auswahl einer spezifischen Liegenschaft oder Versand an mehrere Gemeinschaften.
+2. **Prioritätsstufe:**
+   - **Normal:** Standardinformationen (z. B. Termine für Grünabfuhr, allgemeine Hinweise zur Hausordnung).
+   - **Dringend:** Zeitkritische Notfälle (z. B. Liftstörung, Heizungsausfall, kurzfristige Wasserabstellung, Baustellenlärm). Dringende Mitteilungen werden im Eigentümer-Portal optisch hervorgehoben.
+3. **Inhalt & Formatierung:** Formatierter Text mit Absätzen, Aufzählungen und Links.
+
+Nach der Veröffentlichung sendet ResiVote auf Wunsch automatische E-Mail- und Push-Benachrichtigungen an alle betroffenen Eigentümer.

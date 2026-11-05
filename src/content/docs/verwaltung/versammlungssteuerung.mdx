@@ -1,0 +1,53 @@
+---
+title: Live-Versammlungssteuerung
+description: Das Live-Cockpit, Beamer-Präsentationsansicht, Traktandenfortgang und Abstimmungsmanagement für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Während der Durchführung der Eigentümerversammlung steuert die Versammlungsleitung (`tenant_admin`) das Geschehen über das **Live-Cockpit**. ResiVote synchronisiert alle Bildschirme (Leitungs-PC, Beamer im Saal und Smartphones der Eigentümer) in Echtzeit.
+
+---
+
+## 1. Das Live-Cockpit der Versammlungsleitung
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop (Büro/Saalpult) oder Tablet*
+
+Das Live-Cockpit gibt der Sitzungsleitung die vollständige Kontrolle über Traktanden, Zeitpläne und Abstimmungen:
+
+![Live-Versammlungssteuerung auf dem Desktop](/screenshots/tenant-admin/desktop/live-meeting-control.png)
+*Desktop-Ansicht für `tenant_admin`: Traktandenablauf, Timer, Echtzeit-Stimmabgabe, Präsenzstatus und Quorumsanzeige.*
+
+### Mobile Steuerung am Tablet
+Steht die Versammlungsleitung am Rednerpult oder bewegt sich im Saal, lässt sich die gesamte Sitzung bequem über das Tablet steuern:
+
+![Versammlungssteuerung auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-control-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Kompakte Steuerung für Abstimmungsstart, Timer und Traktandenwechsel.*
+
+---
+
+## 2. Beamer- und Präsentationsansicht (`/presentation`)
+
+Für die Projektion im Versammlungssaal bietet ResiVote eine dedizierte **Präsentationsansicht**:
+
+![Präsentationsansicht für Beamer](/screenshots/tenant-admin/desktop/meeting-presentation-view.png)
+*Beamer-Ansicht für den Saal: Grossformatige Anzeige des aktuellen Traktandums, des Antragstextes und des Live-Abstimmungscountdowns.*
+
+### Vorteile der Saalprojektion
+- **Fokus auf das Wesentliche:** Keine vertraulichen internen Notizen oder Bedienelemente sichtbar.
+- **Transparenz:** Nach dem Schliessen der Abstimmung blendet der Beamer sofort das offizielle Ergebnis (Köpfe, Wertquoten, Angenommen/Abgelehnt) ein.
+
+---
+
+## 3. Der Traktanden-Workflow
+
+Jedes Traktandum durchläuft einen strukturierten Prozess:
+
+<Steps>
+  1. **Präsentieren:** Das Traktandum wird im Saal und auf den Eigentümergeräten aktiv geschaltet. Die Diskussionsphase beginnt.
+  2. **Abstimmung öffnen:** Mit Klick auf **«Abstimmung starten»** wird der Stimmkanal freigegeben. Ein konfigurierbarer Timer (z.B. 60 Sekunden) startet.
+  3. **Live-Stimmfortschritt beobachten:** Die Leitung sieht in Echtzeit, wie viele Stimmen bereits abgegeben wurden (ohne das Stimmgeheimnis vorzeitig preiszugeben).
+  4. **Abstimmung schliessen:** Die Stimmabgabe wird beendet, das Quorum geprüft und das amtliche Ergebnis festgeschrieben.
+  5. **Nächstes Traktandum:** Automatischer Wechsel zum folgenden Geschäft.
+</Steps>

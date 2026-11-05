@@ -1,0 +1,54 @@
+---
+title: Protokollführung & KI-Unterstützung
+description: Live-Protokollierung, KI-Zusammenfassungen, Revisionssicherheit mit Hash-Ketten und Archivierung für Verwaltungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Das Versammlungsprotokoll (Art. 712n ZGB) ist die rechtliche Urkunde über alle gefassten Beschlüsse und Wahlergebnisse. ResiVote ermöglicht die Protokollierung in Echtzeit und sichert das Dokument revisionskonform ab.
+
+---
+
+## 1. Live-Protokoll-Editor
+
+**Zuständige Rolle: `tenant_admin` oder Protokollführer**  
+*Gerät: Desktop oder Tablet*
+
+Während die Versammlung läuft, erfasst die Protokollführung wichtige Diskussionen, Wortmeldungen und Begründungen direkt im Editor des jeweiligen Traktandums:
+
+![Live-Protokoll-Editor auf dem Desktop](/screenshots/tenant-admin/desktop/live-protocol-editor.png)
+*Desktop-Ansicht für `tenant_admin`: Strukturierter Editor mit automatischer Übernahme der Abstimmungsergebnisse und Notizen.*
+
+### Protokollführung am Tablet
+Sitzt der Protokollführer neben der Versammlungsleitung, kann das gesamte Protokoll mobil erfasst werden:
+
+![Protokollierung auf dem Tablet](/screenshots/tenant-admin/tablet/protocol-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Notizenerfassung pro Traktandum mit Sofortspeicherung.*
+
+---
+
+## 2. KI-gestützte Formulierungshilfe
+
+ResiVote bietet eine spezialisierte, datenschutzkonforme KI-Assistenz für die Protokollbereinigung:
+
+```d2
+direction: right
+"Kontext sammeln": "Traktandum, Quorum,\nPräsenz & Resultat"
+"Prompt erstellen": "Schweizer STWEG-Recht\n+ rohe Notizen"
+"KI-Assistent": "Präzise Formulierung\nRechtschreibkorrektur"
+"Prüfung": "Verwaltung gibt\nText manuell frei"
+
+"Kontext sammeln" -> "Prompt erstellen" -> "KI-Assistent" -> "Prüfung"
+```
+
+- **Rechtlicher STWEG-Kontext:** Die KI formuliert Beschlüsse in präziser juristischer Fachsprache gemäss Schweizer Rechtspraxis.
+- **Volle Kontrolle:** Jeder KI-Vorschlag muss von der Protokollführung manuell geprüft und bestätigt werden.
+
+---
+
+## 3. Revisionssicherheit & Hash-Kette
+
+Nach dem Abschluss der Versammlung generiert ResiVote ein manipulationssicheres PDF-Protokoll:
+- **Kryptografische Hash-Kette:** Alle Beschlüsse, Stimmanteile und Notizen werden verkettet gehasht. Jede nachträgliche Manipulation wird sofort erkennbar.
+- **Audit-Trail:** Zeitstempel aller Einreichungen, Check-ins und Voten sind lückenlos nachvollziehbar.
+- **Archiv-Status:** Nach der Veröffentlichung schaltet das Protokoll in den schreibgeschützten Archivmodus.

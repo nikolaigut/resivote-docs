@@ -1,0 +1,79 @@
+---
+title: Das Eigentümer-Portal
+description: Dashboard-Übersicht, Nächste Versammlung, Schnellzugriff und Navigation für Stockwerkeigentümer.
+---
+
+import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
+
+Das **Eigentümer-Portal** (`/portal`) ist Ihr persönlicher Einstiegspunkt für alles rund um Ihre Liegenschaft. Als Stockwerkeigentümerin oder Stockwerkeigentümer (`eigentümer`) finden Sie hier alle Informationen, Termine, Beschlüsse und Unterlagen – jederzeit griffbereit auf Ihrem **Tablet oder Smartphone (Mobile)**.
+
+<Aside type="tip" title="Demo-Zugang für Eigentümer">
+Sie können das Eigentümer-Portal ohne Installation direkt in der interaktiven Demo-Umgebung ausprobieren:
+- **URL:** [https://demo.resivote.ch](https://demo.resivote.ch)
+- **Benutzer:** `demo.owner1@resivote.ch`
+- **Passwort:** `Demo-Owner12026`
+- *(Zweiter Eigentümer: `demo.owner2@resivote.ch` / `Demo-Owner22026`)*
+</Aside>
+
+---
+
+## 1. Das Portal auf dem Tablet
+
+Auf dem Tablet bietet das Dashboard eine grosszügige Übersicht aller Liegenschaftsbereiche:
+
+![Eigentümer-Portal Dashboard auf dem Tablet](/screenshots/owner/tablet/portal-dashboard-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Begrüssung, nächste Versammlung mit Schnellzugriff, Übersicht der eigenen Einheiten und Kacheln.*
+
+---
+
+## 2. Das Portal auf dem Smartphone (Mobile)
+
+Unterwegs auf dem Smartphone passt sich das Portal optimal der Einhandbedienung an:
+
+![Eigentümer-Portal Dashboard auf dem Smartphone](/screenshots/owner/mobile/portal-dashboard-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Kompaktes Dashboard mit Terminkarte und mobiler Schnellnavigation am unteren Bildschirmrand.*
+
+---
+
+## 3. Nächste Versammlung im Schnellzugriff
+
+Steht eine Eigentümerversammlung an oder läuft gerade eine Live-Sitzung, hebt das Portal diese prominent hervor:
+
+- **Live-Status («Aktiv»):** Ein grünes Live-Signal mit dem Button **«Jetzt teilnehmen»** führt Sie direkt in die laufende Sitzung oder Saalabstimmung.
+- **Traktanden ansehen:** Öffnet die Traktandenliste mit allen Beschlussanträgen und hinterlegten Unterlagen (Pläne, Offerten, Berichte).
+- **Kalenderexport:** Lädt mit einem Klick eine `.ics`-Datei herunter, die den Termin in Ihren persönlichen Kalender (Apple Calendar, Google Calendar, Outlook) einträgt.
+- **Einladung herunterladen:** Ermöglicht den PDF-Download des formellen Einladungsschreibens.
+
+---
+
+## 4. Schnellzugriff-Kacheln
+
+Über die 5 Kacheln auf dem Dashboard gelangen Sie direkt zu den wichtigsten Portalbereichen:
+
+<CardGrid>
+  <LinkCard
+    title="Versammlungen"
+    href="/eigentuemer/versammlung-teilnahme/"
+    description="Aktive, anstehende und archivierte Versammlungen mit Stimmabgabe und Protokollen."
+  />
+  <LinkCard
+    title="Dokumente"
+    href="/eigentuemer/dokumente/"
+    description="Alle Liegenschaftsakten geordnet nach Wirtschaftsjahren mit ZIP-Download."
+  />
+  <LinkCard
+    title="Mitteilungen"
+    href="/eigentuemer/mitteilungen/"
+    description="Digitale Anschlagwand der Verwaltung für wichtige Rundschreiben und Störungen."
+  />
+  <LinkCard
+    title="Forum"
+    href="/eigentuemer/forum/"
+    description="Geschützter Austausch unter Nachbarn und Vorbesprechung von Traktanden."
+  />
+  <LinkCard
+    title="Service-Tickets"
+    href="/eigentuemer/tickets/"
+    description="Schadensmeldungen mit Foto erfassen und im Chat mit der Verwaltung klären."
+  />
+</CardGrid>

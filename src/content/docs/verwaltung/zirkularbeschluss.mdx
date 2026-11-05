@@ -1,0 +1,41 @@
+---
+title: Zirkularbeschlüsse verwalten
+description: Vorbereitung, Fristüberwachung und rechtssichere Durchführung schriftlicher Beschlüsse nach Art. 712m Abs. 2 ZGB.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Nicht jede Liegenschaftsentscheidung erfordert eine physische oder hybride Eigentümerversammlung. Mit dem **Zirkularbeschluss-Modul** wickeln Verwaltungen schriftliche Beschlussfassungen gemäss Art. 712m Abs. 2 ZGB vollständig digital, rechtssicher und transparent ab.
+
+---
+
+## 1. Gesetzliche Vorgaben (Art. 712m Abs. 2 ZGB)
+
+Im Schweizer Stockwerkeigentumsrecht bedürfen Zirkularbeschlüsse grundsätzlich der **Zustimmung aller Stockwerkeigentümer** (Einstimmigkeit). Sieht das Liegenschaftsreglement jedoch ausdrücklich vor, dass schriftliche Beschlüsse mit dem einfachen oder qualifizierten Mehr gefasst werden können, wertet ResiVote das statutarische Quorum aus.
+
+---
+
+## 2. Zirkularbeschluss einrichten
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+In der Versammlungsübersicht (`/admin/meetings`) erstellt die Verwaltung einen neuen Zirkularbeschluss:
+
+![Versammlungsübersicht mit Zirkularbeschlüssen](/screenshots/tenant-admin/desktop/meetings-overview.png)
+*Desktop-Ansicht für `tenant_admin`: Verwaltung von Zirkularbeschlüssen inklusive Start- und Enddatum für die Rückmeldung.*
+
+<Steps>
+  1. **Titel & Frist:** Bezeichnung des Geschäfts und Festlegung der verbindlichen Stimmfrist (z.B. 20 Tage).
+  2. **Beschlussantrag formulieren:** Eindeutiger Text, über den die Eigentümer mit Ja, Nein oder Enthaltung abstimmen.
+  3. **Begleitakten hochladen:** Offerten, Kostenvergleiche oder Reglementsentwürfe als PDF anhängen.
+  4. **Publikation:** Das System benachrichtigt alle Eigentümer automatisch per E-Mail und Push.
+</Steps>
+
+---
+
+## 3. Fristüberwachung & Revisionsprotokoll
+
+Während das Abstimmungszeitfenster geöffnet ist:
+- Die Verwaltung sieht den aktuellen Rücklauf der abgegebenen Stimmen.
+- Nach Ablauf der Frist generiert das System automatisch einen revisionssicheren Beschlussbericht mit detaillierter Stimmverteilung nach Köpfen und Wertquoten.

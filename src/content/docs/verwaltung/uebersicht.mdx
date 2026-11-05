@@ -1,0 +1,116 @@
+---
+title: Übersicht & Rollenmodell für Verwaltungen
+description: Das Rollenmodell, der Schweizer Rechtsrahmen und die Arbeitsumgebung für Liegenschaftsverwaltungen (tenant_admin).
+---
+
+import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
+
+Dieses Handbuch richtet sich an **Immobilienverwaltungen, Bewirtschafter und Versammlungsleiter** in der Rolle **`tenant_admin`**. ResiVote unterstützt Sie bei der rechtssicheren, effizienten Vorbereitung, Durchführung und Nachbereitung von Stockwerkeigentümerversammlungen (STWEG) und Miteigentümergemeinschaften (MEG) sowie bei der gesamten laufenden Liegenschaftsbewirtschaftung.
+
+<Aside type="note" title="Rolle & Berechtigung: tenant_admin">
+- **Verwaltung / Tenant-Administrator:** Voller Zugriff auf die Verwaltung aller betreuten Gemeinschaften, Liegenschaften, Einheiten, Eigentümerkonten, Versammlungen, Dokumente, Mitteilungen und Tickets.
+- **Mitarbeiter (`staff`):** Verwaltungen können zusätzliche Mitarbeiterinnen und Mitarbeiter anlegen, die operative Aufgaben (z. B. Check-in, Protokollnotizen oder Ticketbearbeitung) übernehmen.
+- *(Hinweis: Die Rolle `super_admin` dient nur dem technischen Hosting-Betrieb und wird hier nicht behandelt.)*
+</Aside>
+
+<Aside type="tip" title="Demo-Zugang für Verwaltungen">
+Probieren Sie alle Funktionen direkt in der interaktiven Demo aus:
+- **URL:** [https://demo.resivote.ch](https://demo.resivote.ch)
+- **Benutzer:** `demo.admin@resivote.ch`
+- **Passwort:** `Demo-Admin2026`
+</Aside>
+
+---
+
+## 1. Arbeitsgeräte im Verwaltungsalltag
+
+ResiVote ist als moderne responsive Webanwendung konzipiert, die sich optimal den Arbeitsgewohnheiten der Verwaltung anpasst:
+
+- **Desktop (Büro):** Vorbereitung von Versammlungen, Erfassen komplexer Traktandenlisten, Hochladen von Jahresrechnungen und Budgets, Pflegen der Eigentümer- und Einheitenstammdaten sowie Erstellen von Mitteilungen und Vorlagen.
+- **Tablet (Versammlungssaal & mobil):** Mobiles Check-in am Saaleingang mit Touchscreen-Unterschrift, flexible Versammlungssteuerung und Live-Protokollierung während der Sitzung.
+
+![Verwaltungs-Dashboard auf dem Tablet](/screenshots/tenant-admin/tablet/admin-dashboard-tablet.png)
+*Tablet-Ansicht für `tenant_admin`: Schneller Überblick über Liegenschaften, anstehende Sitzungen und Pendenzen.*
+
+---
+
+## 2. Der Schweizer Rechtsrahmen (Art. 712a ff. ZGB)
+
+ResiVote wurde von Grund auf für das Schweizer Stockwerkeigentums- und Miteigentumsrecht entwickelt:
+
+<CardGrid>
+  <Card title="Beschlussfähigkeit (Art. 712p ZGB)" icon="open-book">
+    Automatische Erfassung des Quorums zur Eröffnung der Versammlung (mindestens die Hälfte aller Eigentümer mit mindestens der Hälfte aller Wertquoten).
+  </Card>
+  <Card title="Mehrheitsstufen" icon="approve-check">
+    Präzise Berechnung nach Köpfen (Art. 712m ZGB), qualifiziertem Mehr (Köpfe + Wertquoten, Art. 647c/d ZGB) und Einstimmigkeit (Art. 647e ZGB).
+  </Card>
+  <Card title="Zirkularbeschluss (Art. 712m Abs. 2 ZGB)" icon="document">
+    Vollständig digitale schriftliche Beschlussfassung mit Fristüberwachung und Revisionsnachweis.
+  </Card>
+  <Card title="Stimmvertretung (Art. 712l ZGB)" icon="laptop">
+    Erfassung und strikte Systemdurchsetzung von weisungsgebundenen und freien Stimmvollmachten.
+  </Card>
+</CardGrid>
+
+---
+
+## 3. Die Module des Verwaltungshandbuchs
+
+<CardGrid>
+  <LinkCard
+    title="Liegenschaften & Eigentümer"
+    href="/verwaltung/liegenschaften-eigentuemer/"
+    description="Gemeinschaften strukturieren, Einheiten mit Wertquoten (MEA) anlegen und Eigentümer einladen."
+  />
+  <LinkCard
+    title="Versammlungen vorbereiten"
+    href="/verwaltung/versammlung-erstellen/"
+    description="Traktanden, Beschlussanträge, Vorlagen, Einladungen und Fristen festlegen."
+  />
+  <LinkCard
+    title="Live-Versammlungssteuerung"
+    href="/verwaltung/versammlungssteuerung/"
+    description="Das Live-Cockpit, Beamer-Präsentation für den Saal und Abstimmungsdurchführung."
+  />
+  <LinkCard
+    title="Check-in & Anwesenheit"
+    href="/verwaltung/checkin-praesenz/"
+    description="Empfang am Saaleingang, Tablet-Unterschrift, QR-Code und Token-Check-in."
+  />
+  <LinkCard
+    title="Quorum & Beschlussfähigkeit"
+    href="/verwaltung/quorum/"
+    description="Gesetzliche Quorumsregeln, Stimmengewichtung und Beschlusskontrolle."
+  />
+  <LinkCard
+    title="Protokoll & KI-Unterstützung"
+    href="/verwaltung/protokoll/"
+    description="Live-Notizen, KI-Formulierungshilfe, Revisionssicherheit und Archivierung."
+  />
+  <LinkCard
+    title="Zirkularbeschlüsse verwalten"
+    href="/verwaltung/zirkularbeschluss/"
+    description="Schriftliche Beschlüsse nach Art. 712m Abs. 2 ZGB digital durchführen."
+  />
+  <LinkCard
+    title="Dokumente & Vorlagen"
+    href="/verwaltung/dokumente-vorlagen/"
+    description="Liegenschaftsakten ordnen, Vorlagen pflegen und Zugriffsrechte verwalten."
+  />
+  <LinkCard
+    title="Mitteilungen verfassen"
+    href="/verwaltung/mitteilungen/"
+    description="Digitale Anschlagwand für Rundschreiben und dringende Störungsmeldungen."
+  />
+  <LinkCard
+    title="Tickets & Pendenzen"
+    href="/verwaltung/tickets-pendenzen/"
+    description="Mängelmeldungen und Anfragen von Eigentümern strukturiert abwickeln."
+  />
+  <LinkCard
+    title="Forum moderieren"
+    href="/verwaltung/forum-moderation/"
+    description="Diskussionen unter Eigentümern begleiten, moderieren und Threads schliessen."
+  />
+</CardGrid>

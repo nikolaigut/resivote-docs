@@ -1,0 +1,52 @@
+---
+title: An Versammlungen teilnehmen & abstimmen
+description: Ablauf am Versammlungstag, Live-Cockpit für Eigentümer, Saalabstimmung per Smartphone und Stimmabgabe mit Vertretungen.
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Egal ob Sie physisch vor Ort im Versammlungssaal sitzen oder online zugeschaltet sind: ResiVote macht die Teilnahme und die Stimmabgabe an der Eigentümerversammlung so einfach und transparent wie möglich.
+
+---
+
+## 1. Die Live-Ansicht für Eigentümer
+
+Sobald die Versammlungsleitung die Sitzung startet, treten Sie über das Portal mit einem Klick auf **«Jetzt teilnehmen»** bei:
+
+### Teilnahme auf dem Tablet
+
+Auf dem Tablet haben Sie das aktuelle Traktandum, den Antragstext und alle Begleitdokumente parallel im Blick:
+
+![Live-Teilnahme auf dem Tablet](/screenshots/owner/tablet/owner-meeting-view-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Live-Anzeige des behandelten Traktandums mit Beschlussantrag, Status und Stimmabgabe.*
+
+### Teilnahme auf dem Smartphone (Mobile)
+
+Auf dem Smartphone stimmen Sie bequem aus der Hand ab:
+
+![Live-Teilnahme auf dem Smartphone](/screenshots/owner/mobile/owner-meeting-view-mobile.png)
+*Mobile-Ansicht für `eigentümer`: Übersichtliche Darstellung des aktuellen Geschäfts mit Stimmabgabe Ja / Nein / Enthaltung.*
+
+---
+
+## 2. Die mobile Saalabstimmung (`/saal`)
+
+Befinden Sie sich vor Ort im Saal, dient Ihr Smartphone als digitaler Abstimmungsdrücker:
+
+![Saalabstimmung auf dem Smartphone](/screenshots/owner/mobile/hall-voting-mobile.png)
+*Mobile Saalabstimmung für `eigentümer`: Grossflächige Abstimmungstasten (Ja, Nein, Enthaltung) mit Timer-Anzeige.*
+
+### Grosszügige Darstellung auf dem Tablet
+
+![Saalabstimmung auf dem Tablet](/screenshots/owner/tablet/hall-voting-tablet.png)
+*Tablet-Ansicht für `eigentümer`: Touch-optimierte Saalabstimmung für Eigentümer, die ein Tablet bevorzugen.*
+
+---
+
+## 3. Vertretungsstimmen ausüben
+
+Haben Ihnen andere Miteigentümer eine Stimmvollmacht erteilt:
+- ResiVote zeigt Ihre eigenen Stimmen und alle Vertretungsstimmen gebündelt an.
+- Bei **freier Vollmacht** stimmen Sie mit einem Klick für sich selbst und Ihre Vollmachten gemeinsam ab.
+- Bei **weisungsgebundener Vollmacht** setzt das System die vom Vollmachtgeber vorgegebene Stimme automatisch und unveränderlich ein.
+- Doppelstimmabgaben oder Verwechslungen sind technisch ausgeschlossen.
