@@ -21,7 +21,6 @@ export default defineConfig({
 		'/guides/tickets': '/eigentuemer/tickets',
 		'/guides/forum': '/eigentuemer/forum',
 		'/guides/benachrichtigungen': '/eigentuemer/benachrichtigungen',
-		'/guides/zirkularbeschluss': '/eigentuemer/zirkularbeschluss',
 	},
 	integrations: [
 		starlight({
@@ -53,7 +52,6 @@ export default defineConfig({
 						{ label: 'Teilnahme ohne Login (Saal/PIN)', slug: 'eigentuemer/versammlung-ohne-login' },
 						{ label: 'Vollmachten erteilen', slug: 'eigentuemer/vollmachten' },
 						{ label: 'Check-in vor Ort & digital', slug: 'eigentuemer/checkin' },
-						{ label: 'Zirkularbeschluss abstimmen', slug: 'eigentuemer/zirkularbeschluss' },
 						{ label: 'Dokumente & Jahresakten', slug: 'eigentuemer/dokumente' },
 						{ label: 'Mitteilungen & Anschlagwand', slug: 'eigentuemer/mitteilungen' },
 						{ label: 'Service-Tickets & Schäden', slug: 'eigentuemer/tickets' },
@@ -71,7 +69,6 @@ export default defineConfig({
 						{ label: 'Check-in & Anwesenheit', slug: 'verwaltung/checkin-praesenz' },
 						{ label: 'Quorum & Beschlussfähigkeit', slug: 'verwaltung/quorum' },
 						{ label: 'Protokollführung & KI', slug: 'verwaltung/protokoll' },
-						{ label: 'Zirkularbeschlüsse verwalten', slug: 'verwaltung/zirkularbeschluss' },
 						{ label: 'Dokumente & Vorlagen', slug: 'verwaltung/dokumente-vorlagen' },
 						{ label: 'Mitteilungen verfassen', slug: 'verwaltung/mitteilungen' },
 						{ label: 'Tickets & Pendenzen', slug: 'verwaltung/tickets-pendenzen' },
