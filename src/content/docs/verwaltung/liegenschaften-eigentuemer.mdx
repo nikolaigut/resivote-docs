@@ -22,6 +22,12 @@ Unter **«Gemeinschaften»** (`/admin/communities`) verwaltet die Liegenschaftsv
 ### Liegenschafts-Konfiguration
 - **Rechtsform:** Stockwerkeigentümergemeinschaft (STWEG) oder Miteigentümergemeinschaft (MEG).
 - **Gesamtwertquote:** In der Regel `1000 / 1000` (Tausendstel) oder `10000 / 10000`.
+- **Stimmrechtsmodelle:** ResiVote unterstützt fünf flexible Modelle zur Stimmrechtsberechnung:
+  1. **Kopf und Wert:** Standard im Schweizer STWEG (Kombination aus Eigentümer-Kopfstimme und Miteigentumsanteil/Wertquote).
+  2. **Nur Kopf:** Jeder Eigentümer hat genau eine Stimme, unabhängig von der Anzahl Einheiten oder Quoten.
+  3. **Objekt und Wert:** Jede Einheit (Objekt) zählt als Stimme, kombiniert mit der jeweiligen Wertquote.
+  4. **Nur Objekt:** Jedes Objekt bzw. jede Einheit gewährt eine Stimme (z. B. bei Miteigentum an Einstellhallen).
+  5. **Benutzerdefinierte Anteile:** Individuell hinterlegbare Stimmanteile gemäss Spezialreglement.
 - **Reglementarische Besonderheiten:** Statutarische Abweichungen (z. B. spezielle Quoren für schriftliche Zirkularbeschlüsse nach Art. 712m Abs. 2 ZGB).
 
 ---
@@ -32,7 +38,7 @@ Jede Liegenschaft besteht aus rechtlich definierten Einheiten (Wohnungen, Gewerb
 
 - **Einheitsnummer & Katasternummer:** Identifikation gemäss Grundbuchplan.
 - **Wertquote (Miteigentumsanteil – MEA):** Definiert das wirtschaftliche Gewicht (z. B. `45 / 1000`) für Kostenverteiler und qualifizierte Mehrheiten.
-- **Summenprüfung:** ResiVote prüft automatisch, ob die Summe aller Einheitenquoten exakt der Gesamtwertquote der Liegenschaft entspricht.
+- **Summenprüfung:** ResiVote prüft bei der Validierung, dass die Gesamtwertquote nicht kleiner ist als die Summe der Einheitenquoten (`Summe ≤ Gesamtwertquote`). Eine exakte Übereinstimmung wird nicht erzwungen, damit Liegenschaften auch schrittweise erfasst werden können.
 
 ---
 

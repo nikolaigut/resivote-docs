@@ -30,38 +30,57 @@ Mit dem Button **«Neue Versammlung»** öffnet sich die Erfassungsmaske:
 
 ## 2. Versammlungsmodi
 
-ResiVote unterstützt alle im Schweizer Markt üblichen Durchführungsformen:
+ResiVote unterscheidet zwei Modi für die Beschlussfassung:
 
-1. **Präsenzversammlung:** Physische Zusammenkunft im Saal; mobile Saalabstimmung via Smartphone oder Tablet.
-2. **Hybride Versammlung:** Vor-Ort-Teilnehmer und online zugeschaltete Eigentümer stimmen synchron im selben Live-Cockpit ab.
-3. **Reine Online-Versammlung:** Vollständig digitale Durchführung mit Videokonferenz-Integration.
-4. **Zirkularbeschluss (Art. 712m Abs. 2 ZGB):** Rein asynchrone Beschlussfassung im Portal über ein definiertes Zeitfenster ohne Live-Sitzung.
+1. **Präsenz- / Hybrid-Versammlung (`LIVE_MEETING`):** Synchrones Treffen vor Ort im Saal oder als hybride Versammlung. Eigentümer stimmen live über Smartphone oder Tablet ab oder verfolgen die Ergebnisse auf dem Beamer; online zugeschaltete Eigentümer stimmen parallel in Echtzeit über das Eigentümer-Portal ab.
+2. **Zirkularbeschluss (Art. 712m Abs. 2 ZGB):** Rein asynchrone Beschlussfassung im Portal über ein definiertes Zeitfenster ohne Live-Sitzung.
 
 ---
 
-## 3. Traktandenliste & Beschlussanträge
+## 3. Traktandenliste & Traktandentypen
 
 Der Kern der Versammlung ist die Traktandenliste. Unter **«Traktanden bearbeiten»** erfasst die Verwaltung die einzelnen Geschäfte:
 
 ![Traktandenliste bearbeiten](/screenshots/tenant-admin/desktop/meeting-agenda-edit.png)
 *Desktop-Ansicht für `tenant_admin`: Strukturierung der Traktanden mit Reihenfolge, Antragstext, Quorumsvorgabe und Dateianhängen.*
 
-### Pflichtangaben pro Traktandum
+### Flexible Traktandentypen
+ResiVote unterstützt unterschiedliche Traktandenarten je nach Beschlussgegenstand:
+
+- **Standard-Beschlussantrag:** Abstimmung mit *Ja*, *Nein* oder *Enthaltung* über einen konkreten Beschlussantrag.
+- **Wahl-Traktandum:** Für Personen- und Gremienwahlen (z. B. Wahl von Ausschussmitgliedern oder der Revisionsstelle) mit hinterlegter Kandidatenliste.
+- **Freitext- / Konsultativ-Traktandum:** Für offene Konsultationen, Meinungsbilder oder Stimmungsabfragen ohne starres Quorum.
+- **Traktandengruppe:** Thematische Bündelung mehrerer Untertraktanden (z. B. Variantenentscheide bei Sanierungsprojekten oder mehrteilige Budgetposten).
+
+### Pflichtangaben & Mehrheitsstufen pro Traktandum
 <Steps>
   1. **Nummerierung & Titel:** Eindeutige Bezeichnung gemäss Einladungsschreiben.
-  2. **Antragstext:** Der wörtliche Beschlussantrag, über den mit Ja / Nein / Enthaltung abgestimmt werden soll.
+  2. **Antragstext & Erläuterung:** Der präzise Wortlaut des Beschlussantrags und Hintergrundinformationen.
   3. **Erforderliches Mehr (Quorum):**
-     - *Einfaches Mehr (Köpfe):* Routinegeschäfte, Wahl des Ausschusses, Abnahme des Protokolls.
-     - *Qualifiziertes Mehr (Köpfe + Wertquoten):* Wichtige Verwaltungshandlungen und nützliche bauliche Massnahmen (Art. 647d ZGB).
-     - *Einstimmigkeit (alle Stimmen):* Zweckänderung der Liegenschaft, bauliche Luxusmassnahmen (Art. 647e ZGB).
-  4. **Dokumentenanhänge:** Verknüpfung mit Jahresrechnung, Budget, Offerten oder Plänen.
+     - *Einfaches Mehr:* Routinebeschlüsse, Abnahme von Berichten und Wahlen (Art. 712m Abs. 1 ZGB).
+     - *Qualifiziertes Mehr:* Mehr als 50 % der anwesenden/vertretenen Köpfe und mehr als 50 % aller Wertquoten (Art. 647c/d ZGB).
+     - *Absolutes Mehr:* Mehr als 50 % aller abgegebenen Stimmen inkl. Enthaltungen.
+     - *Einstimmigkeit:* Zustimmung aller Stockwerkeigentümer (Art. 647e ZGB).
+     - *Benutzerdefiniert:* Reglementarische Sonderquoren (z. B. 2/3 der Köpfe).
+  4. **Dokumentenanhänge:** Verknüpfung mit Jahresrechnung, Kostenvoranschlägen oder Plänen.
 </Steps>
 
 ---
 
-## 4. Einladungsversand & Dokumentenpaket
+## 4. Vorabstimmung (Pre-Vote)
+
+Für Eigentümer, die am Versammlungstermin verhindert sind, kann die Verwaltung eine digitale **Vorabstimmung** (Pre-Voting) freischalten:
+
+- Eigentümer geben ihre Stimmen vorab im Eigentümer-Portal ab.
+- Die Vorabstimmen werden bei Sitzungsbeginn manipulationssicher in das Live-Cockpit übertragen.
+- Erscheint ein Eigentümer doch persönlich oder erteilt eine Saalvollmacht, überschreibt die Präsenzstimmabgabe die Vorabstimme automatisch.
+
+---
+
+## 5. Einladungsversand & Dokumentenpaket
 
 Nach Fertigstellung der Traktandenliste publiziert die Verwaltung die Versammlung:
-- **Einladungs-PDF:** Generiert automatisch ein formelles Einladungsschreiben mit vollständiger Traktandenliste.
-- **Stimmrechts- und Vollmachtskarten:** PDF-Vorlagen mit individuellem QR-Code für den Saaleinlass.
-- **Benachrichtigung der Eigentümer:** Automatischer Versand per E-Mail und Push ins Eigentümer-Portal.
+
+- **Digitaler Versand:** Automatischer Versand von Einladungs-E-Mails und Push-Benachrichtigungen an alle im Portal registrierten Eigentümer.
+- **Physischer Post- und Briefversand:** Für Eigentümer ohne digitalen Portalzugang oder auf ausdrücklichen Wunsch generiert ResiVote ein druckfertiges, serienbrieftaugliches PDF-Paket inklusive persönlicher Begleitbriefe, Traktandenliste und Stimm- sowie Vollmachtskarten mit individuellem QR-Code.
+- **Stimmrechts- und Vollmachtskarten:** Eindeutige QR-Codes ermöglichen am Versammlungstag ein sekundenschnelles Einscannen am Check-in-Schalter.

@@ -7,9 +7,12 @@ import { Steps, Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/compo
 
 Dieses Handbuch richtet sich an **Immobilienverwaltungen, Bewirtschafter und Versammlungsleiter** in der Rolle **`tenant_admin`**. ResiVote unterstützt Sie bei der rechtssicheren, effizienten Vorbereitung, Durchführung und Nachbereitung von Stockwerkeigentümerversammlungen (STWEG) und Miteigentümergemeinschaften (MEG) sowie bei der gesamten laufenden Liegenschaftsbewirtschaftung.
 
-<Aside type="note" title="Rolle & Berechtigung: tenant_admin">
-- **Verwaltung / Tenant-Administrator:** Voller Zugriff auf die Verwaltung aller betreuten Gemeinschaften, Liegenschaften, Einheiten, Eigentümerkonten, Versammlungen, Dokumente, Mitteilungen und Tickets.
-- **Mitarbeiter (`staff`):** Verwaltungen können zusätzliche Mitarbeiterinnen und Mitarbeiter anlegen, die operative Aufgaben (z. B. Check-in, Protokollnotizen oder Ticketbearbeitung) übernehmen.
+<Aside type="note" title="Rollenmodell der Verwaltung">
+- **Tenant-Administrator (`tenant_admin`):** Vollzugriff auf alle betreuten Gemeinschaften, Konfigurationen, Mitarbeiter, Verträge und Branding.
+- **Mitarbeiter (`staff`):** Verwaltungen können ihr Team in spezialisierte Rollen unterteilen:
+  - *Property Manager (Bewirtschafter):* Leitet Versammlungen, betreut Liegenschaften und verwaltet Traktanden.
+  - *Assistent:* Begleitet Check-in am Saaleingang, unterstützt bei Stammdaten und operativen Tickets.
+  - *Buchhalter:* Einsicht in Abrechnungsdaten, Budgetierung, Kostenverteiler und Rechnungen.
 - *(Hinweis: Die Rolle `super_admin` dient nur dem technischen Hosting-Betrieb und wird hier nicht behandelt.)*
 </Aside>
 
@@ -101,7 +104,7 @@ ResiVote wurde von Grund auf für das Schweizer Stockwerkeigentums- und Miteigen
   <LinkCard
     title="Mitteilungen verfassen"
     href="/verwaltung/mitteilungen/"
-    description="Digitale Anschlagwand für Rundschreiben und dringende Störungsmeldungen."
+    description="Digitale Anschlagwand für Rundschreiben und wichtige Ankündigungen."
   />
   <LinkCard
     title="Tickets & Pendenzen"
@@ -112,5 +115,10 @@ ResiVote wurde von Grund auf für das Schweizer Stockwerkeigentums- und Miteigen
     title="Forum moderieren"
     href="/verwaltung/forum-moderation/"
     description="Diskussionen unter Eigentümern begleiten, moderieren und Threads schliessen."
+  />
+  <LinkCard
+    title="Administration & Team"
+    href="/verwaltung/administration/"
+    description="Mitarbeiterrollen, Aufgabenverwaltung, Rechnungen, Branding und Audit-Logs."
   />
 </CardGrid>

@@ -76,6 +76,7 @@ export default defineConfig({
 						{ label: 'Mitteilungen verfassen', slug: 'verwaltung/mitteilungen' },
 						{ label: 'Tickets & Pendenzen', slug: 'verwaltung/tickets-pendenzen' },
 						{ label: 'Forum-Moderation', slug: 'verwaltung/forum-moderation' },
+						{ label: 'Administration & Team', slug: 'verwaltung/administration' },
 					],
 				},
 			],

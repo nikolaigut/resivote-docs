@@ -1,0 +1,92 @@
+---
+title: Administration, Team & Compliance
+description: Mitarbeiterrollen (Property Manager, Assistent, Buchhalter), Aufgabenverwaltung, Rechnungen, Branding und Revisionssicherheit (Audit-Logs).
+---
+
+import { Steps, Aside, CardGrid, Card } from '@astrojs/starlight/components';
+
+Neben der eigentlichen Versammlungsdurchführung bietet ResiVote umfassende Verwaltungs- und Compliance-Werkzeuge für die Organisation im Büro. Hier steuern Administratoren (`tenant_admin`) Teamrollen, Aufgaben, Branding und Revisionsprotokolle.
+
+---
+
+## 1. Mitarbeiter & Rollenmodell (`/admin/staff`)
+
+**Zuständige Rolle: `tenant_admin`**  
+*Gerät: Desktop*
+
+Unter **«Mitarbeiter»** (`/admin/staff`) verwaltet die Geschäftsleitung oder der Hauptadministrator alle Teammitglieder und deren Zugriffsrechte:
+
+![Mitarbeiterverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-staff.png)
+*Desktop-Ansicht für `tenant_admin`: Verwaltung von Mitarbeiterprofilen, Rollenzuweisungen und zuständigen Liegenschaften.*
+
+### Verfügbare Mitarbeiterrollen
+
+ResiVote unterscheidet feingranulare interne Rollen:
+
+1. **Administrator (`tenant_admin`):**
+   - Uneingeschränkter Vollzugriff auf alle Gemeinschaften, Konfigurationen, Mitarbeiter, Branding und Verträge.
+2. **Property Manager (Bewirtschafter):**
+   - Zuständig für die operative Betreuung zugewiesener Liegenschaften.
+   - Erstellt und leitet Versammlungen, erfasst Traktanden, moderiert Foren und verwaltet Liegenschaftsdokumente.
+3. **Assistent (Sachbearbeiter):**
+   - Unterstützt bei der täglichen Bewirtschaftung.
+   - Führt Check-in am Saaleingang durch, erfasst Tickets und pflegt Stammdaten.
+4. **Buchhalter (`accountant`):**
+   - Zugriff auf Finanzdaten, Kostenverteiler, Liegenschaftsabrechnungen und Rechnungen.
+   - Kein administrativer Zugriff auf die Versammlungsleitung oder sicherheitsrelevante Einstellungen.
+
+---
+
+## 2. Aufgaben- & Pendenzenverwaltung (`/admin/tasks`)
+
+Unter **«Aufgaben»** (`/admin/tasks`) bündelt die Verwaltung liegenschaftsübergreifend alle anstehenden Arbeiten:
+
+![Aufgabenverwaltung im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-tasks.png)
+*Desktop-Ansicht für `tenant_admin`: Zentrale Übersicht über alle offenen, zugewiesenen und erledigten Aufgaben mit Fälligkeitsdaten.*
+
+- **Herkunft von Aufgaben:** Aufgaben entstehen entweder manuell, durch Übernahme aus gemeldeten **Service-Tickets** oder als Folge von **Versammlungsbeschlüssen** (Ausführungspendenzen).
+- **Zuweisung & Fälligkeiten:** Jede Aufgabe kann einem zuständigen Mitarbeiter (z. B. dem betreuenden Property Manager) zugewiesen und mit Fristen versehen werden.
+- **Filterung:** Schneller Wechsel nach Status (*Offen*, *In Bearbeitung*, *Erledigt*), Priorität und Liegenschaft.
+
+---
+
+## 3. Rechnungsübersicht & Abrechnung (`/admin/billing/invoices`)
+
+Unter **«Rechnungen»** (`/admin/billing/invoices`) behält die Verwaltung den Überblick über alle anfallenden Software- und Modulkosten:
+
+![Rechnungsübersicht im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-billing.png)
+*Desktop-Ansicht für `tenant_admin`: Transparente Rechnungsstellung, Lizenzgebühren und PDF-Download für die Buchhaltung.*
+
+- **Gebührenübersicht:** Abrechnung von ResiVote-Lizenzen, Plattformgebühren und optionalen Zusatzdiensten je Liegenschaft oder Gesamtmandat.
+- **Rechnungsarchiv:** PDF-Download aller Rechnungen für die Buchhaltung.
+- **Zahlungsstatus:** Transparente Übersicht offener und beglichener Rechnungen.
+
+---
+
+## 4. Branding & Portal-Personalisierung (`/admin/settings/branding`)
+
+Für einen professionellen Marktauftritt lässt sich ResiVote an das Corporate Design der Immobilienverwaltung anpassen:
+
+![Branding-Einstellungen im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-branding.png)
+*Desktop-Ansicht für `tenant_admin`: Hochladen des Unternehmenslogos, Primärfarben und Absenderkonfiguration.*
+
+- **Unternehmenslogo:** Ihr eigenes Logo wird prominent im Eigentümer-Portal, im E-Mail-Kopf sowie auf allen PDF-Ausdrucken (Einladungen, Stimmkarten, Protokolle) platziert.
+- **Farbakzente:** Anpassung der Primär- und Akzentfarben passend zu Ihrem Unternehmensauftritt.
+- **Briefkopf & Absenderdaten:** Definition von Kontaktadressen, Support-Nummern und Signaturtexten für offizielle Benachrichtigungen.
+
+---
+
+## 5. Audit-Logs & Revisionssicherheit (`/admin/audit-logs`)
+
+Als rechtsverbindliche Plattform für Beschlussfassungen nach Schweizer ZGB garantiert ResiVote maximale Nachvollziehbarkeit:
+
+![Audit-Logs im Admin-Bereich](/screenshots/tenant-admin/desktop/admin-audit-logs.png)
+*Desktop-Ansicht für `tenant_admin`: Revisionssicheres Prüfprotokoll aller administrativen und stimmrechtlichen Systemereignisse.*
+
+- **Unveränderliches Protokoll:** Unter **«Audit-Logs»** (`/admin/audit-logs`) zeichnet das System jede administrative und stimmrechtliche Handlung zeitstempelgenau auf.
+- **Erfasste Ereignisse:**
+  - Änderungen an Eigentümerstammdaten und Wertquoten.
+  - Hinterlegung oder Widerruf von Vollmachten.
+  - Manuelle Traktandenanpassungen und Freigaben.
+  - Check-in-Ereignisse und Stimmabgabe-Vorgänge (unter Wahrung des Stimmgeheimnisses).
+- **Rechtssicherheit bei Anfechtungen:** Bei Beschlussanfechtungen (Art. 712r ZGB) dient das Audit-Log als gerichtsfester Nachweis des ordnungsgemässen Versammlungs- und Abstimmungsablaufs.

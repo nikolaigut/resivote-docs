@@ -25,11 +25,20 @@ Steht die Versammlungsleitung am Rednerpult oder bewegt sich im Saal, lässt sic
 ![Versammlungssteuerung auf dem Tablet](/screenshots/tenant-admin/tablet/meeting-control-tablet.png)
 *Tablet-Ansicht für `tenant_admin`: Kompakte Steuerung für Abstimmungsstart, Timer und Traktandenwechsel.*
 
+### Rollenaufteilung im Versammlungs-Team
+
+Für einen reibungslosen Ablauf an der Versammlung können Mitarbeiter mit spezifischen Leitungsfunktionen betraut werden:
+
+- **Chair (Versammlungsleiter):** Leitet die Sitzung, eröffnet und schliesst Traktanden und gibt Abstimmungen im Live-Cockpit frei.
+- **Co-Chair (Stellvertretende Leitung):** Unterstützt die Sitzungsleitung, behält Wortmeldungen im Blick und übernimmt bei Befangenheit oder Entlastungsabstimmungen.
+- **Protokollführer (Secretary):** Führt parallel das offizielle Versammlungsprotokoll, erfasst Antragsänderungen und hält Wortbeiträge fest.
+- **Check-in-Helfer (Assistent / Checker):** Wickelt am Saaleingang auf separaten Tablets den Einlass ab und erfasst Nachzügler sowie spontane Papiervollmachten, ohne das Hauptpult zu belasten.
+
 ---
 
-## 2. Beamer- und Präsentationsansicht (`/presentation`)
+## 2. Beamer- und Präsentationsansicht (`/meeting/:id/presentation`)
 
-Für die Projektion im Versammlungssaal bietet ResiVote eine dedizierte **Präsentationsansicht**:
+Für die Grossleinwand-Projektion im Versammlungssaal bietet ResiVote eine dedizierte **Präsentationsansicht** unter der Route `/meeting/:id/presentation` (wobei `:id` der eindeutigen Kennung der Versammlung entspricht):
 
 ![Präsentationsansicht für Beamer](/screenshots/tenant-admin/desktop/meeting-presentation-view.png)
 *Beamer-Ansicht für den Saal: Grossformatige Anzeige des aktuellen Traktandums, des Antragstextes und des Live-Abstimmungscountdowns.*

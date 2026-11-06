@@ -18,7 +18,7 @@ direction: right
 Anwesenheit: "Köpfe zählen\nWertquoten summieren"
 Prüfung: "≥ 50% aller Eigentümer?\nUND ≥ 500/1000 Wertquoten?"
 Beschlussfähig: "Versammlung eröffnen"
-"Nicht beschlussfähig": "2. Versammlung einberufen\n(Art. 712p Abs. 2 ZGB)"
+"Nicht beschlussfähig": "Keine Beschlussfassung\nmöglich (Art. 712p ZGB)"
 
 Anwesenheit -> Prüfung
 Prüfung -> Beschlussfähig: Ja
@@ -29,24 +29,32 @@ Prüfung -> "Nicht beschlussfähig": Nein
 1. **Kopfquorum:** Mindestens die Hälfte aller Stockwerkeigentümer muss anwesend oder vertreten sein (bei 10 Eigentümern mind. 5).
 2. **Wertquoten-Quorum:** Die Erschienenen müssen zugleich mindestens die Hälfte aller Miteigentumsanteile vertreten (mindestens `500 / 1000`).
 
-<Aside type="caution" title="Zweite Versammlung bei Beschlussunfähigkeit">
-Wird das Quorum verfehlt, darf die Versammlung keine gültigen Beschlüsse fassen. ResiVote unterstützt die Einberufung einer **zweiten Versammlung** gemäss Art. 712p Abs. 2 ZGB, bei welcher mindestens ein Drittel aller Eigentümer (und mind. 1/3 aller Wertquoten) genügt.
+<Aside type="caution" title="Beschlussunfähigkeit">
+Wird das Quorum verfehlt, ist die Versammlung nicht beschlussfähig und darf keine gültigen Beschlüsse fassen (Art. 712p Abs. 1 ZGB). In diesem Fall muss formell zu einer neuen Versammlung eingeladen werden.
 </Aside>
 
 ---
 
-## 2. Die drei Mehrheitsstufen bei Abstimmungen
+## 2. Die fünf Mehrheitsstufen bei Abstimmungen
 
-Je nach Traktandum verlangt das Schweizer Recht unterschiedliche Mehrheiten:
+In ResiVote stehen bei der Konfiguration der Traktanden fünf Mehrheitsstufen zur Verfügung:
 
 ### 1. Einfaches Mehr (Art. 712m Abs. 1 ZGB)
-- **Kriterium:** Mehrheit der an der Versammlung anwesenden oder vertretenen Köpfe.
+- **Kriterium:** Mehrheit der Ja- über die Nein-Stimmen der anwesenden oder vertretenen Köpfe (`Ja > Nein`). Enthaltungen fallen ausser Betracht.
 - **Anwendungsbereich:** Abnahme der Jahresrechnung, Entlastung der Verwaltung, Genehmigung des Budgets, Wahl von Ausschussmitgliedern.
 
 ### 2. Qualifiziertes Mehr (Art. 647c / 647d ZGB)
-- **Kriterium:** Die Mehrheit aller Eigentümer nach Köpfen, die zugleich mehr als die Hälfte aller Wertquoten vertreten.
+- **Kriterium:** Ja-Stimmen von über 50 % der anwesenden oder vertretenen Köpfe und zugleich über 50 % aller Wertquoten der gesamten Liegenschaft. Enthaltungen und Abwesende zählen dabei faktisch als Nein.
 - **Anwendungsbereich:** Nützliche bauliche Massnahmen (Wertsteigerung, Energiesanierungen wie PV-Anlage, Fassadendämmung), Erlass oder Änderung des Liegenschaftsreglements.
 
-### 3. Einstimmigkeit (Art. 647e ZGB)
-- **Kriterium:** Zustimmung ausnahmslos aller Stockwerkeigentümer der Gemeinschaft.
+### 3. Absolutes Mehr
+- **Kriterium:** Mehr als die Hälfte (> 50 %) aller abgegebenen Stimmen der anwesenden oder vertretenen Eigentümer. Im Unterschied zum einfachen Mehr erhöhen Enthaltungen das erforderliche Quorum.
+- **Anwendungsbereich:** Besondere Wahlverfahren oder spezifische reglementarische Vorgaben.
+
+### 4. Einstimmigkeit (Art. 647e ZGB)
+- **Kriterium:** Zustimmung ausnahmslos aller Stockwerkeigentümer der Gemeinschaft (100 % aller Köpfe und Wertquoten).
 - **Anwendungsbereich:** Bauliche Luxusmassnahmen (Aufwand dient nur Verschönerung), Änderung der Zweckbestimmung der Liegenschaft, Aufhebung des Stockwerkeigentums.
+
+### 5. Benutzerdefiniert
+- **Kriterium:** Frei konfigurierbare prozentuale Schwellenwerte für Kopfstimmen und/oder Wertquoten.
+- **Anwendungsbereich:** Individuelle, im Reglement der Gemeinschaft verankerte Sonderquoren (z. B. Zweidrittelmehrheit nach Köpfen oder 75 % der Wertquoten).
