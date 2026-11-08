@@ -39,10 +39,10 @@ Konzept Version 9 (nach neun Review-Runden), umgesetzt in der Pilotphase. Was no
 
 | Feld | Inhalt |
 |---|---|
-| **A · Ziel und Nutzen** | Routineaufgaben ohne Programmwechsel: von geschätzt 13 auf 0–1 Wechsel pro Versammlungszyklus ([Abschnitt 6](#6-programmwechsel-heute-und-mit-anbindung)). Keine Doppelerfassung von Eigentümern, Einheiten und Wertquoten. Unterlagen und Protokoll landen automatisch im Abacus-Dossier. |
+| **A · Ziel und Nutzen** | Routineaufgaben ohne Programmwechsel: von geschätzt 14 auf 0–1 Wechsel pro Versammlungszyklus ([Abschnitt 6](#6-programmwechsel-heute-und-mit-anbindung)). Keine Doppelerfassung von Eigentümern, Einheiten und Wertquoten. Unterlagen und Protokoll landen automatisch im Abacus-Dossier. |
 | **B · Nutzerinnen und Nutzer** | *Verwaltung, Buchhaltung:* bleibt in Abacus. *Verwaltung, Bewirtschaftung:* plant Versammlungen in ResiVote. *Eigentümerinnen und Eigentümer:* nur ResiVote-Portal. *Abacus-Partner:* richtet Zugang und Reports ein. |
-| **C · Datenhoheit** | *Abacus:* Liegenschaft, Einheiten, Personen, Adressen, Kontaktdaten, Eigentumsverhältnisse, Wertquoten, Jahresrechnung, Budget, Beiträge, Buchhaltung, Debitoren, Kreditoren, Unterhalt. *ResiVote:* Versammlung (Termin, Traktanden, Stichtag, Einladung, Vollmachten, Check-in, Abstimmung, Quoren, Protokoll), Reglement-Regeln, Portal-Zugänge, Benachrichtigungen, Nachrichten, Tickets, Forum. *Grenzfälle:* Kontaktdaten ändern Eigentümer im Portal, gespeichert werden sie in Abacus. Die Versammlung führt ResiVote, eine Kopie mit Termin, Status und Protokoll entsteht in Abacus. Details in [Abschnitt 4](#4-datenhoheit-im-detail). |
-| **D · Schnittstellen** | *Entity-REST-API* (OData 4, OAuth): Stammdaten, Verträge, Versammlung, Dossier, Debitoren. *AbaConnect (SOAP):* Wertquoten aus den Verteilschlüsseln. *Subscriptions:* Änderungen an Kontakten und Dossier-Dokumenten. *AbaReport-REST:* PDF aus kundeneigenem Report (geplant). |
+| **C · Datenhoheit** | *Abacus:* Liegenschaft, Einheiten, Personen, Adressen, Kontaktdaten, Eigentumsverhältnisse, Wertquoten, Jahresrechnung, Budget, Beiträge, Buchhaltung, Debitoren, Kreditoren, Unterhalt. *ResiVote:* Versammlung (Termin, Traktanden, Stichtag, Einladung, Vollmachten, Check-in, Abstimmung, Quoren, Protokoll), Reglement-Regeln, Portal-Zugänge, Benachrichtigungen, Nachrichten, Tickets, Forum. *Grenzfälle:* Kontaktdaten ändern Eigentümer im Portal, gespeichert werden sie in Abacus. Die Versammlung führt ResiVote, eine Kopie mit Termin, Status und Protokoll entsteht in Abacus. Anfragen aus dem Portal führt ResiVote, optional entsteht eine Pendenz in Abacus. Details in [Abschnitt 4](#4-datenhoheit-im-detail). |
+| **D · Schnittstellen** | *Entity-REST-API* (OData 4, OAuth): Stammdaten, Verträge, Versammlung, Dossier, Debitoren, Pendenzen. *AbaConnect (SOAP):* Wertquoten aus den Verteilschlüsseln. *Subscriptions:* Änderungen an Kontakten und Dossier-Dokumenten. *AbaReport-REST:* PDF aus kundeneigenem Report (geplant). |
 | **E · Auslöser** | Automatischer Abgleich alle 15 Minuten, Knopf «Jetzt abgleichen», Ereignisse in ResiVote (Versammlung angelegt oder geändert, Einladung versendet, Protokoll freigegeben). |
 | **F · Sicherheit und Betrieb** | Zugangsdaten verschlüsselt pro ResiVote-Mandant. Abacus-Adresse muss `https` sein und darf nicht auf interne Netze zeigen. Schreibvorgänge nach Abacus werden protokolliert. Rate-Limit ab Abacus 2026: 400 Abfragen pro Minute, 40'000 pro Tag. ResiVote löscht nie, es markiert inaktiv bzw. beendet. Schutz gegen Massen-Beendigungen. |
 | **G · Voraussetzungen** | Abacus ab Version 2024 mit Immobilien-Modul, Mandant für die API freigeschaltet (Q910/Q926), Service-User. Optional AbaConnect-Benutzer für Wertquoten. |
@@ -104,7 +104,8 @@ abacus.report -> adapter: PDF {style.stroke-dash: 4}
 | Einladung, Protokoll | ResiVote | ResiVote → Abacus | `CondoOwnersAssemblyDocuments`, Ablage und Ordner gemäss Einstellung | Massgeblich ist die ResiVote-Fassung mit Hash; die Abacus-Kopie trägt den Hash im Dateinamen. |
 | Jahresrechnung, Budget (Dokument) | Abacus | Abacus → ResiVote | Dossier-Dokumente aus der eingestellten Ablage | Neue Datei → Vorschlag als Versammlungsunterlage. |
 | Beiträge (Budgeterwartung, Erneuerungsfonds) | Abacus | ResiVote → Abacus, nach Freigabe | `RentComponents` | **Geplant.** Vier-Augen-Freigabe in ResiVote; bis dahin in Abacus erfassen. |
-| Portal-Zugang, Benachrichtigungen, Tickets | ResiVote | nur ResiVote | – | Kein Abgleich. |
+| Anfragen aus dem Portal (Tickets) | ResiVote | ResiVote → Abacus, optional | `Issues` (Pendenz) mit Kontext Liegenschaft und Eigentümer | ResiVote überschreibt Titel und Status bei jeder Änderung. Abacus hat kein Abo für Pendenzen; Änderungen dort kommen nicht zurück. Antworten bleiben in ResiVote. |
+| Portal-Zugang, Benachrichtigungen | ResiVote | nur ResiVote | – | Kein Abgleich. |
 | Buchhaltung, Debitoren | Abacus | Abacus → Portal, nur lesend | `CustomerInvoices`, `CustomerPayments` | Nur Anzeige im Portal, beim Aufruf live gelesen. |
 
 ---
@@ -121,7 +122,7 @@ Jede Zeile ist eine Rolle in einem Programm, jede Spalte eine Phase. Die Integra
 | **P3 Vorbereitung** (ab 6 Wochen vorher) | Sieht die Versammlung in Y11. Keine Aktion nötig. | Legt die Versammlung in Abacus an, überträgt Änderungen und die Einladung ins Dossier | Versammlung anlegen, Einladung versenden | Einladung, Unterlagen inkl. Jahresrechnung und Budget, Vollmacht |
 | **P4 Durchführung** (Versammlungstag) | – | Kein Zugriff auf Abacus | Leitet die Versammlung, Quoren live | Check-in, abstimmen, per Vollmacht oder schriftlich |
 | **P5 Nachbereitung** (bis 2 Wochen danach) | Bucht wie gewohnt; Protokoll ist schon da | Protokoll-PDF ins Dossier, Status «abgeschlossen» | Protokoll freigeben | Protokoll und Beschlüsse im Portal |
-| **P6 Portal** (ganzjährig) | Rechnungen und Mahnungen wie bisher | Liest Sollstellungen und Zahlungen beim Aufruf, nur lesend | Beantwortet Tickets und Nachrichten | Dokumente, Nachrichten, Tickets, Forum, Kontoauszug aus Abacus |
+| **P6 Portal** (ganzjährig) | Rechnungen und Mahnungen wie bisher; sieht Anfragen als Pendenz (optional) | Liest Sollstellungen und Zahlungen beim Aufruf, nur lesend. Überträgt Anfragen als Pendenz mit Status (optional). | Beantwortet Tickets und Nachrichten | Dokumente, Nachrichten, Tickets, Forum, Kontoauszug aus Abacus |
 
 ### Zustände einer Versammlung und ihre Wirkung in Abacus
 
@@ -183,8 +184,9 @@ adapter -> api: 8. Ereignis bestätigen
 | Protokoll archivieren | Aus ResiVote laden, in Abacus ablegen | 2 | Automatisch ins Dossier | 0 |
 | Budget-Beschluss umsetzen | Beiträge pro Einheit in Abacus erfassen | 1 | Heute weiter in Abacus; geplant: Freigabe der Umsetzungsliste in ResiVote | 1 (geplant 0) |
 | Adressänderung eines Eigentümers | Mail lesen, in Abacus und ResiVote erfassen | 2 | Eigentümer ändert im Portal, landet in Abacus | 0 |
+| Schadensmeldung in Abacus nachführen | Anfrage aus ResiVote als Pendenz in Abacus erfassen | 1 | Automatisch als Pendenz (optional) | 0 |
 | Handänderung | In Abacus erfassen, in ResiVote anlegen, ins Portal einladen | 1 | Nur in Abacus, Rest automatisch | 0 |
-| **Summe pro Versammlungszyklus** | | **13** | | **0–1** |
+| **Summe pro Versammlungszyklus** | | **14** | | **0–1** |
 
 Einmalige Wechsel bei der Einrichtung sind nicht mitgezählt. Die Zahlen sind Schätzungen pro Liegenschaft und Zyklus.
 
@@ -241,6 +243,7 @@ Getestet auf dem öffentlichen Abacus-Testserver (Version 2026, Demo-Mandant) mi
 | Kontaktänderung aus dem Portal | E-Mail und Telefon im Portal geändert, in Abacus gespeichert |
 | Kontoauszug | Sollstellungen mit Status offen/bezahlt und Zahlungsdatum im Portal |
 | Ablagen | Auswahllisten aus Abacus lesbar; Liegenschafts- und Versammlungs-Dossier akzeptieren je die passende Ablage |
+| Portal-Anfragen als Pendenz | Anfrage einer Eigentümerin als Pendenz angelegt (mit Liegenschaft, Eigentümer, Beschreibung), nach Antwort der Verwaltung «InProgress», nach Abschluss «Closed»; Test-Pendenzen wieder gelöscht |
 | Robustheit | Zurückgesetzter Testserver: keine Massen-Beendigung, Meldung statt Datenverlust, Wiederherstellung beim nächsten Abgleich |
 
 ---

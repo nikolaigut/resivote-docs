@@ -26,6 +26,7 @@ Das fachliche Konzept mit Prozess, Diagrammen und Testnachweisen finden Sie unte
 | Mandant für die Abacus-API freigeschaltet (Programm Q910 bzw. Q926) | Zugriff von aussen | ja |
 | Service-User mit Client-ID und Client-Secret (Q910, «Abacus API-Verbindung») | Anmeldung von ResiVote (OAuth) | ja |
 | Recht `realestate.readwrite` für den Service-User | Versammlung, Dossier und Kontaktdaten zurückschreiben; mit nur `read` funktioniert das Lesen | empfohlen |
+| Recht `issue.readwrite` für den Service-User | Portal-Anfragen als Pendenz übertragen ([Abschnitt 5a](#5a-portal-anfragen-als-abacus-pendenz)) | nur dafür |
 | AbaConnect-Option und ein AbaConnect-Benutzer mit Passwort | **Wertquoten** lesen (die REST-API kennt sie nicht) | optional |
 | In Abacus eingerichtetes Geschäftsjahr | **Ordentliche** Versammlungen in Abacus anlegen | für ordentliche Versammlungen |
 
@@ -84,7 +85,8 @@ Jede Information hat genau ein führendes System. Das andere System spiegelt nur
 | Einladung und Protokoll (PDF) | ResiVote | ResiVote → Abacus | Landen automatisch im Dossier der Versammlung. |
 | Jahresrechnung, Budget (PDF) | Abacus | Abacus → ResiVote | Wie gewohnt im Abacus-Dossier ablegen; ResiVote schlägt sie als Versammlungsunterlage vor. |
 | Kontoauszug (Sollstellungen, Zahlungen) | Abacus | Abacus → Portal, nur lesend | Eigentümer sehen ihn live unter «Mein Konto». |
-| Portal-Zugänge, Mitteilungen, Tickets, Forum | ResiVote | nur ResiVote | Kein Abgleich. |
+| Anfragen aus dem Portal (Tickets) | ResiVote | ResiVote → Abacus, optional | Auf Wunsch als Pendenz in Abacus, mit Titel, Beschreibung und Status. Die Antworten bleiben in ResiVote. |
+| Portal-Zugänge, Mitteilungen, Forum | ResiVote | nur ResiVote | Kein Abgleich. |
 
 <Aside type="caution" title="Von Abacus geführte Felder">
 Ändern Sie Daten, die Abacus führt, in ResiVote, werden sie beim nächsten Abgleich wieder überschrieben. Die Bearbeiten-Masken für Eigentümer, Gemeinschaft und Einheiten zeigen deshalb einen Hinweis, welche Felder Abacus führt und welche in ResiVote bleiben.
@@ -144,6 +146,43 @@ Massgeblich ist die **ResiVote-Fassung des Protokolls** mit ihrem Hash (siehe [P
 
 ---
 
+## 5a. Portal-Anfragen als Abacus-Pendenz
+
+Optional legt ResiVote jede neue Anfrage aus dem Eigentümer-Portal (Schadensmeldung, Frage, Beschwerde …) zusätzlich als **Pendenz** in Abacus an. So sieht auch, wer nur in Abacus arbeitet, was die Eigentümer gemeldet haben.
+
+<Steps>
+1. Auf der Abacus-Seite in der Karte **«Anfragen als Abacus-Pendenz»** das Häkchen setzen.
+2. Optional eine **Vorlage** aus Abacus wählen (z. B. «Allgemeine Schadensfälle»). Ohne Auswahl nimmt ResiVote die Vorlage «Standard».
+3. **«Jetzt übertragen»** überträgt sofort; sonst geschieht es mit dem automatischen Abgleich alle 15 Minuten.
+</Steps>
+
+![Karte «Anfragen als Abacus-Pendenz»](/screenshots/tenant-admin/desktop/abacus-tickets-card.png)
+*Desktop-Ansicht für `tenant_admin`: Übertragung einschalten, Vorlage wählen, sofort übertragen.*
+
+**Was in Abacus ankommt:** Titel «ResiVote: …», eine Beschreibung mit Kategorie, Absender, Einheit, Eingang und der ersten Nachricht, verknüpft mit der Liegenschaft und dem Eigentümer.
+
+**Status:** ResiVote führt die Anfrage. Der Status in Abacus folgt ResiVote:
+
+| In ResiVote | In Abacus |
+|---|---|
+| Offen | Open |
+| Offen, von der Verwaltung beantwortet | InProgress |
+| Gelöst oder geschlossen | Closed |
+
+Die Antworten an den Eigentümer schreiben Sie weiter in ResiVote ([Tickets & Pendenzen](/verwaltung/tickets-pendenzen/)). Jede übertragene Anfrage trägt das Badge **«An Abacus»** mit der Pendenz-Nummer.
+
+![Badge «An Abacus» an einer Anfrage](/screenshots/tenant-admin/desktop/abacus-ticket-badge.png)
+*Desktop-Ansicht für `tenant_admin`: Die Anfrage ist in Abacus die Pendenz TASK-27.*
+
+<Aside type="caution" title="Gut zu wissen">
+- Abacus meldet Änderungen an Pendenzen nicht zurück. Ändern Sie den Status in Abacus, überschreibt ResiVote ihn bei der nächsten Änderung der Anfrage.
+- Wird eine Pendenz in Abacus gelöscht, legt ResiVote sie bei der nächsten Änderung neu an.
+- Anfragen, die beim Einschalten schon erledigt waren, werden nicht nachgetragen.
+- Der Service-User braucht dafür das Recht für Pendenzen (`abacus.entity.issue.readwrite`). Fehlt es, erscheint eine Meldung im Abgleich-Postfach.
+</Aside>
+
+---
+
 ## 6. Ein Versammlungszyklus mit Abacus
 
 <Steps>
@@ -152,7 +191,7 @@ Massgeblich ist die **ResiVote-Fassung des Protokolls** mit ihrem Hash (siehe [P
 3. **Vorbereitung:** Versammlung in ResiVote anlegen ([Versammlung vorbereiten](/verwaltung/versammlung-erstellen/)). ResiVote legt sie in Abacus an und überträgt spätere Termin- oder Ortsänderungen. Die Einladung landet im Dossier.
 4. **Durchführung:** Check-in, Abstimmung und Quoren laufen nur in ResiVote.
 5. **Nachbereitung:** Nach der Freigabe überträgt ResiVote das Protokoll-PDF ins Dossier der Versammlung und setzt sie in Abacus auf «abgeschlossen».
-6. **Ganzjährig:** Eigentümer ändern ihre Kontaktdaten im Portal (landet in Abacus) und sehen ihren Kontoauszug aus Abacus.
+6. **Ganzjährig:** Eigentümer ändern ihre Kontaktdaten im Portal (landet in Abacus) und sehen ihren Kontoauszug aus Abacus. Ihre Anfragen erscheinen auf Wunsch als Pendenz in Abacus.
 </Steps>
 
 ---
