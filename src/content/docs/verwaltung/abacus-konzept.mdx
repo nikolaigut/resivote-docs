@@ -1,0 +1,251 @@
+---
+title: Abacus-Konzept & Datenhoheit
+description: Integrationskonzept ResiVote–Abacus AbaImmo – Leitsätze, Canvas, Systemlandschaft, Prozess über einen Versammlungszyklus, Programmwechsel, Sonderfälle, Einführungsstufen und Nachweise vom Testserver.
+---
+
+import { Aside, CardGrid, Card, LinkCard } from '@astrojs/starlight/components';
+
+Diese Seite beschreibt das fachliche Konzept hinter der [Abacus-Anbindung](/verwaltung/abacus/): wer welche Daten führt, wie die Daten fliessen und welche Regeln für Sonderfälle gelten. Ziel ist **eine Arbeit, ein Ort**: Die Verwaltung arbeitet in Abacus wie gewohnt, ResiVote übernimmt Versammlung und Kundenportal und holt sich alles Nötige selbst aus Abacus. Was in ResiVote entsteht und Abacus betrifft, schreibt ResiVote zurück.
+
+<Aside type="note" title="Stand">
+Konzept Version 9 (nach neun Review-Runden), umgesetzt in der Pilotphase. Was noch nicht umgesetzt ist, ist mit **geplant** gekennzeichnet. Die Anbindung nutzt die Schnittstellen von Abacus; es besteht keine Partnerschaft mit der Abacus Research AG.
+</Aside>
+
+---
+
+## 1. Leitsätze
+
+<CardGrid>
+  <Card title="Jede Information hat genau ein führendes System">
+    Abacus für Stammdaten, Eigentum, Wertquoten und Finanzen. ResiVote für Versammlung und Portal. Das andere System spiegelt nur.
+  </Card>
+  <Card title="Erfassen dort, wo man ohnehin arbeitet">
+    Die Verwaltung legt Jahresrechnung und Budget dort ab, wo sie sie heute schon ablegt: im Abacus-Dossier. ResiVote holt sie dort ab.
+  </Card>
+  <Card title="Ausnahmen statt Kontrollen">
+    Die Verwaltung prüft keine Listen. ResiVote meldet nur Abweichungen, z. B. eine Wertquotensumme ungleich 1000 ‰.
+  </Card>
+  <Card title="Geld bewegt sich nur nach Freigabe">
+    Alles mit Finanzwirkung schreibt ResiVote erst nach ausdrücklicher Freigabe nach Abacus, mit Vorschau und Protokolleintrag.
+  </Card>
+  <Card title="Die Versammlung läuft auch ohne Abacus">
+    Während Check-in und Abstimmung greift ResiVote nicht auf Abacus zu. Ist Abacus nicht erreichbar, arbeitet ResiVote mit dem letzten Stand weiter.
+  </Card>
+</CardGrid>
+
+---
+
+## 2. Integrations-Canvas
+
+| Feld | Inhalt |
+|---|---|
+| **A · Ziel und Nutzen** | Routineaufgaben ohne Programmwechsel: von geschätzt 13 auf 0–1 Wechsel pro Versammlungszyklus ([Abschnitt 6](#6-programmwechsel-heute-und-mit-anbindung)). Keine Doppelerfassung von Eigentümern, Einheiten und Wertquoten. Unterlagen und Protokoll landen automatisch im Abacus-Dossier. |
+| **B · Nutzerinnen und Nutzer** | *Verwaltung, Buchhaltung:* bleibt in Abacus. *Verwaltung, Bewirtschaftung:* plant Versammlungen in ResiVote. *Eigentümerinnen und Eigentümer:* nur ResiVote-Portal. *Abacus-Partner:* richtet Zugang und Reports ein. |
+| **C · Datenhoheit** | *Abacus:* Liegenschaft, Einheiten, Personen, Adressen, Kontaktdaten, Eigentumsverhältnisse, Wertquoten, Jahresrechnung, Budget, Beiträge, Buchhaltung, Debitoren, Kreditoren, Unterhalt. *ResiVote:* Versammlung (Termin, Traktanden, Stichtag, Einladung, Vollmachten, Check-in, Abstimmung, Quoren, Protokoll), Reglement-Regeln, Portal-Zugänge, Benachrichtigungen, Nachrichten, Tickets, Forum. *Grenzfälle:* Kontaktdaten ändern Eigentümer im Portal, gespeichert werden sie in Abacus. Die Versammlung führt ResiVote, eine Kopie mit Termin, Status und Protokoll entsteht in Abacus. Details in [Abschnitt 4](#4-datenhoheit-im-detail). |
+| **D · Schnittstellen** | *Entity-REST-API* (OData 4, OAuth): Stammdaten, Verträge, Versammlung, Dossier, Debitoren. *AbaConnect (SOAP):* Wertquoten aus den Verteilschlüsseln. *Subscriptions:* Änderungen an Kontakten und Dossier-Dokumenten. *AbaReport-REST:* PDF aus kundeneigenem Report (geplant). |
+| **E · Auslöser** | Automatischer Abgleich alle 15 Minuten, Knopf «Jetzt abgleichen», Ereignisse in ResiVote (Versammlung angelegt oder geändert, Einladung versendet, Protokoll freigegeben). |
+| **F · Sicherheit und Betrieb** | Zugangsdaten verschlüsselt pro ResiVote-Mandant. Abacus-Adresse muss `https` sein und darf nicht auf interne Netze zeigen. Schreibvorgänge nach Abacus werden protokolliert. Rate-Limit ab Abacus 2026: 400 Abfragen pro Minute, 40'000 pro Tag. ResiVote löscht nie, es markiert inaktiv bzw. beendet. Schutz gegen Massen-Beendigungen. |
+| **G · Voraussetzungen** | Abacus ab Version 2024 mit Immobilien-Modul, Mandant für die API freigeschaltet (Q910/Q926), Service-User. Optional AbaConnect-Benutzer für Wertquoten. |
+| **H · Kennzahlen** | Programmwechsel pro Versammlungszyklus (Ziel ≤ 1), Meldungen im Abgleich-Postfach pro Monat, Anteil Versammlungen mit automatisch beigelegter Jahresrechnung, fehlgeschlagene Übertragungen (Ziel: 0 offen nach 24 h). |
+| **I · Grenzen und Risiken** | Wertquote nur über AbaConnect lesbar. Die Codes der Vertragsart legt jeder Mandant selbst fest; ResiVote erkennt sie, die Verwaltung bestätigt. Eine ordentliche Versammlung braucht in Abacus ein Geschäftsjahr. Die Abacus-Teilnehmerliste lässt sich per API nicht befüllen. Subscriptions: höchstens 10 pro Benutzer, nach 3 Tagen ohne Abruf gelöscht. |
+| **J · Abgrenzung** | Kein Buchen aus ResiVote. Kein eigener Jahresbericht-Generator: Jahresrechnung und Budget sind Dokumente aus Abacus. Kein AbaImmo-Portal parallel: Kommunikationskanal der Eigentümer in Abacus auf «E-Mail». |
+
+---
+
+## 3. Systemlandschaft
+
+Alle Übergaben laufen über den Integrations-Adapter in ResiVote. Wertquoten kommen als einzige Daten über AbaConnect, weil die REST-API sie nicht kennt.
+
+```d2
+direction: down
+
+resivote: ResiVote {
+  direction: right
+  portal: Kundenportal\n(Eigentümer)
+  versammlung: Versammlung\n(Traktanden, Stimmen)
+  postfach: Abgleich-Postfach\n(nur Abweichungen)
+}
+
+adapter: Integrations-Adapter in ResiVote\n(Schreib-Log, Abgleich alle 15 Min., Konfliktregeln)
+
+abacus: Abacus (Installation des Kunden) {
+  direction: right
+  rest: Entity-REST-API\n(OData 4, OAuth)
+  subs: Subscriptions\n(Ereignisse mit ID)
+  soap: AbaConnect (SOAP)\n(Wertquoten)
+  report: AbaReport-REST\n(geplant) {style.stroke-dash: 4}
+}
+
+resivote.portal -> adapter: Kontaktänderung
+resivote.versammlung -> adapter: Versammlung,\nEinladung, Protokoll
+adapter -> resivote.postfach: Meldung
+
+abacus.rest -> adapter: Stammdaten, Verträge,\nDebitoren
+adapter -> abacus.rest: Versammlung, Dossier,\nKontakte
+abacus.subs -> adapter: Ereignis-IDs
+abacus.soap -> adapter: Wertquoten
+abacus.report -> adapter: PDF {style.stroke-dash: 4}
+```
+
+---
+
+## 4. Datenhoheit im Detail
+
+| Objekt | Führend | Richtung | Schnittstelle | Konfliktregel |
+|---|---|---|---|---|
+| STWEG / Gemeinschaft | Abacus | Abacus → ResiVote | `RealEstates` mit `LevelOwner = true` | Abacus gewinnt. Name und Adresse in Abacus ändern. |
+| Einheiten | Abacus | Abacus → ResiVote | `Objects`, Schlüssel Mandant + Liegenschaft + Objekt-Nr. | Fehlt eine Einheit in Abacus, wird sie in ResiVote inaktiv, nie gelöscht. |
+| Personen, Adressen, Kontakte | Abacus | beidseitig | `Subjects`, `Addresses`, `Communications` | Abacus gewinnt. Portal-Änderungen schreibt ResiVote sofort nach Abacus. |
+| Eigentumsverhältnis | Abacus | Abacus → ResiVote | `ObjectContracts` (Vertragsart STWEG) + `ObjectContractPartners` | Gültigkeit nach Vertragsbeginn und -ende. Handänderung: altes Eigentum beenden, neues anlegen. |
+| Wertquote | Abacus | Abacus → ResiVote | AbaConnect: Verteilschlüssel mit `ValueRatio`, Objekt-Schlüsselwerte | Wert mit dem jüngsten «Gültig ab» ≤ Stichtag. Summe ≠ Gesamtquote → Meldung. |
+| Stimmrecht und Quoren | ResiVote | – | – | Das Reglement in ResiVote gilt. |
+| Versammlung (Termin, Art, Ort, Status) | ResiVote | ResiVote → Abacus | `CondoOwnersAssemblies` | ResiVote überschreibt. Fehlt die Versammlung in Abacus, legt ResiVote sie neu an. |
+| Traktanden, Vollmachten, Stimmen, Anwesenheit | ResiVote | nur ResiVote | – | Kein Abgleich. Die Abacus-Teilnehmerliste bleibt leer. |
+| Einladung, Protokoll | ResiVote | ResiVote → Abacus | `CondoOwnersAssemblyDocuments`, Ablage und Ordner gemäss Einstellung | Massgeblich ist die ResiVote-Fassung mit Hash; die Abacus-Kopie trägt den Hash im Dateinamen. |
+| Jahresrechnung, Budget (Dokument) | Abacus | Abacus → ResiVote | Dossier-Dokumente aus der eingestellten Ablage | Neue Datei → Vorschlag als Versammlungsunterlage. |
+| Beiträge (Budgeterwartung, Erneuerungsfonds) | Abacus | ResiVote → Abacus, nach Freigabe | `RentComponents` | **Geplant.** Vier-Augen-Freigabe in ResiVote; bis dahin in Abacus erfassen. |
+| Portal-Zugang, Benachrichtigungen, Tickets | ResiVote | nur ResiVote | – | Kein Abgleich. |
+| Buchhaltung, Debitoren | Abacus | Abacus → Portal, nur lesend | `CustomerInvoices`, `CustomerPayments` | Nur Anzeige im Portal, beim Aufruf live gelesen. |
+
+---
+
+## 5. Prozess über einen Versammlungszyklus
+
+Jede Zeile ist eine Rolle in einem Programm, jede Spalte eine Phase. Die Integration erledigt alle Übergaben.
+
+| Phase | Verwaltung · Abacus | Integration (automatisch) | Verwaltung · ResiVote | Eigentümer · Portal |
+|---|---|---|---|---|
+| **P0 Einrichtung** (einmalig) | API-Verbindung (Q910), Mandant freischalten (Q926), Rechte vergeben, optional AbaConnect-Benutzer | Erkennt STWEG, Vertragsart und Wertquoten-Schlüssel. Probelauf mit Vorschau, schreibt nichts. | Verbindung erfassen, Vertragsart bestätigen, Ablagen wählen, Probelauf prüfen, aktivieren | – |
+| **P1 Stammdaten** (laufend) | Handänderung, Adressänderung, neue Einheit, neue Wertquote wie gewohnt | Abgleich alle 15 Minuten, Abacus gewinnt. Kontaktänderungen aus dem Portal nach Abacus. Eigene Schreibvorgänge kommen als Ereignis zurück und werden übersprungen. | Bearbeitet nur Meldungen im Abgleich-Postfach | Neue Eigentümer erhalten die Portal-Einladung; Kontaktdaten ändert man selbst |
+| **P2 Jahresabschluss** (Jan–Mär) | Jahresrechnung und Budget erstellen, PDF im Dossier ablegen | Holt neue PDFs aus dem Dossier und schlägt die Zuordnung vor | Bestätigt den Vorschlag mit einem Klick | – |
+| **P3 Vorbereitung** (ab 6 Wochen vorher) | Sieht die Versammlung in Y11. Keine Aktion nötig. | Legt die Versammlung in Abacus an, überträgt Änderungen und die Einladung ins Dossier | Versammlung anlegen, Einladung versenden | Einladung, Unterlagen inkl. Jahresrechnung und Budget, Vollmacht |
+| **P4 Durchführung** (Versammlungstag) | – | Kein Zugriff auf Abacus | Leitet die Versammlung, Quoren live | Check-in, abstimmen, per Vollmacht oder schriftlich |
+| **P5 Nachbereitung** (bis 2 Wochen danach) | Bucht wie gewohnt; Protokoll ist schon da | Protokoll-PDF ins Dossier, Status «abgeschlossen» | Protokoll freigeben | Protokoll und Beschlüsse im Portal |
+| **P6 Portal** (ganzjährig) | Rechnungen und Mahnungen wie bisher | Liest Sollstellungen und Zahlungen beim Aufruf, nur lesend | Beantwortet Tickets und Nachrichten | Dokumente, Nachrichten, Tickets, Forum, Kontoauszug aus Abacus |
+
+### Zustände einer Versammlung und ihre Wirkung in Abacus
+
+```d2
+direction: right
+
+draft: Entwurf\nDRAFT
+published: Eingeladen\nPUBLISHED
+checkin: Check-in\nCHECK_IN
+progress: Läuft\nIN_PROGRESS
+closed: Geschlossen\nCLOSED
+archived: Archiviert\nARCHIVED
+
+draft -> published -> checkin -> progress -> closed -> archived
+
+anlegen: Abacus: Versammlung anlegen,\nÄnderungen übertragen {style.fill: "#f8eadf"}
+einladung: Abacus: Einladung\nins Dossier {style.fill: "#f8eadf"}
+offline: Kein Abacus-Zugriff {style.stroke-dash: 4}
+protokoll: Abacus: Protokoll ins Dossier,\nStatus abgeschlossen {style.fill: "#f8eadf"}
+
+draft -> anlegen
+published -> einladung
+checkin -> offline
+progress -> offline
+archived -> protokoll
+```
+
+### Ablauf einer Änderung aus Abacus
+
+So lief der Test mit einer Jahresrechnung, die im Abacus-Dossier abgelegt wurde. Schritt 4 ist der Filter gegen das Echo: Hat ResiVote den Datensatz selbst geschrieben, wird das Ereignis nur bestätigt. Gleich funktioniert es für geänderte Kontaktdaten und Dokumente zur Versammlung.
+
+```d2
+shape: sequence_diagram
+verwaltung: Verwaltung (Abacus)
+api: Abacus-API
+adapter: ResiVote-Adapter
+resivote: ResiVote
+
+verwaltung -> api: 1. legt Jahresrechnung ins Dossier
+adapter -> api: 2. Änderungen abholen (alle 15 Min.)
+api -> adapter: 3. Ereignis mit Dokument-ID
+adapter -> adapter: 4. ID im Schreib-Log? (ja: Echo, nur 8)
+adapter -> api: 5. Dokument laden
+api -> adapter: 6. PDF
+adapter -> resivote: 7. Vorschlag für die Versammlung
+adapter -> api: 8. Ereignis bestätigen
+```
+
+---
+
+## 6. Programmwechsel: heute und mit Anbindung
+
+| Aufgabe | Heute ohne Anbindung | Wechsel | Mit Anbindung | Wechsel |
+|---|---|---|---|---|
+| Eigentümerliste für Einladung | Export aus Abacus, Import in ResiVote | 2 | Automatisch | 0 |
+| Wertquoten prüfen | Listen in beiden Programmen vergleichen | 2 | Nur bei Abweichung eine Meldung in ResiVote | 0 |
+| Jahresrechnung und Budget beilegen | In Abacus exportieren, in ResiVote hochladen | 2 | Aus dem Abacus-Dossier vorgeschlagen, ein Klick | 0 |
+| Versammlung in Abacus eintragen | Termin in Y11 nachtragen | 1 | Automatisch | 0 |
+| Protokoll archivieren | Aus ResiVote laden, in Abacus ablegen | 2 | Automatisch ins Dossier | 0 |
+| Budget-Beschluss umsetzen | Beiträge pro Einheit in Abacus erfassen | 1 | Heute weiter in Abacus; geplant: Freigabe der Umsetzungsliste in ResiVote | 1 (geplant 0) |
+| Adressänderung eines Eigentümers | Mail lesen, in Abacus und ResiVote erfassen | 2 | Eigentümer ändert im Portal, landet in Abacus | 0 |
+| Handänderung | In Abacus erfassen, in ResiVote anlegen, ins Portal einladen | 1 | Nur in Abacus, Rest automatisch | 0 |
+| **Summe pro Versammlungszyklus** | | **13** | | **0–1** |
+
+Einmalige Wechsel bei der Einrichtung sind nicht mitgezählt. Die Zahlen sind Schätzungen pro Liegenschaft und Zyklus.
+
+---
+
+## 7. Regeln für Sonderfälle
+
+| Fall | Regel |
+|---|---|
+| **Handänderung vor der Versammlung** | Die Wertquote gilt per Stichtag. Der neue Eigentümer erscheint nach dem nächsten Abgleich; der Verkäufer kann per Vollmacht vertreten werden. |
+| **Miteigentum an einer Einheit** | Mehrere Vertragspartner werden zu mehreren Eigentümern derselben Einheit. Stimmabgabe nach Reglement, z. B. eine gemeinsame Stimme. |
+| **Mehrere Einheiten pro Person** | ResiVote fasst die Einheiten unter einer Person zusammen, Kopfstimme gemäss Reglement. |
+| **Parkplätze und Nebenobjekte** | Haben sie eigene Wertquoten, sind sie eigene Einheiten. |
+| **Abacus nicht erreichbar** | ResiVote arbeitet mit dem letzten Stand weiter; Übertragungen werden beim nächsten Lauf wiederholt, Fehler erscheinen im Abgleich-Postfach. |
+| **Kunde ohne AbaConnect** | Wertquoten weiter in ResiVote pflegen (manuell oder per Import). Alles andere läuft gleich. |
+| **Echo eigener Änderungen** | Ereignisse enthalten nur die ID, nicht den Urheber. ResiVote merkt sich jede eigene Schreibung und überspringt das passende Ereignis. So entsteht keine Schleife. |
+| **Ablage gelöscht oder geändert** | Abacus lehnt den Upload ab. Die Verwaltung erhält eine Meldung; nach der Korrektur der Einstellung wird nachgeliefert. |
+| **Geschäftsjahr fehlt in Abacus** | Die Versammlung bleibt in ResiVote voll nutzbar. Die Abacus-Kopie entsteht, sobald das Geschäftsjahr da ist. |
+| **Liegenschaft nicht mehr sichtbar** | ResiVote beendet nichts und meldet es; taucht sie wieder auf, schliesst sich die Meldung. |
+| **Massen-Beendigung** | Würde ein Lauf mehr als die Hälfte der verknüpften Eigentumsverhältnisse (und mehr als 3) beenden, hält er an. Nur nach Prüfung manuell anwendbar. |
+
+---
+
+## 8. Einführung in drei Stufen
+
+<CardGrid>
+  <Card title="Stufe 1 · Lesen (umgesetzt)">
+    Verbindung, Erkennung, Probelauf. Stammdaten und Eigentum, Wertquoten per AbaConnect. Abgleich-Postfach. Rechte: nur lesen. Wert: Doppelerfassung fällt weg.
+  </Card>
+  <Card title="Stufe 2 · Zurückschreiben (umgesetzt)">
+    Versammlung in Abacus anlegen, ändern und abschliessen. Einladung und Protokoll ins Dossier. Jahresrechnung und Budget aus dem Dossier holen. Kontaktänderungen aus dem Portal nach Abacus. Rechte: lesen und schreiben.
+  </Card>
+  <Card title="Stufe 3 · Finanzen (teilweise)">
+    Kontoauszug im Portal, nur lesend (umgesetzt). Umsetzungsliste für Beiträge mit Vier-Augen-Freigabe und AbaReport-PDF für Jahresrechnung und Budget (geplant, erst nach einem Pilot mit echter Buchhaltung).
+  </Card>
+</CardGrid>
+
+---
+
+## 9. Nachweise vom Testserver
+
+Getestet auf dem öffentlichen Abacus-Testserver (Version 2026, Demo-Mandant) mit fiktiven Daten, im November 2026. Zusätzlich wurde ein ganzes Verwaltungsjahr als Verwaltung und als Eigentümerin durchgespielt.
+
+| Baustein | Ergebnis |
+|---|---|
+| STWEG erkennen | Liegenschaft mit `LevelOwner = true`, Vertragsart STWEG, Wertquoten-Schlüssel mit `ValueRatio = true` erkannt |
+| Wertquoten lesen | Per AbaConnect: 300 / 400 / 280 / 20 = 1000 ‰ |
+| Eigentümer mit Kontakt | In einer Abfrage über Verträge, Partner, Person und Kommunikation |
+| Handänderung | Nur in Abacus erfasst; ResiVote beendet das alte und legt das neue Eigentum an |
+| Versammlung anlegen, ändern, abschliessen | Ausserordentliche Versammlung angelegt, Ortsänderung übertragen, Status «abgeschlossen». Ordentliche Versammlung braucht ein Geschäftsjahr. |
+| Einladung und Protokoll ins Dossier | Upload ins Versammlungs-Dossier, Download identisch, eigener Upload als Echo erkannt |
+| Jahresrechnung und Budget | PDFs im Dossier abgelegt, als 2 Vorschläge erkannt und an die Versammlung gehängt |
+| Änderungen abonnieren | Neue E-Mail und hochgeladene PDFs kamen als Ereignisse an, PDFs über die ID geladen, bestätigt |
+| Kontaktänderung aus dem Portal | E-Mail und Telefon im Portal geändert, in Abacus gespeichert |
+| Kontoauszug | Sollstellungen mit Status offen/bezahlt und Zahlungsdatum im Portal |
+| Ablagen | Auswahllisten aus Abacus lesbar; Liegenschafts- und Versammlungs-Dossier akzeptieren je die passende Ablage |
+| Robustheit | Zurückgesetzter Testserver: keine Massen-Beendigung, Meldung statt Datenverlust, Wiederherstellung beim nächsten Abgleich |
+
+---
+
+<CardGrid>
+  <LinkCard title="Abacus-Anbindung einrichten & nutzen" href="/verwaltung/abacus/" description="Voraussetzungen, Einrichtung in fünf Schritten, Badges und Sonderfälle." />
+  <LinkCard title="Protokollführung" href="/verwaltung/protokoll/" description="Revisionssichere Protokolle mit Hash-Kette." />
+</CardGrid>
