@@ -74,6 +74,8 @@ export default defineConfig({
 						{ label: 'Tickets & Pendenzen', slug: 'verwaltung/tickets-pendenzen' },
 						{ label: 'Forum-Moderation', slug: 'verwaltung/forum-moderation' },
 						{ label: 'Administration & Team', slug: 'verwaltung/administration' },
+						{ label: 'Abacus-Anbindung (Pilot)', slug: 'verwaltung/abacus' },
+						{ label: 'Abacus-Konzept & Datenhoheit', slug: 'verwaltung/abacus-konzept' },
 					],
 				},
 			],
