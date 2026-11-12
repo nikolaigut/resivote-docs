@@ -75,6 +75,7 @@ export default defineConfig({
 						{ label: 'Forum-Moderation', slug: 'verwaltung/forum-moderation' },
 						{ label: 'Administration & Team', slug: 'verwaltung/administration' },
 						{ label: 'Abacus-Anbindung (Pilot)', slug: 'verwaltung/abacus' },
+						{ label: 'Abacus Schritt für Schritt', slug: 'verwaltung/abacus-anleitung' },
 						{ label: 'Abacus-Konzept & Datenhoheit', slug: 'verwaltung/abacus-konzept' },
 					],
 				},
