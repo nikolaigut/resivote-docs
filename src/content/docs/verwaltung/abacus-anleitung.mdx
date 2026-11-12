@@ -1,0 +1,368 @@
+---
+title: Abacus-Anbindung Schritt für Schritt
+description: Bebilderte Anleitung für die Schnittstelle ResiVote ↔ Abacus – Einrichtung in Abacus (Service-User, AbaConnect, Y11) und in ResiVote (Assistent in fünf Schritten, erster Abgleich), mit markierten Screenshots bei jedem Schritt.
+---
+
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Diese Anleitung führt durch die ganze Einrichtung: zuerst in Abacus, dann in ResiVote. Jeder Schritt hat einen Screenshot. **Die roten Nummern im Bild entsprechen der nummerierten Liste darunter** – dort steht, was Sie anklicken, eingeben oder prüfen.
+
+Was die Anbindung fachlich leistet, wer welche Daten führt und wie sie im Alltag läuft, steht unter [Abacus-Anbindung einrichten & nutzen](/verwaltung/abacus/).
+
+<Aside type="note" title="Zu den Bildern">
+Alle Bilder sind echte Bildschirmkopien. Teil A zeigt den öffentlichen **Abacus-Testserver** (Version 2026, Demo-Mandant 7777) mit der Test-STWEG 100900 «Musterstrasse 1, 8000 Zürich»; Liegenschaft, Objekte, Wertquoten und Verträge wurden dafür mit Fantasiedaten angelegt. Teil B zeigt ResiVote, live mit genau diesem Testserver verbunden. Name des Abacus-Testbenutzers und Client-Secret sind unkenntlich gemacht.
+
+Die Systemprogramme Q910 und Q981 sind auf dem Testserver nicht zugänglich. Was dort in Ihrer eigenen Installation zu tun ist, steht jeweils im Hinweis **«In Ihrer eigenen Abacus-Installation»**.
+</Aside>
+
+**Bevor Sie beginnen**
+
+- Abacus ab Version 2024 mit AbaImmo, für die Wertquoten mit der Option **AbaConnect**.
+- Der Mandant ist für die **Abacus API** freigeschaltet (Q910 bzw. Q926; auf dem Testserver bereits der Fall).
+- Abacus ist über eine öffentliche **https-Adresse** erreichbar. Interne Adressen lehnt ResiVote ab, ausser der Betreiber hat sie für eine On-Premises-Installation freigegeben.
+- In ResiVote ein Konto als **Mandanten-Admin** (`tenant_admin`). Mitarbeiter-Konten sehen die Abacus-Seite nicht.
+
+---
+
+## Teil A – Einrichtung in Abacus
+
+**Zuständig:** Abacus-Administrator (A1–A3, A8–A10) und Bewirtschaftung (A4–A7).
+**Ergebnis:** ein Service-User für die API, ein AbaConnect-Benutzer für die Wertquoten und Stammdaten, die ResiVote eindeutig lesen kann.
+
+### A1 · AbaConnect-Benutzer anlegen
+
+Die Wertquoten liefert nur die AbaConnect-Schnittstelle, und sie braucht einen Abacus-Benutzer mit Passwort. Auf dem Testserver legen Sie ihn auf der Seite `/createuser` an; die Zugangsdaten kommen per E-Mail.
+
+![Abacus Test Server Information: Formular für einen Testbenutzer mit acht markierten Feldern](/screenshots/abacus-anleitung/ac1-createuser.webp)
+*Abacus-Testserver, Seite «Test Server Information» (Beispielwerte, nicht abgeschickt).*
+
+1. **Eingeben:** Vor- und Nachname.
+2. **Eingeben:** gewünschter Benutzername ohne Leer- und Sonderzeichen. Abacus setzt Vor- und Nachname davor (z. B. `Max_Musterresivote_wq`); der endgültige Name steht in der Bestätigungsmail.
+3. **Eingeben:** E-Mail-Adresse für die Zugangsdaten.
+4. **Eingeben:** Telefon oder Mobile (eines von beiden ist Pflicht).
+5. **Eingeben:** Firma.
+6. **Ankreuzen:** mindestens **immo** (Immobilien), dazu **adre** (Adressen) und **debi** (Debitoren).
+7. **Eingeben:** Passwort, mindestens 10 Zeichen mit Gross- und Kleinbuchstaben und einer Ziffer.
+8. **Klicken:** **Create User**. Benutzername, Passwort und Mandant 7777 kommen per E-Mail.
+
+<Aside type="tip" title="In Ihrer eigenen Abacus-Installation">
+Legen Sie diesen Benutzer in der Benutzerverwaltung (Q981) an: eigenes Passwort ohne Ablaufzwang, Zugriff auf den Mandanten, Recht auf die AbaConnect-Webservices der Immobilien. Die Option AbaConnect muss lizenziert sein.
+</Aside>
+
+### A2 · Client-ID und Client-Secret des Service-Users holen
+
+Für die REST-API meldet sich ResiVote mit einem Service-User an (OAuth Client Credentials). Auf dem Testserver ist er schon eingerichtet; seine Zugangsdaten erscheinen auf derselben Seite nach einem Doppelklick auf das Logo.
+
+![Kopf der Seite Test Server Information mit markiertem Abacus-Logo](/screenshots/abacus-anleitung/ac2b-logo.webp)
+*Doppelklick auf das Logo.*
+
+1. **Doppelklicken:** das Abacus-Logo oben links.
+
+![Service User details mit ClientId und unkenntlich gemachtem ClientSecret](/screenshots/abacus-anleitung/ac2-service-user.webp)
+*Unten auf der Seite: «Service User details» (Secret für diese Anleitung unkenntlich gemacht).*
+
+2. **Kopieren:** **ClientId** und **ClientSecret** über die Kopier-Symbole in den Passwort-Manager.
+
+<Aside type="tip" title="In Ihrer eigenen Abacus-Installation">
+Der Service-User entsteht im Programm **Q910** als «Abacus API-Verbindung», Anmeldeart **benutzerunabhängig**. Dort wählen Sie den Mandanten und die Scopes: Immobilien lesen und schreiben (`abacus.entity.realestate.readwrite`), Adressen lesen und schreiben, Debitoren lesen, optional Pendenzen (`abacus.entity.issue.readwrite`). Das Secret zeigt Abacus nur einmal an; die Verbindung muss innert 21 Tagen genehmigt und in der Übersicht aktiviert werden.
+</Aside>
+
+### A3 · In der Abacus-Browser-Version anmelden
+
+Für die Prüfung der Stammdaten melden Sie sich mit dem Benutzer aus A1 an (Testserver: `/portal/abacus/menu`).
+
+![Abacus ERP Login mit den Feldern User Name und Password und der Schaltfläche Login](/screenshots/abacus-anleitung/ac3-login.webp)
+*Anmeldung in der Browser-Version.*
+
+1. **Eingeben:** Benutzername aus der Bestätigungsmail.
+2. **Eingeben:** Passwort.
+3. **Klicken:** **Login**. Das Menü öffnet sich im Mandanten 7777.
+
+### A4 · Liegenschaft in Y11 öffnen
+
+Die Schritte A5 bis A9 spielen im Programm **Y11 Immobilienstamm**.
+
+![Abacus-Menü: Suchfeld mit Y11 und Treffer Y11 Immobilienstamm markiert](/screenshots/abacus-anleitung/ac4-search.webp)
+*Programmsuche im Abacus-Menü (Name des Benutzers unkenntlich gemacht).*
+
+1. **Eingeben:** im Suchfeld oben `Y11`.
+2. **Klicken:** **Y11 Immobilienstamm**.
+
+![Immobilien Suche: Schaltfläche Alle und Zeile 100900 Musterstrasse 1, Typ STWEG markiert](/screenshots/abacus-anleitung/ac5-pick.webp)
+*Immobilien Suche in Y11.*
+
+1. **Klicken:** **Alle**, damit auch neu angelegte Liegenschaften erscheinen.
+2. **Doppelklicken:** die Liegenschaft der Gemeinschaft, hier **100900**. In der Spalte «Typ» steht bereits STWEG.
+
+### A5 · Liegenschaft als STWEG führen
+
+ResiVote übernimmt nur Liegenschaften vom Typ **STWEG**. Strasse und PLZ dienen beim ersten Abgleich dazu, eine Gemeinschaft zu erkennen, die es in ResiVote schon gibt; sie wird dann verknüpft statt doppelt angelegt.
+
+![Y11, Reiter Stammdaten: Kennzeichen STWEG, Strasse und Ort, Feld Typ mit Wert STWEG markiert](/screenshots/abacus-anleitung/ac6-typ.webp)
+*Y11, Reiter «Stammdaten», Abschnitt «Immobilieneinstellungen».*
+
+1. **Prüfen:** Kennzeichen **STWEG** neben der Bezeichnung.
+2. **Prüfen:** Strasse und Ort. Sie müssen mit der Adresse der Gemeinschaft in ResiVote übereinstimmen, falls es sie dort schon gibt.
+3. **Wählen:** unter «Immobilieneinstellungen» beim Feld **Typ** den Eintrag **STWEG**, dann oben mit dem Disketten-Symbol speichern. Darunter stehen auch «Kopfstimme» (hier «Anzahl Objektstimmen») und «Vorlage der Versammlung».
+
+### A6 · Wertquote als Verteilschlüssel hinterlegen
+
+Die Wertquote führt Abacus als Verteilschlüssel. Der Schlüssel muss der Liegenschaft zugeordnet und als **Wertquote** gekennzeichnet sein; je Objekt gilt ein Wert ab einem Datum. ResiVote nimmt für die Versammlung den jüngsten Wert, der am Stichtag gilt.
+
+![Y11, Reiter Schlüsselwerte: Zeile 1 WQ Wertquote mit Kennzeichen Wertquote und Wert 1'000, Schaltfläche Hinzufügen](/screenshots/abacus-anleitung/ac7-keys.webp)
+*Y11, Liegenschaft, Reiter «Schlüsselwerte».*
+
+1. **Klicken:** Reiter **Schlüsselwerte** der Liegenschaft.
+2. **Prüfen:** Zeile **WQ Wertquote** mit Häkchen in der Spalte **Wertquote**; «Aktueller Wert» ist die Summe aller Objekte (hier 1’000).
+3. **Fehlt der Schlüssel:** **Hinzufügen** klicken, «1. Wertquote» wählen und speichern.
+
+![Y11, Objekt 1, Reiter Schlüsselübersicht: Wertquote 350 per 01.01.2026 mit Datumsauswahl und Schaltflächen](/screenshots/abacus-anleitung/ac8-object-key.webp)
+*Y11, Objekt 1 (4,5-ZWG), Reiter «Schlüsselübersicht».*
+
+1. **Klicken:** im Objekt den Reiter **Schlüsselübersicht**. Objekte öffnen Sie im Reiter «Übersicht» über die Objektnummer oder rechts in der Navigation.
+2. **Prüfen:** Wert der Wertquote dieses Objekts (hier 350 per 01.01.2026).
+3. **Ändern:** mit **+** einen neuen Wert ab einem Datum anlegen, mit dem Stift korrigieren. So bleibt die Geschichte erhalten, und ResiVote liest den Wert, der am Stichtag gilt.
+
+### A7 · Eigentumsverträge prüfen
+
+Jede Einheit hat einen aktiven Objektvertrag der Vertragsart **STWEG**. Die Vertragspartner sind die Eigentümer; bei Miteigentum stehen alle im selben Vertrag. Sie öffnen einen Vertrag im Reiter «Übersicht» über die Nummer in der Spalte «Vertrag».
+
+![Y11, Objektvertrag 34: Vertragsart STWEG, Status Aktiv, zwei Vertragspartner](/screenshots/abacus-anleitung/ac9-contract.webp)
+*Y11, Objektvertrag 34 mit zwei Miteigentümern (Fantasiedaten).*
+
+1. **Prüfen:** **Vertragsart STWEG**. Die Nummer dahinter ist je Mandant verschieden (im Demo-Mandanten `5`); ResiVote schlägt sie in B5 vor.
+2. **Prüfen:** Status **Aktiv**. Nur aktive Verträge gelten in ResiVote als Eigentum.
+3. **Prüfen:** unter **Vertragspartner** alle Eigentümer, mit E-Mail-Adresse (für die Portal-Einladung).
+
+Grundbuch-Nr. und Wohnungsnummer am Objekt helfen ResiVote, bestehende Einheiten zu verknüpfen statt neu anzulegen.
+
+### A8 · Buchhaltung zuweisen
+
+ResiVote legt Versammlungen in Abacus an. Das geht nur, wenn die Liegenschaft einer Buchhaltung (Kostenstelle) zugewiesen ist.
+
+![Y11, Reiter Buchhaltung: Buchhaltung zugewiesen, Kostenstelle 100900](/screenshots/abacus-anleitung/ac10-accounting.webp)
+*Y11, Reiter «Buchhaltung».*
+
+1. **Klicken:** Reiter **Buchhaltung**.
+2. **Prüfen:** «Buchhaltung zugewiesen» mit Kostenstelle. Steht dort «Diese Immobilie ist keiner Kostenstelle zugewiesen», auf **Buchhaltung zuweisen** klicken und speichern.
+
+Für eine **ordentliche** Versammlung verlangt Abacus zusätzlich ein Geschäftsjahr; eine ausserordentliche geht ohne.
+
+### A9 · Dossier-Ablagen prüfen
+
+ResiVote holt Jahresrechnung und Budget aus dem Dossier der Liegenschaft und legt Einladung und Protokoll im Dossier der Versammlung ab. Die Zuordnung je Dokumentart treffen Sie in B6; hier prüfen Sie nur, dass die Ablagen da sind.
+
+![Y11, Bereich Dossier der Liegenschaft 100900 mit Ablage Immobilien](/screenshots/abacus-anleitung/ac11-dossier.webp)
+*Y11, Dossier der Liegenschaft.*
+
+1. **Klicken:** links **Dossier**.
+2. **Prüfen:** die Ablage der Liegenschaft (hier «Immobilien»). Ordner wie «Jahresrechnung» oder «Protokolle» sind optional.
+
+<Aside type="caution">
+Wird eine Ablage später gelöscht oder umbenannt, lehnt Abacus den Upload ab. Das Protokoll bleibt dann in ResiVote in der Warteschlange, bis die Ablage in B6 neu gewählt ist.
+</Aside>
+
+### A10 · Zugangsdaten an ResiVote übergeben
+
+Diese sechs Angaben braucht der Mandanten-Admin für Teil B. Übergeben Sie Secret und Passwort über einen Passwort-Manager oder einen getrennten Kanal, nicht im Klartext per E-Mail.
+
+| Angabe | Testserver |
+|---|---|
+| Abacus-Adresse | `https://entity-api1-6.demo.abacus.ch` |
+| Mandant | `7777` |
+| Client-ID | aus A2 |
+| Client-Secret | aus A2 (Passwort-Manager) |
+| AbaConnect-Benutzer | aus der Bestätigungsmail von A1 |
+| AbaConnect-Passwort | aus A1 (Passwort-Manager) |
+
+---
+
+## Teil B – Einrichtung in ResiVote
+
+**Zuständige Rolle: `tenant_admin`**
+*Gerät: Desktop*
+
+Der Assistent führt durch **Zugang, Erkennen, Ablagen, Probelauf und Aktivieren**. Bis zum Aktivieren schreibt ResiVote nichts, weder bei sich noch in Abacus.
+
+### B1 · Abacus-Seite öffnen
+
+![ResiVote-Übersicht, in der Navigation unter Verwaltung ist der Eintrag Abacus markiert](/screenshots/abacus-anleitung/r01-nav.webp)
+*Desktop-Ansicht für `tenant_admin`: Übersicht nach der Anmeldung.*
+
+1. **Klicken:** **Verwaltung › Abacus** in der linken Navigation (`/admin/settings/abacus`). Die Seite öffnet sich mit dem Formular «Verbindung einrichten».
+
+### B2 · Zugangsdaten eintragen
+
+Tragen Sie die Werte aus A10 ein. Secret und Passwort werden je Mandant verschlüsselt gespeichert und später nie mehr angezeigt.
+
+![Formular Verbindung einrichten mit den Werten des Abacus-Testservers und sieben markierten Feldern](/screenshots/abacus-anleitung/r02-form.webp)
+*Formular «Verbindung einrichten».*
+
+1. **Eingeben:** Bezeichnung, frei wählbar, z. B. `Abacus Demo`.
+2. **Eingeben:** Abacus-Adresse, nur `https://` und Host, ohne Pfad (Testserver: `https://entity-api1-6.demo.abacus.ch`).
+3. **Eingeben:** Mandant, auf dem Testserver `7777`.
+4. **Eingeben:** Client-ID aus A2.
+5. **Eingeben:** Client-Secret aus A2.
+6. **Eingeben:** AbaConnect-Benutzer aus A1 (optional, nötig für die Wertquoten; im Bild unkenntlich gemacht).
+7. **Eingeben:** AbaConnect-Passwort.
+
+### B3 · Verbindung testen und speichern
+
+Der Test fragt Abacus nur lesend ab und speichert nichts. Erst wenn er grün ist, speichern Sie.
+
+![Grüne Meldung: Verbindung erfolgreich, eine Stockwerkeigentümergemeinschaft gefunden, AbaConnect funktioniert](/screenshots/abacus-anleitung/r03-test.webp)
+*Erfolgreicher Verbindungstest gegen den Abacus-Testserver.*
+
+1. **Klicken:** **Verbindung testen**.
+2. **Prüfen:** «Verbindung erfolgreich: 1 Stockwerkeigentümergemeinschaft(en) gefunden. AbaConnect (Wertquoten) funktioniert.» Bei einem Fehler siehe [Häufige Meldungen](#häufige-meldungen).
+3. **Klicken:** **Verbindung speichern**.
+
+### B4 · Verbindung prüfen (Erkennen)
+
+Nach dem Speichern erscheint die Statuskarte mit den fünf Schritten. Die Verbindung ist noch **inaktiv**; «Aktivieren» bleibt gesperrt, bis die Vertragsart feststeht.
+
+![Statuskarte Abacus Demo, inaktiv, Schritt 1 Zugang erledigt, Schaltfläche Verbindung prüfen markiert](/screenshots/abacus-anleitung/r04-saved.webp)
+*Statuskarte nach dem Speichern.*
+
+1. **Prüfen:** Schritt «1. Zugang» hat ein Häkchen.
+2. **Klicken:** **Verbindung prüfen**. ResiVote liest Liegenschaften, Verträge und Wertquoten, legt aber nichts an.
+
+### B5 · Erkennung prüfen und Vertragsart übernehmen
+
+![Karte Gefunden in Abacus: 100900 Musterstrasse 1, 8000 Zürich, 4 Einheiten, 4 Verträge, Summe Wertquoten 1000 Promille, Vorschlag Vertragsart 5](/screenshots/abacus-anleitung/r05-detect.webp)
+*Ergebnis der Erkennung.*
+
+1. **Prüfen:** Liegenschaft, Anzahl Einheiten und Verträge, **Summe Wertquoten** (hier 1’000 ‰) und «Ohne E-Mail» (Eigentümer, die keine Portal-Einladung erhalten können).
+2. **Klicken:** **Übernehmen** beim Vorschlag «Vertragsart STWEG».
+
+![Statuskarte: Schritt 2 Erkennen erledigt, Vertragsart STWEG 5](/screenshots/abacus-anleitung/r06-contract.webp)
+*Statuskarte nach dem Übernehmen.*
+
+1. **Prüfen:** Schritt «2. Erkennen» hat ein Häkchen.
+2. **Prüfen:** bei «Vertragsart STWEG» steht die übernommene Nummer.
+
+<Aside type="tip">
+Erscheint eine gelbe Warnung wie «kein Verteilschlüssel mit „Wertquote“ zugeordnet», fehlt A6. Weicht die Summe ab, die Objektwerte in Abacus korrigieren und erneut prüfen.
+</Aside>
+
+### B6 · Ablagen zuordnen
+
+Je Dokumentart legen Sie fest, aus welcher Abacus-Ablage ResiVote Dokumente holt bzw. wohin es sie ablegt. Gibt es je Dossier nur eine Ablage, ist sie vorausgewählt.
+
+![Karte Ablagen: Dossier Liegenschaft, Ablage Standard, kein Ordner, Dateiname Jahresrechnung markiert](/screenshots/abacus-anleitung/r07-storages.webp)
+*Karte «Ablagen».*
+
+1. **Klicken:** **Ablagen aus Abacus laden**, damit die Auswahllisten gefüllt sind.
+2. **Wählen:** Dossier für eingehende Dokumente: **Liegenschaft** oder **Versammlung**. Protokoll und Einladung gehen immer ins Versammlungsdossier.
+3. **Wählen:** Ablage (im Demo-Mandanten heisst sie «Standard»).
+4. **Wählen:** Ordner, falls die Ablage welche hat (optional; im Demo-Mandanten keine, darum «kein Ordner»).
+5. **Eingeben:** «Dateiname enthält», z. B. `Jahresrechnung`. Nur passende Dateien werden vorgeschlagen (optional).
+6. **Wählen:** die Ablage für das Protokoll im Versammlungsdossier. ResiVote legt es als `Protokoll_<Datum>_<Hash>.pdf` ab. Die übrigen Zeilen genauso ausfüllen.
+
+### B7 · Ablagen speichern und prüfen
+
+![Ablagen gespeichert, Prüfung meldet für alle fünf Dokumentarten Ablage gefunden](/screenshots/abacus-anleitung/r08-storages-saved.webp)
+*Gespeicherte und geprüfte Ablagen.*
+
+1. **Klicken:** **Ablagen speichern**. Oben auf der Seite erscheint «Ablagen sind gespeichert.».
+2. **Klicken:** **Ablage prüfen**. Die Prüfung liest nur.
+3. **Prüfen:** jede Dokumentart meldet «Ablage gefunden». Rot heisst: Ablage existiert in Abacus nicht (A9).
+
+### B8 · Probelauf
+
+Der Probelauf zeigt, was der Abgleich anlegen, verknüpfen, ändern oder beenden würde. Er schreibt nichts.
+
+![Statuskarte: Schaltfläche Probelauf, Schritt 4 Probelauf erledigt und Schaltfläche Aktivieren markiert](/screenshots/abacus-anleitung/r10-before-enable.webp)
+*Statuskarte nach dem Probelauf.*
+
+1. **Klicken:** **Probelauf**.
+2. **Prüfen:** Schritt «4. Probelauf» hat ein Häkchen.
+3. **Weiter** mit **Aktivieren** (B9), wenn das Ergebnis stimmt.
+
+![Verlauf: Probelauf erfolgreich, Gemeinschaften neu 1, Eigentümer neu 4, Eigentum neu 5, Einheiten neu 4](/screenshots/abacus-anleitung/r09-dryrun.webp)
+*Ergebnis im Verlauf (weiter unten auf der Seite).*
+
+1. **Prüfen:** die Zusammenfassung, z. B. «Gemeinschaften neu: 1 · Eigentümer neu: 4 · Eigentum neu: 5 · Einheiten neu: 4». Über «Geänderte Datensätze anzeigen» sehen Sie jeden Datensatz einzeln.
+
+<Aside type="tip" title="ResiVote schon in Gebrauch?">
+Dann soll der Probelauf «verknüpft» statt «neu» zeigen. Steht dort «neu», passen Strasse und PLZ (Gemeinschaft), Grundbuch- oder Einheitsnummer (Einheit) oder E-Mail (Eigentümer) nicht zusammen. Bei Mehrdeutigkeit legt ResiVote neu an statt zu raten.
+</Aside>
+
+### B9 · Aktivieren
+
+Mit dem Aktivieren startet der automatische Abgleich alle 15 Minuten, dazu ein Nachtlauf als Sicherheitsnetz.
+
+![Statuskarte: Status Aktiv, alle fünf Schritte erledigt, Schaltfläche Jetzt abgleichen markiert](/screenshots/abacus-anleitung/r11-enabled.webp)
+*Aktive Verbindung.*
+
+1. **Prüfen:** Status **Aktiv**; die Schaltfläche oben rechts heisst jetzt «Deaktivieren».
+2. **Prüfen:** alle fünf Schritte haben ein Häkchen.
+3. **Weiter** mit **Jetzt abgleichen** (B10), um nicht auf den ersten automatischen Lauf zu warten.
+
+### B10 · Ersten Abgleich starten
+
+Klicken Sie in der Statuskarte auf **Jetzt abgleichen** (Nummer 3 im Bild von B9). Das Ergebnis erscheint im Verlauf.
+
+![Verlauf: Abgleich erfolgreich mit aufgeklappter Liste: Gemeinschaft, vier Einheiten, vier Eigentümer und fünf Eigentumsverhältnisse aus den Abacus-Verträgen 33 bis 36](/screenshots/abacus-anleitung/r14-sync.webp)
+*Verlauf mit aufgeklapptem ersten Abgleich.*
+
+1. **Prüfen:** Eintrag «Abgleich» mit Status «Erfolgreich». «Geänderte Datensätze anzeigen» listet jede Gemeinschaft, Einheit, jeden Eigentümer und jedes Eigentum mit Abacus-Vertragsnummer und Gültigkeit.
+
+<Aside type="caution">
+Würde ein Abgleich viele Eigentumsverhältnisse auf einmal beenden (z. B. falscher Mandant oder fehlende Rechte), hält ResiVote an und verlangt eine ausdrückliche Bestätigung. Prüfen Sie dann zuerst den Probelauf.
+</Aside>
+
+### B11 · Ergebnis in den Stammdaten kontrollieren
+
+Öffnen Sie **Stammdaten › Gemeinschaften**. Datensätze aus Abacus tragen den Hinweis «Aus Abacus» mit Zeitpunkt.
+
+![Gemeinschaftsliste: neue Zeile STWEG Musterstrasse 1, 8000 Zürich mit Hinweis Aus Abacus](/screenshots/abacus-anleitung/r15-communities.webp)
+*Gemeinschaften nach dem ersten Abgleich.*
+
+1. **Prüfen:** die neue Zeile «STWEG Musterstrasse 1, 8000 Zürich» mit 4 Einheiten und Wertquote 1’000. Den Namen können Sie in ResiVote frei anpassen.
+2. **Prüfen:** Hinweis «Aus Abacus» an der Gemeinschaft.
+
+![Gemeinschaft, Reiter Einheiten und Eigentümer: Hinweis Aus Abacus, Hinweis zur Datenhoheit, Spalte Wertquote mit 350, 300, 250 und 100](/screenshots/abacus-anleitung/r16-community.webp)
+*Gemeinschaft, Reiter «Einheiten & Eigentümer».*
+
+1. **Prüfen:** Hinweis «Aus Abacus» im Kopf der Gemeinschaft (auch an Einheiten und Eigentümern).
+2. **Lesen:** Einheiten, Wertquoten und Eigentümer führt Abacus. Änderungen in dieser Tabelle überschreibt der nächste Abgleich; Handänderungen erfassen Sie in Abacus.
+3. **Prüfen:** Wertquoten je Einheit aus AbaConnect (350 / 300 / 250 / 100).
+
+### B12 · Portal-Einladungen und Pendenzen (optional)
+
+Beide Karten stehen auf der Abacus-Seite unter der Statuskarte.
+
+![Karte Portal-Zugang für Eigentümer aus Abacus mit Kontrollkästchen](/screenshots/abacus-anleitung/r12-portal.webp)
+*Portal-Zugang für Eigentümer aus Abacus.*
+
+1. **Ankreuzen:** **Neue Eigentümer aus Abacus automatisch ins Portal einladen**. Bereits übernommene Eigentümer ohne Zugang laden Sie mit «… jetzt einladen» ein.
+
+![Karte Anfragen als Abacus-Pendenz mit Kontrollkästchen](/screenshots/abacus-anleitung/r13-tickets.webp)
+*Anfragen als Abacus-Pendenz.*
+
+1. **Ankreuzen:** **Anfragen aus dem Portal als Pendenz nach Abacus übertragen**, danach Vorlage wählen. Voraussetzung ist das Recht für Pendenzen beim Service-User (A2). Details: [Portal-Anfragen als Abacus-Pendenz](/verwaltung/abacus/#5a-portal-anfragen-als-abacus-pendenz).
+
+---
+
+## Häufige Meldungen
+
+| Meldung oder Beobachtung | Ursache und Lösung |
+|---|---|
+| «base_url muss eine https-Adresse ohne Pfad sein» | Nur `https://host` eintragen, ohne `/portal` o. ä. |
+| «Abacus-Adresse zeigt auf ein internes Netz und ist nicht erlaubt» | Abacus über eine öffentliche https-Adresse erreichbar machen. Läuft ResiVote im selben internen Netz (On-Premises), kann nur der Betreiber interne Adressen freigeben. |
+| Verbindung fehlgeschlagen, Abacus meldet 401 oder «invalid client» | Client-ID oder Secret falsch (A2); in einer eigenen Installation auch: Anbindung in Q910 nicht genehmigt (21 Tage) oder nicht aktiviert. |
+| Verbindung erfolgreich, aber 0 Gemeinschaften gefunden | Liegenschaft nicht vom Typ STWEG (A5), falscher Mandant oder fehlender Immobilien-Scope (A2). |
+| «AbaConnect (Wertquoten) fehlgeschlagen» | Benutzer oder Passwort falsch, Passwort abgelaufen, Benutzer ohne Zugriff auf den Mandanten oder AbaConnect nicht lizenziert (A1). |
+| «kein Verteilschlüssel mit „Wertquote“ zugeordnet» | Schlüssel «Wertquote» der Liegenschaft zuordnen und als Wertquote kennzeichnen (A6). |
+| «Aktivieren» lässt sich nicht klicken | Erst «Verbindung prüfen» und die Vertragsart übernehmen (B4, B5). |
+| «Ablage existiert in Abacus nicht» | Ablage in Abacus anlegen bzw. in der Karte «Ablagen» neu wählen und speichern (A9, B6). |
+| Abgleich wird abgewiesen, weil bereits einer läuft | Es läuft schon ein Abgleich (z. B. der automatische). Einen Moment warten und erneut starten. |
+| «Abgleich angehalten: … Eigentumsverhältnissen würden beendet» | Schutz vor Massen-Beendigung. Probelauf prüfen (Mandant, Rechte, Verträge in Abacus) und nur bei korrektem Ergebnis bestätigen. |
+
+---
+
+<CardGrid>
+  <LinkCard title="Abacus-Anbindung einrichten & nutzen" href="/verwaltung/abacus/" description="Voraussetzungen, Datenhoheit, Kennzeichnung im UI, Ablagen, Versammlungszyklus und Sonderfälle." />
+  <LinkCard title="Abacus-Konzept & Datenhoheit" href="/verwaltung/abacus-konzept/" description="Leitsätze, Systemlandschaft, Prozess über einen Versammlungszyklus und Nachweise vom Testserver." />
+</CardGrid>
