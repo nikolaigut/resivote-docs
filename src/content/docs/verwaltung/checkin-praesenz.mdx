@@ -20,12 +20,18 @@ Am Saaleingang empfängt die Verwaltung eintreffende Eigentümer mit dem Tablet 
 *Tablet-Ansicht für `tenant_admin`: Eigentümerliste mit Einheitszuweisung und digitalem Unterschriftsfeld zur rechtssicheren Bestätigung.*
 
 ### Ablauf beim Einlass
+
+Das Check-in am Tablet funktioniert in zwei Modi – je nach gewählter Check-in-Methode der Versammlung:
+
 <Steps>
-  1. **Eigentümer aufrufen:** Suche nach Name, Wohnungsnummer oder Scan des QR-Codes auf der Einladungskarte.
-  2. **Identifikation & Vertretungen prüfen:** Das System zeigt sofort an, welche eigenen Einheiten und welche vorab erteilten Vollmachten zugeordnet sind.
-  3. **Digitale Unterschrift:** Der Eigentümer signiert direkt mit dem Finger oder Stylus auf dem Tablet.
-  4. **Stimmkarte / Freischaltung:** Der Eigentümer ist eingebucht und erhält seine Saalstimmkarte oder den Aktivierungslink für sein Smartphone.
+  1. **Eigentümer aufrufen:** Suche nach Name, Wohnungsnummer oder per **Kamera-QR-Scanner** direkt über den QR-Code auf der Einladung (E-Mail oder Post-Begleitbrief). Bei fehlender Internetverbindung weist das Tablet automatisch auf die Namenssuche hin.
+  2. **Einheiten, Vollmachten & Unterschrift (2-Schritt-Ablauf):** Eigene Einheiten, vorab erteilte Vollmachten und das Unterschriftsfeld erscheinen kompakt in einem Schritt. Der Eigentümer signiert direkt mit dem Finger oder Stylus – oder die Verwaltung bucht ihn per **Schnell-Check-in** direkt aus der Liste ohne Unterschrift ein.
+  3. **Sofort stimmberechtigt im Saal:** Der Eigentümer zählt umgehend fürs Quorum und kann mit dem Stimm-Code und QR-Code aus seiner Einladung sowie der 4-stelligen Saal-PIN direkt auf dem eigenen Smartphone abstimmen – ohne zusätzliches Benutzerkonto und ohne separate Stimmkarte.
 </Steps>
+
+<Aside type="tip">
+  **Empfangs-Tablets ohne Staff-Login einrichten:** Unter den Versammlungsdetails im Reiter **«Teilnehmer»** (Karte **«Tablets»**) richten Sie pro Empfangs-Tablet eine 6-stellige Tablet-PIN ein und scannen den angezeigten Einrichtungs-QR-Code mit dem Tablet. Der Gerätename wird automatisch vorbelegt; das Tablet hat ausschliesslich Zugriff auf den Check-in dieser Versammlung.
+</Aside>
 
 ---
 
@@ -44,3 +50,4 @@ Bringen Eigentümer spontan eine schriftliche Papiervollmacht mit an den Einlass
 - Die Verwaltung erfasst die Vollmacht im Check-in-Dialog mit zwei Klicks.
 - Das System überträgt das Stimmgewicht der vertretenen Einheit automatisch auf den anwesenden Bevollmächtigten.
 - Fehlbuchungen und Doppelstimmabgaben sind systemisch ausgeschlossen.
+- Verlässt ein Eigentümer die Versammlung vorzeitig, kann er direkt am Check-in-Tablet wieder ausgecheckt werden; seine Saalabstimmung wird damit automatisch gesperrt und das Quorum angepasst.
